@@ -26,8 +26,11 @@ chrome.runtime.onInstalled.addListener(() => {
  */
 async function checkPullRequests() {
   const token = await fetchGitHubApiToken();
-  const pullRequests = await loadPullRequests(token);
-  const unreviewedPullRequests = excludeReviewedPullRequests(pullRequests);
+  const { login, pullRequests } = await loadPullRequests(token);
+  const unreviewedPullRequests = excludeReviewedPullRequests(
+    login,
+    pullRequests
+  );
   updateBadge(unreviewedPullRequests.size);
   showNotificationForNewPullRequests(unreviewedPullRequests);
 }
@@ -72,9 +75,19 @@ async function loadPullRequests(token) {
             updatedAt
             reviews(first: 50) {
               nodes {
-                viewerDidAuthor
+                author {
+                  login
+                }
                 createdAt
                 state
+              }
+            }
+            comments(first: 50) {
+              nodes {
+                author {
+                  login
+                }
+                createdAt
               }
             }
             author {
@@ -122,28 +135,43 @@ async function loadPullRequests(token) {
       }
     }
   }
-  return pullRequests;
+  return { login, pullRequests };
 }
 
 /**
  * Returns a subset of pull requests that have not yet been reviewed by the current user.
  */
-function excludeReviewedPullRequests(pullRequests) {
+function excludeReviewedPullRequests(login, pullRequests) {
   const unreviewedPullRequests = new Set();
   for (const pullRequest of pullRequests) {
     const lastUpdatedTime = new Date(pullRequest.updatedAt).getTime();
-    let lastReviewedAtTime = 0;
+    let lastReviewedOrCommentedAtTime = 0;
     let approvedByViewer = false;
     for (const review of pullRequest.reviews.nodes) {
-      if (!review.viewedDidAuthor) {
+      if (review.author.login !== login) {
         continue;
       }
       if (review.state === "APPROVED") {
         approvedByViewer = true;
       }
-      lastReviewedAtTime = new Date(review.createdAt).getTime();
+      let reviewTime = new Date(review.createdAt).getTime();
+      lastReviewedOrCommentedAtTime = Math.max(
+        reviewTime,
+        lastReviewedOrCommentedAtTime
+      );
     }
-    const isReviewed = approvedByViewer || lastReviewedAtTime > lastUpdatedTime;
+    for (const comment of pullRequest.comments.nodes) {
+      if (comment.author.login !== login) {
+        continue;
+      }
+      let commentTime = new Date(comment.createdAt).getTime();
+      lastReviewedOrCommentedAtTime = Math.max(
+        commentTime,
+        lastReviewedOrCommentedAtTime
+      );
+    }
+    const isReviewed =
+      approvedByViewer || lastReviewedOrCommentedAtTime > lastUpdatedTime;
     if (!isReviewed) {
       unreviewedPullRequests.add(pullRequest);
     }

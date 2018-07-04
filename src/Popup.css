@@ -1,4 +1,18 @@
-.Popup {
-  background: #222;
-  color: #fff;
+body {
+  min-width: 300px;
+  padding: 8px;
+  font-size: 14px;
+  color: #222;
+}
+
+.github-token-form {
+  text-align: center;
+}
+
+input {
+  margin-right: 8px;
+}
+
+a {
+  text-decoration: none;
 }

@@ -2,10 +2,14 @@
   "name": "PR Monitor",
   "version": "0.0.1",
   "description": "Get notified when you receive a pull request on GitHub.",
-  "permissions": ["storage"],
+  "permissions": [
+    "alarms",
+    "notifications",
+    "storage"
+  ],
   "background": {
     "scripts": ["background.js"],
-    "persistent": true
+    "persistent": false
   },
   "browser_action": {
     "default_popup": "index.html"

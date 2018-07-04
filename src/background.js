@@ -154,7 +154,7 @@ function excludeReviewedPullRequests(login, pullRequests) {
       if (review.state === "APPROVED") {
         approvedByViewer = true;
       }
-      let reviewTime = new Date(review.createdAt).getTime();
+      const reviewTime = new Date(review.createdAt).getTime();
       lastReviewedOrCommentedAtTime = Math.max(
         reviewTime,
         lastReviewedOrCommentedAtTime
@@ -164,7 +164,7 @@ function excludeReviewedPullRequests(login, pullRequests) {
       if (comment.author.login !== login) {
         continue;
       }
-      let commentTime = new Date(comment.createdAt).getTime();
+      const commentTime = new Date(comment.createdAt).getTime();
       lastReviewedOrCommentedAtTime = Math.max(
         commentTime,
         lastReviewedOrCommentedAtTime

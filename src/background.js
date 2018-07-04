@@ -144,7 +144,7 @@ async function loadPullRequests(token) {
 function excludeReviewedPullRequests(login, pullRequests) {
   const unreviewedPullRequests = new Set();
   for (const pullRequest of pullRequests) {
-    const lastUpdatedTime = new Date(pullRequest.updatedAt).getTime();
+    const lastUpdatedTime = getLastUpdatedTime(pullRequest);
     let lastReviewedOrCommentedAtTime = 0;
     let approvedByViewer = false;
     for (const review of pullRequest.reviews.nodes) {
@@ -191,24 +191,31 @@ function updateBadge(prCount) {
   });
 }
 
-// Used to store the URLs of previous PRs that we've already notified about.
-const alreadyNotifiedPullRequestUrls = new Set();
-
 /**
  * Shows a notification for each pull request that we haven't yet notified about.
  */
-function showNotificationForNewPullRequests(pullRequests) {
+async function showNotificationForNewPullRequests(pullRequests) {
+  const notified = await getPreviouslyNotifiedPullRequests();
+  const pullRequestsWhereNotificationShown = [];
   for (const pullRequest of pullRequests) {
-    showNotificationIfNewPullRequest(pullRequest);
+    if (showNotificationIfNewPullRequest(notified, pullRequest)) {
+      pullRequestsWhereNotificationShown.push(pullRequest);
+    }
   }
+  recordNotificationsShown(pullRequestsWhereNotificationShown);
 }
 
 /**
  * Shows a notification if the pull request is new.
+ *
+ * @returns true if the notification was shown.
  */
-function showNotificationIfNewPullRequest(pullRequest) {
-  if (alreadyNotifiedPullRequestUrls.has(pullRequest.url)) {
-    return;
+function showNotificationIfNewPullRequest(notified, pullRequest) {
+  if (
+    notified[pullRequest.url] &&
+    getLastUpdatedTime(pullRequest) <= notified[pullRequest.url]
+  ) {
+    return false;
   }
   // We set the notification ID to the URL so that we simply cannot have duplicate
   // notifications about the same pull request.
@@ -232,5 +239,39 @@ function showNotificationIfNewPullRequest(pullRequest) {
       });
     }
   );
-  alreadyNotifiedPullRequestUrls.add(pullRequest.url);
+  return true;
+}
+
+/**
+ * Records that we showed a notification for a specific pull request.
+ */
+async function recordNotificationsShown(pullRequests) {
+  const notified = await getPreviouslyNotifiedPullRequests();
+  for (const pullRequest of pullRequests) {
+    notified[pullRequest.url] = getLastUpdatedTime(pullRequest);
+  }
+  chrome.storage.sync.set({
+    notifiedPullRequests: notified
+  });
+}
+
+/**
+ * Returns a map of { [pullRequestUrl]: number (lastUpdatedTime) } representing the
+ * pull requests that we previously showed a notification for, and what was their
+ * last updated time then (we don't mind showing another notification if the last updated
+ * time has changed).
+ */
+function getPreviouslyNotifiedPullRequests() {
+  return new Promise(resolve => {
+    chrome.storage.sync.get(["notifiedPullRequests"], result => {
+      resolve(result.notifiedPullRequests || {});
+    });
+  });
+}
+
+/**
+ * Returns the timestamp at which a pull request was last updated.
+ */
+function getLastUpdatedTime(pullRequest) {
+  return new Date(pullRequest.updatedAt).getTime();
 }

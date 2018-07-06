@@ -37,8 +37,9 @@ async function checkPullRequests() {
     login,
     pullRequests
   );
-  updateBadge(unreviewedPullRequests.size);
-  showNotificationForNewPullRequests(unreviewedPullRequests);
+  await saveUnreviewedPullRequests(unreviewedPullRequests);
+  await updateBadge(unreviewedPullRequests.size);
+  await showNotificationForNewPullRequests(unreviewedPullRequests);
 }
 
 /**
@@ -186,6 +187,20 @@ function excludeReviewedPullRequests(login, pullRequests) {
 }
 
 /**
+ * Saves the list of unreviewed pull requests so that they can be shown in the popup.
+ */
+async function saveUnreviewedPullRequests(pullRequests) {
+  await new Promise(resolve => {
+    chrome.storage.sync.set(
+      {
+        unreviewedPullRequests: Array.from(pullRequests)
+      },
+      resolve
+    );
+  });
+}
+
+/**
  * Updates the unread PR count in the Chrome extension badge, as well as its color.
  */
 function updateBadge(prCount) {
@@ -227,16 +242,13 @@ function showNotificationIfNewPullRequest(notified, pullRequest) {
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.
   const notificationId = pullRequest.url;
-  chrome.notifications.create(
-    notificationId,
-    {
-      type: "basic",
-      iconUrl: "images/GitHub-Mark-120px-plus.png",
-      title: "New pull request",
-      message: pullRequest.title,
-      requireInteraction: true
-    }
-  );
+  chrome.notifications.create(notificationId, {
+    type: "basic",
+    iconUrl: "images/GitHub-Mark-120px-plus.png",
+    title: "New pull request",
+    message: pullRequest.title,
+    requireInteraction: true
+  });
   return true;
 }
 

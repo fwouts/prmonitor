@@ -5,7 +5,8 @@ import "./Popup.css";
 
 class Popup extends Component {
   state = {
-    gitHubApiToken: "loading"
+    gitHubApiToken: "loading",
+    editing: false
   };
 
   constructor(props) {
@@ -16,7 +17,8 @@ class Popup extends Component {
   componentWillMount() {
     chrome.storage.sync.get(["gitHubApiToken"], result => {
       this.setState({
-        gitHubApiToken: result.gitHubApiToken
+        gitHubApiToken: result.gitHubApiToken,
+        editing: this.state.editing || !result.gitHubApiToken
       });
     });
   }
@@ -28,9 +30,16 @@ class Popup extends Component {
   renderContent() {
     if (this.state.gitHubApiToken === "loading") {
       return <p>Loading...</p>;
+    } else if (!this.state.editing) {
+      return (
+        <div>
+          <p>You have already provided a GitHub API token.</p>
+          <button onClick={this.onEditClick}>Edit</button>
+        </div>
+      );
     } else {
       return (
-        <form onSubmit={this.onSubmit} className="github-token-form">
+        <form onSubmit={this.onSubmit}>
           <p>Update your GitHub API token:</p>
           <input ref={this.inputRef} defaultValue={this.state.gitHubApiToken} />
           <button type="submit">Save</button>
@@ -44,6 +53,12 @@ class Popup extends Component {
     }
   }
 
+  onEditClick = () => {
+    this.setState({
+      editing: true
+    });
+  };
+
   onSubmit = event => {
     event.preventDefault();
     const token = this.inputRef.current.value;
@@ -56,7 +71,8 @@ class Popup extends Component {
       }
     );
     this.setState({
-      gitHubApiToken: token
+      gitHubApiToken: token,
+      editing: false
     });
   };
 }

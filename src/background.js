@@ -21,6 +21,12 @@ chrome.runtime.onInstalled.addListener(() => {
   checkPullRequests().catch(console.error);
 });
 
+// Notification IDs are always pull request URLs.
+chrome.notifications.onClicked.addListener(notificationId => {
+  window.open(notificationId);
+  chrome.notifications.clear(notificationId);
+});
+
 /**
  * Checks if there are any new pull requests and notifies the user when required.
  */
@@ -218,7 +224,8 @@ function showNotificationIfNewPullRequest(notified, pullRequest) {
     return false;
   }
   // We set the notification ID to the URL so that we simply cannot have duplicate
-  // notifications about the same pull request.
+  // notifications about the same pull request and we can easily open a browser tab
+  // to this pull request just by knowing the notification ID.
   const notificationId = pullRequest.url;
   chrome.notifications.create(
     notificationId,
@@ -228,15 +235,6 @@ function showNotificationIfNewPullRequest(notified, pullRequest) {
       title: "New pull request",
       message: pullRequest.title,
       requireInteraction: true
-    },
-    notificationId => {
-      chrome.notifications.onClicked.addListener(clickedNotificationId => {
-        if (notificationId !== clickedNotificationId) {
-          return;
-        }
-        window.open(pullRequest.url);
-        chrome.notifications.clear(notificationId);
-      });
     }
   );
   return true;

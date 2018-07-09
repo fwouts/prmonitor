@@ -47,6 +47,9 @@ class Popup extends Component {
   }
 
   renderPullRequestList() {
+    if (!this.state.gitHubApiToken) {
+      return <p>Please provide an API token below.</p>
+    }
     if (this.state.unreviewedPullRequests.length === 0) {
       return <p>Nothing to review, yay!</p>;
     }

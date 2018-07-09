@@ -140,6 +140,11 @@ async function loadPullRequests(token) {
           pullRequests.add(pullRequest);
         }
       }
+      for (const review of pullRequest.reviews.nodes) {
+        if (review.author.login === login) {
+          pullRequests.add(pullRequest);
+        }
+      }
     }
   }
   return { login, pullRequests };

@@ -16,6 +16,12 @@ chrome.alarms.onAlarm.addListener(alarm => {
   }
 });
 
+chrome.runtime.onMessage.addListener(message => {
+  if (message.kind === "refresh") {
+    checkPullRequests().catch(console.error);
+  }
+});
+
 // Also call checkPullRequests() on install.
 chrome.runtime.onInstalled.addListener(() => {
   checkPullRequests().catch(console.error);

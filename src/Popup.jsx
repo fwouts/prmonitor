@@ -137,6 +137,9 @@ class Popup extends Component {
       gitHubApiToken: token,
       editing: false
     });
+    chrome.runtime.sendMessage({
+      kind: 'refresh'
+    })
   };
 
   onSettingsCancel = () => {

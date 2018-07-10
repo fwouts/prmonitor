@@ -1,6 +1,6 @@
 {
   "name": "PR Monitor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Get notified when you receive a pull request on GitHub.",
   "permissions": ["alarms", "notifications", "storage"],
   "background": {

@@ -4,9 +4,10 @@ const CHECK_PULL_REQUESTS_ALARM_KEY = "check-pull-requests";
 
 // Beause it isn't a persistent background script, we cannot simply use
 // setInterval() to schedule regular checks for new pull requests.
-// Instead, we set an alarm every minute.
+// Instead, we set an alarm three minutes.
+// IMPORTANT: GitHub API only allows us 50 requests per hour in total.
 chrome.alarms.create(CHECK_PULL_REQUESTS_ALARM_KEY, {
-  periodInMinutes: 1
+  periodInMinutes: 3
 });
 
 // When alarm is triggered, call checkPullRequests().

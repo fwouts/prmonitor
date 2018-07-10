@@ -7,7 +7,8 @@ class Popup extends Component {
   state = {
     gitHubApiToken: "loading",
     unreviewedPullRequests: [],
-    editing: false
+    editing: false,
+    error: null
   };
 
   constructor(props) {
@@ -17,11 +18,12 @@ class Popup extends Component {
 
   componentWillMount() {
     chrome.storage.sync.get(
-      ["gitHubApiToken", "unreviewedPullRequests"],
+      ["gitHubApiToken", "unreviewedPullRequests", "error"],
       result => {
         this.setState({
           gitHubApiToken: result.gitHubApiToken,
           unreviewedPullRequests: result.unreviewedPullRequests || [],
+          error: result.error || null,
           editing: this.state.editing || !result.gitHubApiToken
         });
       }
@@ -47,6 +49,9 @@ class Popup extends Component {
   }
 
   renderPullRequestList() {
+    if (this.state.error) {
+      return <p className="error">Error: {this.state.error.message}</p>
+    }
     if (!this.state.gitHubApiToken) {
       return <p>Please provide an API token below.</p>
     }

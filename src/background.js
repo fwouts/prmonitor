@@ -31,15 +31,25 @@ chrome.notifications.onClicked.addListener(notificationId => {
  * Checks if there are any new pull requests and notifies the user when required.
  */
 async function checkPullRequests() {
-  const token = await fetchGitHubApiToken();
-  const { login, pullRequests } = await loadPullRequests(token);
-  const unreviewedPullRequests = excludeReviewedPullRequests(
-    login,
-    pullRequests
-  );
-  await saveUnreviewedPullRequests(unreviewedPullRequests);
-  await updateBadge(unreviewedPullRequests.size);
-  await showNotificationForNewPullRequests(unreviewedPullRequests);
+  let error;
+  try {
+    const token = await fetchGitHubApiToken();
+    const { login, pullRequests } = await loadPullRequests(token);
+    const unreviewedPullRequests = excludeReviewedPullRequests(
+      login,
+      pullRequests
+    );
+    await saveUnreviewedPullRequests(unreviewedPullRequests);
+    await updateBadge(unreviewedPullRequests.size);
+    await showNotificationForNewPullRequests(unreviewedPullRequests);
+    error = null;
+  } catch (e) {
+    error = e;
+    await showBadgeError();
+  }
+  chrome.storage.sync.set({
+    error: error
+  });
 }
 
 /**
@@ -214,6 +224,18 @@ function updateBadge(prCount) {
   });
   chrome.browserAction.setBadgeBackgroundColor({
     color: prCount === 0 ? "#4d4" : "#f00"
+  });
+}
+
+/**
+ * Shows an error in the Chrome extension badge.
+ */
+function showBadgeError() {
+  chrome.browserAction.setBadgeText({
+    text: "!"
+  });
+  chrome.browserAction.setBadgeBackgroundColor({
+    color: "#000"
   });
 }
 

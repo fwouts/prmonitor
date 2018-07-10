@@ -14,6 +14,13 @@ a {
   text-decoration: none;
 }
 
+.pull-requests .error {
+  border: 1px solid #d00;
+  background: #fdd;
+  color: #400;
+  padding: 8px;
+}
+
 .pull-requests ul {
   list-style: none;
   padding: 0;

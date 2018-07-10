@@ -50,7 +50,7 @@ class Popup extends Component {
 
   renderPullRequestList() {
     if (this.state.error) {
-      return <p className="error">Error: {this.state.error.message}</p>
+      return <p className="error">Error: {this.state.error}</p>
     }
     if (!this.state.gitHubApiToken) {
       return <p>Please provide an API token below.</p>

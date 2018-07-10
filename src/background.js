@@ -48,7 +48,7 @@ async function checkPullRequests() {
     await showBadgeError();
   }
   chrome.storage.sync.set({
-    error: error
+    error: error ? error.message : null
   });
 }
 
@@ -63,7 +63,7 @@ async function fetchGitHubApiToken() {
       if (result.gitHubApiToken) {
         resolve(result.gitHubApiToken);
       } else {
-        reject("GitHub API token is not set.");
+        reject(new Error("GitHub API token is not set."));
       }
     });
   });

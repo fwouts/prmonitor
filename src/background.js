@@ -141,7 +141,10 @@ async function loadPullRequests(token) {
   });
   const result = await data.json();
   if (result.errors) {
-    throw result.errors[0];
+    throw new Error(result.errors[0]);
+  }
+  if (data.status !== 200 && result.message) {
+    throw new Error(result.message);
   }
   const pullRequests = new Set();
   const login = result.data.viewer.login;

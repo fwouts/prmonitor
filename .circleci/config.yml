@@ -1,0 +1,27 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.11.3
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install Bazel
+          command: |
+            sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
+            BAZEL_VERSION=0.15.0
+            BAZEL_INSTALL_SCRIPT=bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
+            wget https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/$BAZEL_INSTALL_SCRIPT
+            chmod +x $BAZEL_INSTALL_SCRIPT
+            sudo ./$BAZEL_INSTALL_SCRIPT
+      - run:
+          name: Build
+          command: bazel build //...

@@ -1,0 +1,58 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@bazel_javascript//:defs.bzl", "web_bundle", "js_library")
+
+js_library(
+  name = "background",
+  srcs = [
+    "background.js",
+  ],
+)
+
+web_bundle(
+  name = "popup-dev",
+  lib = ":popup",
+  entry = "index.js",
+  mode = "development",
+  target = "web",
+  html_template = "//public:index.html",
+)
+
+web_bundle(
+  name = "popup-prod",
+  lib = ":popup",
+  entry = "index.js",
+  mode = "production",
+  target = "web",
+  html_template = "//public:index.html",
+)
+
+js_library(
+  name = "popup",
+  srcs = [
+    "index.js",
+    "index.css",
+  ],
+  deps = [
+    ":components_popup",
+    "//:packages",
+  ],
+  requires = [
+    "react",
+    "react-dom",
+  ],
+)
+
+js_library(
+  name = "components_popup",
+  srcs = [
+    "Popup.jsx",
+    "Popup.css",
+  ],
+  deps = [
+    "//:packages",
+  ],
+  requires = [
+    "react"
+  ],
+)

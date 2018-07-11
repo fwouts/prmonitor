@@ -1,0 +1,44 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@bazel_javascript//:defs.bzl", "npm_packages")
+
+npm_packages(
+  name = "packages",
+  package_json = ":package.json",
+  yarn_lock = ":yarn.lock",
+)
+
+genrule(
+  name = "extension-unpacked",
+  srcs = [
+    "//public:images",
+    "//public:manifest.json",
+    "//src:popup-prod_bundle",
+    "//src:background.js",
+  ],
+  outs = ["extension-dir"],
+  cmd = """
+  # Create the directory.
+  mkdir $@
+  # Copy manifest.json.
+  cp $(location //public:manifest.json) $@/
+  # Copy images.
+  mkdir $@/images
+  cp -r $(location //public:images) $@/images/
+  # Copy popup bundle.
+  cp -r $(location //src:popup-prod_bundle)/* $@/
+  # Copy background script.
+  cp $(location //src:background.js) $@/
+  """,
+)
+
+genrule(
+  name = "extension-packed",
+  srcs = [":extension-unpacked"],
+  outs = ["extension.zip"],
+  cmd = """
+  origin=$$(pwd)
+  cd $(location //:extension-unpacked)
+  zip -r $$origin/$@ *
+  """,
+)

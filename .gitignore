@@ -16,6 +16,9 @@
 .env.test.local
 .env.production.local
 
+# Bazel
+bazel-*
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

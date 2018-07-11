@@ -141,9 +141,11 @@ async function loadPullRequests(token) {
   });
   const result = await data.json();
   if (result.errors) {
-    throw new Error(result.errors[0]);
+    console.error(result);
+    throw new Error(result.errors[0].message);
   }
   if (data.status !== 200 && result.message) {
+    console.error(result);
     throw new Error(result.message);
   }
   const pullRequests = new Set();

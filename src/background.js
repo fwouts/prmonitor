@@ -152,6 +152,10 @@ async function loadPullRequests(token) {
   const login = result.data.viewer.login;
   for (const repository of result.data.viewer.repositories.nodes) {
     for (const pullRequest of repository.pullRequests.nodes) {
+      if (pullRequest.author.login === login) {
+        // Only show pull requests that don't belong to the current user.
+        continue;
+      }
       for (const assignee of pullRequest.assignees.nodes) {
         if (assignee.login === login) {
           pullRequests.add(pullRequest);

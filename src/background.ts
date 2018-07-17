@@ -1,3 +1,5 @@
+import { PullRequest, Timestamp } from "./models";
+
 // This is the background script of the Chrome extension.
 
 const CHECK_PULL_REQUESTS_ALARM_KEY = "check-pull-requests";
@@ -65,7 +67,7 @@ async function checkPullRequests() {
  * This token can be set by the user in the popup.
  */
 async function fetchGitHubApiToken() {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     chrome.storage.sync.get(["gitHubApiToken"], result => {
       if (result.gitHubApiToken) {
         resolve(result.gitHubApiToken);
@@ -79,7 +81,7 @@ async function fetchGitHubApiToken() {
 /**
  * Fetches all the pull requests assigned to the current user, including already reviewed PRs.
  */
-async function loadPullRequests(token) {
+async function loadPullRequests(token: string) {
   const data = await fetch("https://api.github.com/graphql", {
     method: "POST",
     headers: {
@@ -148,7 +150,7 @@ async function loadPullRequests(token) {
     console.error(result);
     throw new Error(result.message);
   }
-  const pullRequests = new Set();
+  const pullRequests = new Set<PullRequest>();
   const login = result.data.viewer.login;
   for (const repository of result.data.viewer.repositories.nodes) {
     for (const pullRequest of repository.pullRequests.nodes) {
@@ -179,7 +181,10 @@ async function loadPullRequests(token) {
 /**
  * Returns a subset of pull requests that have not yet been reviewed by the current user.
  */
-function excludeReviewedPullRequests(login, pullRequests) {
+function excludeReviewedPullRequests(
+  login: string,
+  pullRequests: Set<PullRequest>
+) {
   const unreviewedPullRequests = new Set();
   for (const pullRequest of pullRequests) {
     const lastUpdatedTime = getLastUpdatedTime(pullRequest);
@@ -220,7 +225,7 @@ function excludeReviewedPullRequests(login, pullRequests) {
 /**
  * Saves the list of unreviewed pull requests so that they can be shown in the popup.
  */
-async function saveUnreviewedPullRequests(pullRequests) {
+async function saveUnreviewedPullRequests(pullRequests: Set<PullRequest>) {
   await new Promise(resolve => {
     chrome.storage.sync.set(
       {
@@ -234,7 +239,7 @@ async function saveUnreviewedPullRequests(pullRequests) {
 /**
  * Updates the unread PR count in the Chrome extension badge, as well as its color.
  */
-function updateBadge(prCount) {
+function updateBadge(prCount: number) {
   chrome.browserAction.setBadgeText({
     text: "" + prCount
   });
@@ -258,7 +263,9 @@ function showBadgeError() {
 /**
  * Shows a notification for each pull request that we haven't yet notified about.
  */
-async function showNotificationForNewPullRequests(pullRequests) {
+async function showNotificationForNewPullRequests(
+  pullRequests: Set<PullRequest>
+) {
   const notified = await getPreviouslyNotifiedPullRequests();
   const pullRequestsWhereNotificationShown = [];
   for (const pullRequest of pullRequests) {
@@ -274,7 +281,10 @@ async function showNotificationForNewPullRequests(pullRequests) {
  *
  * @returns true if the notification was shown.
  */
-function showNotificationIfNewPullRequest(notified, pullRequest) {
+function showNotificationIfNewPullRequest(
+  notified: { [url: string]: Timestamp },
+  pullRequest: PullRequest
+) {
   if (
     notified[pullRequest.url] &&
     getLastUpdatedTime(pullRequest) <= notified[pullRequest.url]
@@ -298,7 +308,7 @@ function showNotificationIfNewPullRequest(notified, pullRequest) {
 /**
  * Records that we showed a notification for a specific pull request.
  */
-async function recordNotificationsShown(pullRequests) {
+async function recordNotificationsShown(pullRequests: PullRequest[]) {
   const notified = await getPreviouslyNotifiedPullRequests();
   for (const pullRequest of pullRequests) {
     notified[pullRequest.url] = getLastUpdatedTime(pullRequest);
@@ -314,7 +324,9 @@ async function recordNotificationsShown(pullRequests) {
  * last updated time then (we don't mind showing another notification if the last updated
  * time has changed).
  */
-function getPreviouslyNotifiedPullRequests() {
+function getPreviouslyNotifiedPullRequests(): Promise<{
+  [url: string]: Timestamp;
+}> {
   return new Promise(resolve => {
     chrome.storage.sync.get(["notifiedPullRequests"], result => {
       resolve(result.notifiedPullRequests || {});
@@ -325,6 +337,6 @@ function getPreviouslyNotifiedPullRequests() {
 /**
  * Returns the timestamp at which a pull request was last updated.
  */
-function getLastUpdatedTime(pullRequest) {
+function getLastUpdatedTime(pullRequest: PullRequest) {
   return new Date(pullRequest.updatedAt).getTime();
 }

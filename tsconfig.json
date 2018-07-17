@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "react",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true
+  },
+  "exclude": [
+    "build",
+    "bazel-*"
+  ]
+}

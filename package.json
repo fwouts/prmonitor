@@ -1,8 +1,12 @@
 {
   "name": "prmonitor",
   "dependencies": {
+    "@types/chrome": "^0.0.69",
+    "@types/react": "^16.4.6",
+    "@types/react-dom": "^16.0.6",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "typescript": "^2.9.2"
   }
 }

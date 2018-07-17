@@ -2,6 +2,10 @@ package(default_visibility = ["//visibility:public"])
 
 load("@bazel_javascript//:defs.bzl", "npm_packages")
 
+exports_files([
+  "tsconfig.json",
+])
+
 npm_packages(
   name = "packages",
   package_json = ":package.json",
@@ -14,7 +18,7 @@ genrule(
     "//public:images",
     "//public:manifest.json",
     "//src:popup-prod_bundle",
-    "//src:background.js",
+    "//src:background-prod_bundle",
   ],
   outs = ["extension-dir"],
   cmd = """
@@ -25,10 +29,10 @@ genrule(
   # Copy images.
   mkdir $@/images
   cp -r $(location //public:images) $@/images/
+  # Copy background script.
+  cp -r $(location //src:background-prod_bundle)/* $@/
   # Copy popup bundle.
   cp -r $(location //src:popup-prod_bundle)/* $@/
-  # Copy background script.
-  cp $(location //src:background.js) $@/
   """,
 )
 

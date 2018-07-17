@@ -1,17 +1,23 @@
-/*global chrome*/
-
-import React, { Component } from "react";
+import React, { Component, RefObject, FormEvent } from "react";
 import "./Popup.css";
+import { PullRequest } from "./models";
 
 class Popup extends Component {
-  state = {
+  state: {
+    gitHubApiToken: string;
+    unreviewedPullRequests: PullRequest[];
+    editing: boolean;
+    error: string | null;
+  } = {
     gitHubApiToken: "loading",
     unreviewedPullRequests: [],
     editing: false,
     error: null
   };
 
-  constructor(props) {
+  inputRef: RefObject<HTMLInputElement>;
+
+  constructor(props: {}) {
     super(props);
     this.inputRef = React.createRef();
   }
@@ -50,10 +56,10 @@ class Popup extends Component {
 
   renderPullRequestList() {
     if (this.state.error) {
-      return <p className="error">Error: {this.state.error}</p>
+      return <p className="error">Error: {this.state.error}</p>;
     }
     if (!this.state.gitHubApiToken) {
-      return <p>Please provide an API token below.</p>
+      return <p>Please provide an API token below.</p>;
     }
     if (this.state.unreviewedPullRequests.length === 0) {
       return <p>Nothing to review, yay!</p>;
@@ -122,8 +128,11 @@ class Popup extends Component {
     });
   };
 
-  onSettingsSubmit = event => {
+  onSettingsSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!this.inputRef.current) {
+      return;
+    }
     const token = this.inputRef.current.value;
     chrome.storage.sync.set(
       {
@@ -138,8 +147,8 @@ class Popup extends Component {
       editing: false
     });
     chrome.runtime.sendMessage({
-      kind: 'refresh'
-    })
+      kind: "refresh"
+    });
   };
 
   onSettingsCancel = () => {

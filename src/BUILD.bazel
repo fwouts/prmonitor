@@ -1,18 +1,44 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@bazel_javascript//:defs.bzl", "web_bundle", "js_library")
+load("@bazel_javascript//:defs.bzl", "web_bundle", "ts_library")
 
-js_library(
+web_bundle(
+  name = "background-dev",
+  lib = ":background",
+  entry = "background.js",
+  output = "background.js",
+  mode = "development",
+  target = "node",
+  split_chunks = 0,
+)
+
+web_bundle(
+  name = "background-prod",
+  lib = ":background",
+  entry = "background.js",
+  output = "background.js",
+  mode = "production",
+  target = "node",
+  split_chunks = 0,
+)
+
+ts_library(
   name = "background",
   srcs = [
-    "background.js",
+    "background.ts",
   ],
+  deps = [
+    ":models",
+    "//:packages",
+  ],
+  tsconfig = "//:tsconfig.json",
 )
 
 web_bundle(
   name = "popup-dev",
   lib = ":popup",
   entry = "index.js",
+  output = "popup.js",
   mode = "development",
   target = "web",
   html_template = "//public:index.html",
@@ -22,37 +48,45 @@ web_bundle(
   name = "popup-prod",
   lib = ":popup",
   entry = "index.js",
+  output = "popup.js",
   mode = "production",
   target = "web",
   html_template = "//public:index.html",
 )
 
-js_library(
+ts_library(
   name = "popup",
   srcs = [
-    "index.js",
+    "index.tsx",
     "index.css",
   ],
   deps = [
     ":components_popup",
     "//:packages",
   ],
-  requires = [
-    "react",
-    "react-dom",
-  ],
+  tsconfig = "//:tsconfig.json",
 )
 
-js_library(
+ts_library(
   name = "components_popup",
   srcs = [
-    "Popup.jsx",
+    "Popup.tsx",
     "Popup.css",
+  ],
+  deps = [
+    ":models",
+    "//:packages",
+  ],
+  tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+  name = "models",
+  srcs = [
+    "models.ts",
   ],
   deps = [
     "//:packages",
   ],
-  requires = [
-    "react"
-  ],
+  tsconfig = "//:tsconfig.json",
 )

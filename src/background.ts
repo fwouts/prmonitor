@@ -1,3 +1,4 @@
+import { getGitHubApiToken } from "./auth";
 import { PullRequest } from "./models";
 
 // This is the background script of the Chrome extension.
@@ -42,7 +43,7 @@ chrome.notifications.onClicked.addListener(notificationId => {
 async function checkPullRequests() {
   let error;
   try {
-    const token = await fetchGitHubApiToken();
+    const token = await getGitHubApiToken();
     const { login, pullRequests } = await loadPullRequests(token);
     const unreviewedPullRequests = excludeReviewedPullRequests(
       login,
@@ -58,23 +59,6 @@ async function checkPullRequests() {
   }
   chrome.storage.local.set({
     error: error ? error.message : null
-  });
-}
-
-/**
- * Fetches the GitHub API token from local storage.
- *
- * This token can be set by the user in the popup.
- */
-async function fetchGitHubApiToken() {
-  return new Promise<string>((resolve, reject) => {
-    chrome.storage.local.get(["gitHubApiToken"], result => {
-      if (result.gitHubApiToken) {
-        resolve(result.gitHubApiToken);
-      } else {
-        reject(new Error("GitHub API token is not set."));
-      }
-    });
   });
 }
 

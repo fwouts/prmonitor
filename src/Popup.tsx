@@ -1,15 +1,16 @@
-import React, { Component, RefObject, FormEvent } from "react";
-import "./Popup.css";
+import React, { Component, FormEvent, RefObject } from "react";
+import { getGitHubApiToken, updateGitHubApiToken } from "./auth";
 import { PullRequest } from "./models";
+import "./Popup.css";
 
 class Popup extends Component {
   state: {
-    gitHubApiToken: string;
+    gitHubApiTokenProvided: boolean;
     unreviewedPullRequests: PullRequest[];
     editing: boolean;
     error: string | null;
   } = {
-    gitHubApiToken: "loading",
+    gitHubApiTokenProvided: false,
     unreviewedPullRequests: [],
     editing: false,
     error: null
@@ -23,17 +24,26 @@ class Popup extends Component {
   }
 
   componentWillMount() {
-    chrome.storage.local.get(
-      ["gitHubApiToken", "unreviewedPullRequests", "error"],
-      result => {
+    chrome.storage.local.get(["unreviewedPullRequests", "error"], result => {
+      this.setState({
+        unreviewedPullRequests: result.unreviewedPullRequests || [],
+        error: result.error || null
+      });
+    });
+    getGitHubApiToken()
+      .then(() =>
+        // Token is present.
         this.setState({
-          gitHubApiToken: result.gitHubApiToken,
-          unreviewedPullRequests: result.unreviewedPullRequests || [],
-          error: result.error || null,
-          editing: this.state.editing || !result.gitHubApiToken
-        });
-      }
-    );
+          gitHubApiTokenProvided: true
+        })
+      )
+      .catch(() =>
+        // Token is absent.
+        this.setState({
+          gitHubApiTokenProvided: false,
+          editing: true
+        })
+      );
   }
 
   render() {
@@ -58,7 +68,7 @@ class Popup extends Component {
     if (this.state.error) {
       return <p className="error">Error: {this.state.error}</p>;
     }
-    if (!this.state.gitHubApiToken) {
+    if (!this.state.gitHubApiTokenProvided) {
       return <p>Please provide an API token below.</p>;
     }
     if (this.state.unreviewedPullRequests.length === 0) {
@@ -87,12 +97,12 @@ class Popup extends Component {
   }
 
   renderSettingsContent() {
-    if (this.state.gitHubApiToken === "loading") {
-      return <p>Loading...</p>;
-    } else if (!this.state.editing) {
+    if (!this.state.editing) {
       return (
         <p>
-          You have already provided a GitHub API token.{" "}
+          {this.state.gitHubApiTokenProvided
+            ? "You have already provided a GitHub API token."
+            : "Please provide a GitHub API token."}{" "}
           <a href="#" onClick={this.onSettingsEditClick}>
             Update it here.
           </a>
@@ -110,10 +120,7 @@ class Popup extends Component {
             </a>):
           </p>
           <div className="settings-input-singleline">
-            <input
-              ref={this.inputRef}
-              defaultValue={this.state.gitHubApiToken}
-            />
+            <input ref={this.inputRef} />
             <button type="submit">Save</button>
             <button onClick={this.onSettingsCancel}>Cancel</button>
           </div>
@@ -134,16 +141,11 @@ class Popup extends Component {
       return;
     }
     const token = this.inputRef.current.value;
-    chrome.storage.local.set(
-      {
-        gitHubApiToken: token
-      },
-      () => {
-        console.log("GitHub API token updated.");
-      }
+    updateGitHubApiToken(token).then(() =>
+      console.log("GitHub API token updated.")
     );
     this.setState({
-      gitHubApiToken: token,
+      gitHubApiTokenProvided: true,
       editing: false
     });
     chrome.runtime.sendMessage({

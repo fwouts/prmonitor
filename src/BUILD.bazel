@@ -28,6 +28,7 @@ ts_library(
     "background.ts",
   ],
   deps = [
+    ":auth",
     ":models",
     "//:packages",
   ],
@@ -74,7 +75,19 @@ ts_library(
     "Popup.css",
   ],
   deps = [
+    ":auth",
     ":models",
+    "//:packages",
+  ],
+  tsconfig = "//:tsconfig.json",
+)
+
+ts_library(
+  name = "auth",
+  srcs = [
+    "auth.ts",
+  ],
+  deps = [
     "//:packages",
   ],
   tsconfig = "//:tsconfig.json",

@@ -91,7 +91,7 @@ async function loadPullRequests(token: string) {
       query: `{
   viewer {
     login
-    repositories(first: 50, affiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]) {
+    repositories(first: 100, affiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]) {
       nodes {
         nameWithOwner
         pullRequests(first: 50, states: [OPEN]) {
@@ -99,7 +99,7 @@ async function loadPullRequests(token: string) {
             url
             title
             updatedAt
-            reviews(first: 50) {
+            reviews(first: 20) {
               nodes {
                 author {
                   login
@@ -108,7 +108,7 @@ async function loadPullRequests(token: string) {
                 state
               }
             }
-            comments(first: 50) {
+            comments(first: 20) {
               nodes {
                 author {
                   login
@@ -119,12 +119,12 @@ async function loadPullRequests(token: string) {
             author {
               login
             }
-            assignees(first: 20) {
+            assignees(first: 10) {
               nodes {
                 login
               }
             }
-            reviewRequests(first: 20) {
+            reviewRequests(first: 10) {
               nodes {
                 requestedReviewer {
                   ... on User {

@@ -56,7 +56,7 @@ async function checkPullRequests() {
     error = e;
     await showBadgeError();
   }
-  chrome.storage.sync.set({
+  chrome.storage.local.set({
     error: error ? error.message : null
   });
 }
@@ -68,7 +68,7 @@ async function checkPullRequests() {
  */
 async function fetchGitHubApiToken() {
   return new Promise<string>((resolve, reject) => {
-    chrome.storage.sync.get(["gitHubApiToken"], result => {
+    chrome.storage.local.get(["gitHubApiToken"], result => {
       if (result.gitHubApiToken) {
         resolve(result.gitHubApiToken);
       } else {
@@ -227,7 +227,7 @@ function excludeReviewedPullRequests(
  */
 async function saveUnreviewedPullRequests(pullRequests: Set<PullRequest>) {
   await new Promise(resolve => {
-    chrome.storage.sync.set(
+    chrome.storage.local.set(
       {
         unreviewedPullRequests: Array.from(pullRequests)
       },
@@ -300,7 +300,7 @@ function showNotification(pullRequest: PullRequest) {
  * next time.
  */
 async function recordSeenPullRequests(pullRequests: Set<PullRequest>) {
-  chrome.storage.sync.set({
+  chrome.storage.local.set({
     lastSeenPullRequests: Array.from(pullRequests).map(p => p.url)
   });
 }
@@ -310,7 +310,7 @@ async function recordSeenPullRequests(pullRequests: Set<PullRequest>) {
  */
 function getLastSeenPullRequestsUrls(): Promise<string[]> {
   return new Promise(resolve => {
-    chrome.storage.sync.get(["lastSeenPullRequests"], result => {
+    chrome.storage.local.get(["lastSeenPullRequests"], result => {
       resolve(result.lastSeenPullRequests || []);
     });
   });

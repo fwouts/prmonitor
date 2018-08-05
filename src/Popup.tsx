@@ -23,7 +23,7 @@ class Popup extends Component {
   }
 
   componentWillMount() {
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       ["gitHubApiToken", "unreviewedPullRequests", "error"],
       result => {
         this.setState({
@@ -134,7 +134,7 @@ class Popup extends Component {
       return;
     }
     const token = this.inputRef.current.value;
-    chrome.storage.sync.set(
+    chrome.storage.local.set(
       {
         gitHubApiToken: token
       },

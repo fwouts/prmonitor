@@ -1,4 +1,4 @@
-import { PullRequest, Timestamp } from "./models";
+import { PullRequest } from "./models";
 
 // This is the background script of the Chrome extension.
 
@@ -266,31 +266,22 @@ function showBadgeError() {
 async function showNotificationForNewPullRequests(
   pullRequests: Set<PullRequest>
 ) {
-  const notified = await getPreviouslyNotifiedPullRequests();
-  const pullRequestsWhereNotificationShown = [];
+  const lastSeenPullRequestUrls = new Set(await getLastSeenPullRequestsUrls());
   for (const pullRequest of pullRequests) {
-    if (showNotificationIfNewPullRequest(notified, pullRequest)) {
-      pullRequestsWhereNotificationShown.push(pullRequest);
+    if (!lastSeenPullRequestUrls.has(pullRequest.url)) {
+      console.log(`Showing ${pullRequest.url}`);
+      showNotification(pullRequest);
+    } else {
+      console.log(`Filtering ${pullRequest.url}`);
     }
   }
-  recordNotificationsShown(pullRequestsWhereNotificationShown);
+  recordSeenPullRequests(pullRequests);
 }
 
 /**
  * Shows a notification if the pull request is new.
- *
- * @returns true if the notification was shown.
  */
-function showNotificationIfNewPullRequest(
-  notified: { [url: string]: Timestamp },
-  pullRequest: PullRequest
-) {
-  if (
-    notified[pullRequest.url] &&
-    getLastUpdatedTime(pullRequest) <= notified[pullRequest.url]
-  ) {
-    return false;
-  }
+function showNotification(pullRequest: PullRequest) {
   // We set the notification ID to the URL so that we simply cannot have duplicate
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.
@@ -302,34 +293,25 @@ function showNotificationIfNewPullRequest(
     message: pullRequest.title,
     requireInteraction: true
   });
-  return true;
 }
 
 /**
- * Records that we showed a notification for a specific pull request.
+ * Records the pull requests we saw this time, so that we don't show a notification
+ * next time.
  */
-async function recordNotificationsShown(pullRequests: PullRequest[]) {
-  const notified = await getPreviouslyNotifiedPullRequests();
-  for (const pullRequest of pullRequests) {
-    notified[pullRequest.url] = getLastUpdatedTime(pullRequest);
-  }
+async function recordSeenPullRequests(pullRequests: Set<PullRequest>) {
   chrome.storage.sync.set({
-    notifiedPullRequests: notified
+    lastSeenPullRequests: Array.from(pullRequests).map(p => p.url)
   });
 }
 
 /**
- * Returns a map of { [pullRequestUrl]: number (lastUpdatedTime) } representing the
- * pull requests that we previously showed a notification for, and what was their
- * last updated time then (we don't mind showing another notification if the last updated
- * time has changed).
+ * Returns a list of pull request URLs that required attention last time we checked.
  */
-function getPreviouslyNotifiedPullRequests(): Promise<{
-  [url: string]: Timestamp;
-}> {
+function getLastSeenPullRequestsUrls(): Promise<string[]> {
   return new Promise(resolve => {
-    chrome.storage.sync.get(["notifiedPullRequests"], result => {
-      resolve(result.notifiedPullRequests || {});
+    chrome.storage.sync.get(["lastSeenPullRequests"], result => {
+      resolve(result.lastSeenPullRequests || []);
     });
   });
 }

@@ -8,7 +8,6 @@ web_bundle(
   entry = "background.js",
   output = "background.js",
   mode = "development",
-  target = "node",
   split_chunks = 0,
 )
 
@@ -18,7 +17,6 @@ web_bundle(
   entry = "background.js",
   output = "background.js",
   mode = "production",
-  target = "node",
   split_chunks = 0,
 )
 
@@ -41,7 +39,6 @@ web_bundle(
   entry = "index.js",
   output = "popup.js",
   mode = "development",
-  target = "web",
   html_template = "//public:index.html",
 )
 
@@ -51,7 +48,6 @@ web_bundle(
   entry = "index.js",
   output = "popup.js",
   mode = "production",
-  target = "web",
   html_template = "//public:index.html",
 )
 

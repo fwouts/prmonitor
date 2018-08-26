@@ -1,5 +1,6 @@
 import { getGitHubApiToken } from "./auth";
-import { PullRequest } from "./models";
+import { PullRequest } from "./github/load-all-pull-requests";
+import { loadPullRequestsRequiringReview } from "./github/loader";
 
 // This is the background script of the Chrome extension.
 
@@ -44,11 +45,7 @@ async function checkPullRequests() {
   let error;
   try {
     const token = await getGitHubApiToken();
-    const { login, pullRequests } = await loadPullRequests(token);
-    const unreviewedPullRequests = excludeReviewedPullRequests(
-      login,
-      pullRequests
-    );
+    const unreviewedPullRequests = await loadPullRequestsRequiringReview(token);
     await saveUnreviewedPullRequests(unreviewedPullRequests);
     await updateBadge(unreviewedPullRequests.size);
     await showNotificationForNewPullRequests(unreviewedPullRequests);
@@ -60,150 +57,6 @@ async function checkPullRequests() {
   chrome.storage.local.set({
     error: error ? error.message : null
   });
-}
-
-/**
- * Fetches all the pull requests assigned to the current user, including already reviewed PRs.
- */
-async function loadPullRequests(token: string) {
-  const data = await fetch("https://api.github.com/graphql", {
-    method: "POST",
-    headers: {
-      Authorization: `bearer ${token}`
-    },
-    body: JSON.stringify({
-      query: `{
-  viewer {
-    login
-    repositories(first: 100, affiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]) {
-      nodes {
-        nameWithOwner
-        pullRequests(first: 50, states: [OPEN]) {
-          nodes {
-            url
-            title
-            updatedAt
-            reviews(first: 20) {
-              nodes {
-                author {
-                  login
-                }
-                createdAt
-                state
-              }
-            }
-            comments(first: 20) {
-              nodes {
-                author {
-                  login
-                }
-                createdAt
-              }
-            }
-            author {
-              login
-            }
-            assignees(first: 10) {
-              nodes {
-                login
-              }
-            }
-            reviewRequests(first: 10) {
-              nodes {
-                requestedReviewer {
-                  ... on User {
-                    login
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}`
-    })
-  });
-  const result = await data.json();
-  if (result.errors) {
-    console.error(result);
-    throw new Error(result.errors[0].message);
-  }
-  if (data.status !== 200 && result.message) {
-    console.error(result);
-    throw new Error(result.message);
-  }
-  const pullRequests = new Set<PullRequest>();
-  const login = result.data.viewer.login;
-  for (const repository of result.data.viewer.repositories.nodes) {
-    for (const pullRequest of repository.pullRequests.nodes) {
-      if (pullRequest.author.login === login) {
-        // Only show pull requests that don't belong to the current user.
-        continue;
-      }
-      for (const assignee of pullRequest.assignees.nodes) {
-        if (assignee.login === login) {
-          pullRequests.add(pullRequest);
-        }
-      }
-      for (const reviewRequest of pullRequest.reviewRequests.nodes) {
-        if (reviewRequest.requestedReviewer.login === login) {
-          pullRequests.add(pullRequest);
-        }
-      }
-      for (const review of pullRequest.reviews.nodes) {
-        if (review.author.login === login) {
-          pullRequests.add(pullRequest);
-        }
-      }
-    }
-  }
-  return { login, pullRequests };
-}
-
-/**
- * Returns a subset of pull requests that have not yet been reviewed by the current user.
- */
-function excludeReviewedPullRequests(
-  login: string,
-  pullRequests: Set<PullRequest>
-) {
-  const unreviewedPullRequests = new Set();
-  for (const pullRequest of pullRequests) {
-    const lastUpdatedTime = getLastUpdatedTime(pullRequest);
-    let lastReviewedOrCommentedAtTime = 0;
-    let approvedByViewer = false;
-    for (const review of pullRequest.reviews.nodes) {
-      if (review.author.login !== login) {
-        continue;
-      }
-      if (review.state === "APPROVED") {
-        approvedByViewer = true;
-      }
-      const reviewTime = new Date(review.createdAt).getTime();
-      lastReviewedOrCommentedAtTime = Math.max(
-        reviewTime,
-        lastReviewedOrCommentedAtTime
-      );
-    }
-    for (const comment of pullRequest.comments.nodes) {
-      if (comment.author.login !== login) {
-        continue;
-      }
-      const commentTime = new Date(comment.createdAt).getTime();
-      lastReviewedOrCommentedAtTime = Math.max(
-        commentTime,
-        lastReviewedOrCommentedAtTime
-      );
-    }
-    const isReviewed =
-      approvedByViewer || lastReviewedOrCommentedAtTime > lastUpdatedTime;
-    if (!isReviewed) {
-      unreviewedPullRequests.add(pullRequest);
-    }
-  }
-  return unreviewedPullRequests;
 }
 
 /**
@@ -252,11 +105,11 @@ async function showNotificationForNewPullRequests(
 ) {
   const lastSeenPullRequestUrls = new Set(await getLastSeenPullRequestsUrls());
   for (const pullRequest of pullRequests) {
-    if (!lastSeenPullRequestUrls.has(pullRequest.url)) {
-      console.log(`Showing ${pullRequest.url}`);
+    if (!lastSeenPullRequestUrls.has(pullRequest.html_url)) {
+      console.log(`Showing ${pullRequest.html_url}`);
       showNotification(pullRequest);
     } else {
-      console.log(`Filtering ${pullRequest.url}`);
+      console.log(`Filtering ${pullRequest.html_url}`);
     }
   }
   recordSeenPullRequests(pullRequests);
@@ -269,7 +122,7 @@ function showNotification(pullRequest: PullRequest) {
   // We set the notification ID to the URL so that we simply cannot have duplicate
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.
-  const notificationId = pullRequest.url;
+  const notificationId = pullRequest.html_url;
   chrome.notifications.create(notificationId, {
     type: "basic",
     iconUrl: "images/GitHub-Mark-120px-plus.png",
@@ -285,7 +138,7 @@ function showNotification(pullRequest: PullRequest) {
  */
 async function recordSeenPullRequests(pullRequests: Set<PullRequest>) {
   chrome.storage.local.set({
-    lastSeenPullRequests: Array.from(pullRequests).map(p => p.url)
+    lastSeenPullRequests: Array.from(pullRequests).map(p => p.html_url)
   });
 }
 
@@ -298,11 +151,4 @@ function getLastSeenPullRequestsUrls(): Promise<string[]> {
       resolve(result.lastSeenPullRequests || []);
     });
   });
-}
-
-/**
- * Returns the timestamp at which a pull request was last updated.
- */
-function getLastUpdatedTime(pullRequest: PullRequest) {
-  return new Date(pullRequest.updatedAt).getTime();
 }

@@ -27,8 +27,8 @@ ts_library(
   ],
   deps = [
     ":auth",
-    ":models",
-    "//:packages",
+    "//src/github",
+    "//:packages"
   ],
   tsconfig = "//:tsconfig.json",
 )
@@ -72,7 +72,7 @@ ts_library(
   ],
   deps = [
     ":auth",
-    ":models",
+    "//src/github",
     "//:packages",
   ],
   tsconfig = "//:tsconfig.json",
@@ -82,17 +82,6 @@ ts_library(
   name = "auth",
   srcs = [
     "auth.ts",
-  ],
-  deps = [
-    "//:packages",
-  ],
-  tsconfig = "//:tsconfig.json",
-)
-
-ts_library(
-  name = "models",
-  srcs = [
-    "models.ts",
   ],
   deps = [
     "//:packages",

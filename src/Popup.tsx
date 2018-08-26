@@ -1,6 +1,6 @@
 import React, { Component, FormEvent, RefObject } from "react";
 import { getGitHubApiToken, updateGitHubApiToken } from "./auth";
-import { PullRequest } from "./models";
+import { PullRequest } from "./github/load-all-pull-requests";
 import "./Popup.css";
 
 class Popup extends Component {
@@ -78,7 +78,7 @@ class Popup extends Component {
       <ul>
         {this.state.unreviewedPullRequests.map(pullRequest => (
           <li>
-            <a target="_blank" href={pullRequest.url}>
+            <a target="_blank" href={pullRequest.html_url}>
               {pullRequest.title}
             </a>
           </li>
@@ -112,12 +112,11 @@ class Popup extends Component {
       return (
         <form onSubmit={this.onSettingsSubmit}>
           <p>
-            Enter a GitHub API token with <b>repo</b> scope (<a
-              href="https://github.com/settings/tokens"
-              target="_blank"
-            >
+            Enter a GitHub API token with <b>repo</b> scope (
+            <a href="https://github.com/settings/tokens" target="_blank">
               create one
-            </a>):
+            </a>
+            ):
           </p>
           <div className="settings-input-singleline">
             <input ref={this.inputRef} />

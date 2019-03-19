@@ -1,15 +1,17 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
 # Required for access to js_library, js_test, web_bundle, etc.
 git_repository(
   name = "bazel_javascript",
   remote = "https://github.com/zenclabs/bazel-javascript.git",
-  tag = "0.0.24",
+  tag = "0.0.27",
 )
 
 # Required for underlying dependencies such as Node and Yarn.
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.10.0",
+    tag = "0.27.7",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")

@@ -17,7 +17,7 @@ jobs:
           name: Install Bazel
           command: |
             sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
-            BAZEL_VERSION=0.15.0
+            BAZEL_VERSION=0.23.2
             BAZEL_INSTALL_SCRIPT=bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
             wget https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/$BAZEL_INSTALL_SCRIPT
             chmod +x $BAZEL_INSTALL_SCRIPT

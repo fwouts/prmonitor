@@ -6,37 +6,43 @@ import { loadPullRequestsRequiringReview } from "./github/loader";
 
 const CHECK_PULL_REQUESTS_ALARM_KEY = "check-pull-requests";
 
-// Beause it isn't a persistent background script, we cannot simply use
-// setInterval() to schedule regular checks for new pull requests.
-// Instead, we set an alarm three minutes.
-// IMPORTANT: GitHub API only allows us 50 requests per hour in total.
-chrome.alarms.create(CHECK_PULL_REQUESTS_ALARM_KEY, {
-  periodInMinutes: 3
-});
+if (chrome && chrome.alarms && chrome.runtime && chrome.notifications) {
+  startBackgroundScript();
+}
 
-// When alarm is triggered, call checkPullRequests().
-chrome.alarms.onAlarm.addListener(alarm => {
-  if (alarm.name === CHECK_PULL_REQUESTS_ALARM_KEY) {
+function startBackgroundScript() {
+  // Beause it isn't a persistent background script, we cannot simply use
+  // setInterval() to schedule regular checks for new pull requests.
+  // Instead, we set an alarm three minutes.
+  // IMPORTANT: GitHub API only allows us 50 requests per hour in total.
+  chrome.alarms.create(CHECK_PULL_REQUESTS_ALARM_KEY, {
+    periodInMinutes: 3
+  });
+
+  // When alarm is triggered, call checkPullRequests().
+  chrome.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === CHECK_PULL_REQUESTS_ALARM_KEY) {
+      checkPullRequests().catch(console.error);
+    }
+  });
+
+  chrome.runtime.onMessage.addListener(message => {
+    if (message.kind === "refresh") {
+      checkPullRequests().catch(console.error);
+    }
+  });
+
+  // Also call checkPullRequests() on install.
+  chrome.runtime.onInstalled.addListener(() => {
     checkPullRequests().catch(console.error);
-  }
-});
+  });
 
-chrome.runtime.onMessage.addListener(message => {
-  if (message.kind === "refresh") {
-    checkPullRequests().catch(console.error);
-  }
-});
-
-// Also call checkPullRequests() on install.
-chrome.runtime.onInstalled.addListener(() => {
-  checkPullRequests().catch(console.error);
-});
-
-// Notification IDs are always pull request URLs.
-chrome.notifications.onClicked.addListener(notificationId => {
-  window.open(notificationId);
-  chrome.notifications.clear(notificationId);
-});
+  // Notification IDs are always pull request URLs.
+  chrome.notifications.onClicked.addListener(notificationId => {
+    window.open(notificationId);
+    chrome.notifications.clear(notificationId);
+  });
+}
 
 /**
  * Checks if there are any new pull requests and notifies the user when required.

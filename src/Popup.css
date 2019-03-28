@@ -1,50 +1,5 @@
 body {
-  min-width: 400px;
-  padding: 8px;
-  font-size: 14px;
-  color: #222;
-}
-
-h1 {
-  font-size: 14px;
-  text-align: left;
-}
-
-a {
-  text-decoration: none;
-}
-
-.pull-requests .error {
-  border: 1px solid #d00;
-  background: #fdd;
-  color: #400;
-  padding: 8px;
-}
-
-.pull-requests ul {
-  list-style: none;
+  margin: 0;
   padding: 0;
-}
-
-.pull-requests li {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  border: 1px solid #ddd;
-  padding: 8px;
-  margin: 8px 0;
-}
-
-.pull-requests li a {
-  display: block;
-  text-decoration: none;
-  color: #333;
-}
-
-.settings-input-singleline {
-  display: flex;
-  flex-direction: row;
-}
-
-.settings input {
-  margin-right: 8px;
-  flex-grow: 1;
+  font-family: sans-serif;
 }

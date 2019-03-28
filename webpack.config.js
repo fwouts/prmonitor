@@ -55,7 +55,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup.html"),
       inject: true,
-      entry: "popup"
+      chunks: ["popup"]
     }),
     new CopyPlugin([
       { from: "manifest.json", to: "." },

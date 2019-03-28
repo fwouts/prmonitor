@@ -9,10 +9,8 @@ module.exports = {
       {
         include: [path.resolve(__dirname, "src")],
         loader: "babel-loader",
-
         options: {
           plugins: ["syntax-dynamic-import"],
-
           presets: [
             [
               "@babel/preset-env",
@@ -22,7 +20,6 @@ module.exports = {
             ]
           ]
         },
-
         test: /\.js$/
       },
       {
@@ -32,7 +29,6 @@ module.exports = {
       },
       {
         test: /\.(scss|css)$/,
-
         use: [
           {
             loader: "style-loader"
@@ -47,23 +43,18 @@ module.exports = {
       }
     ]
   },
-
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx"
   },
-
   resolve: {
     extensions: [".tsx", ".ts", ".js"]
   },
-
   output: {
     filename: "[name].js",
     publicPath: "/"
   },
-
   mode: "development",
-
   devServer: {
     contentBase: path.join(__dirname, "public"),
     compress: true,
@@ -71,7 +62,6 @@ module.exports = {
     hot: true,
     port: 9000
   },
-
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup.html"),
@@ -83,7 +73,6 @@ module.exports = {
       { from: "images", to: "." }
     ])
   ],
-
   optimization: {
     minimizer: [new TerserPlugin()],
     splitChunks: {
@@ -93,7 +82,6 @@ module.exports = {
           test: /[\\/]node_modules[\\/]/
         }
       },
-
       chunks: "async",
       minChunks: 1,
       minSize: 30000,

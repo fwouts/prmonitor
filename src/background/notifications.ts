@@ -1,5 +1,5 @@
 import { chromeApi } from "../chrome";
-import { PullRequest } from "../github/load-all-pull-requests";
+import { PullRequest } from "../github/api/pull-requests";
 
 /**
  * Shows a notification if the pull request is new.

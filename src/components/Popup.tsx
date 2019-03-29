@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import React, { Component, FormEvent, RefObject } from "react";
 import { chromeApi } from "../chrome";
-import { PullRequest } from "../github/load-all-pull-requests";
+import { PullRequest } from "../github/api/pull-requests";
 import { GitHubState } from "../state/github";
 import "./Popup.css";
 
@@ -60,12 +60,12 @@ class Popup extends Component<PopupProps> {
   }
 
   renderUserLogin() {
-    if (!this.props.gitHub.userLogin) {
+    if (!this.props.gitHub.user) {
       return <></>;
     }
     return (
       <div className="user-login">
-        Signed in as <b>{this.props.gitHub.userLogin}</b>
+        Signed in as <b>{this.props.gitHub.user.login}</b>
       </div>
     );
   }

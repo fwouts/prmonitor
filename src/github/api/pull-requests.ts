@@ -3,7 +3,7 @@ import Octokit from "@octokit/rest";
 /**
  * Loads all pull requests in a given repository.
  */
-export async function loadAllPullRequests(
+export async function loadPullRequests(
   octokit: Octokit,
   owner: string,
   repo: string,

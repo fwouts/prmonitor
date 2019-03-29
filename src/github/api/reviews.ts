@@ -3,7 +3,7 @@ import Octokit from "@octokit/rest";
 /**
  * Loads all reviews for a given pull request.
  */
-export async function loadAllReviews(
+export async function loadReviews(
   octokit: Octokit,
   owner: string,
   repo: string,

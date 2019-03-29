@@ -1,8 +1,8 @@
 import Octokit from "@octokit/rest";
-import { loadAllPullRequests, PullRequest } from "./load-all-pull-requests";
-import { loadAllRepos } from "./load-all-repos";
-import { loadAllReviews, Review } from "./load-all-reviews";
-import { getCurrentUserLogin } from "./load-user";
+import { loadPullRequests, PullRequest } from "./api/pull-requests";
+import { loadRepos } from "./api/repos";
+import { loadReviews, Review } from "./api/reviews";
+import { loadAuthenticatedUser } from "./api/user";
 
 /**
  * Loads the set of pull requests that the user must review.
@@ -14,13 +14,13 @@ export async function loadPullRequestsRequiringReview(
   const octokit = new Octokit({
     auth: `token ${token}`
   });
-  const currentUserLoginPromise = getCurrentUserLogin(octokit);
+  const currentUserPromise = loadAuthenticatedUser(octokit);
   const allPullRequests = await loadAllPullRequestsAcrossRepos(octokit);
-  const currentUserLogin = await currentUserLoginPromise;
-  console.log(`User identified as ${currentUserLogin}.`);
+  const currentUser = await currentUserPromise;
+  console.log(`User identified as ${currentUser}.`);
 
   const nonAuthoredPullRequests = allPullRequests.filter(
-    pr => pr.user.login !== currentUserLogin
+    pr => pr.user.login !== currentUser.login
   );
   console.log(
     `Found ${
@@ -30,12 +30,12 @@ export async function loadPullRequestsRequiringReview(
 
   const [firstReview, anotherReview] = await Promise.all([
     extractPullRequestsRequiringFirstReview(
-      currentUserLogin,
+      currentUser.login,
       nonAuthoredPullRequests
     ),
     extractPullRequestsRequiringAnotherReview(
       octokit,
-      currentUserLogin,
+      currentUser.login,
       nonAuthoredPullRequests
     )
   ]);
@@ -53,10 +53,10 @@ export async function loadPullRequestsRequiringReview(
  * Loads all open pull requests across all repositories that the user has access to.
  */
 async function loadAllPullRequestsAcrossRepos(octokit: Octokit) {
-  const repos = await loadAllRepos(octokit);
+  const repos = await loadRepos(octokit);
   console.log(`Found ${repos.length} repos.`);
   const pullRequestsPromises = repos.map(repo =>
-    loadAllPullRequests(octokit, repo.owner.login, repo.name, "open")
+    loadPullRequests(octokit, repo.owner.login, repo.name, "open")
   );
   // TODO: Use .flat() once Chrome 69+ is widespread.
   return ([] as PullRequest[]).concat(
@@ -88,7 +88,7 @@ async function extractPullRequestsRequiringAnotherReview(
   const reviewsPerPullRequestIdPromises = pullRequests.map(async pr => {
     const item: [number, Review[]] = [
       pr.id,
-      await loadAllReviews(
+      await loadReviews(
         octokit,
         pr.base.repo.owner.login,
         pr.base.repo.name,

@@ -1,5 +1,5 @@
 import { chromeApi } from "../chrome";
-import { PullRequest } from "../github/load-all-pull-requests";
+import { PullRequest } from "../github/api/pull-requests";
 import { loadPullRequestsRequiringReview } from "../github/loader";
 import { TokenValue } from "../state/github";
 import { showBadgeError, updateBadge } from "./badge";

@@ -3,9 +3,9 @@ import { observable } from "mobx";
 import { Repo } from "../github/api/repos";
 import { loadAuthenticatedUser, User } from "../github/api/user";
 import {
-  getGitHubApiToken as loadApiTokenFromStorage,
-  updateGitHubApiToken as saveGitHubTokenToStorage
-} from "./storage/auth";
+  loadApiTokenFromStorage,
+  saveApiTokenToStorage
+} from "./storage/token";
 
 export class GitHubState {
   private octokit: Octokit | null = null;
@@ -42,7 +42,7 @@ export class GitHubState {
       kind: "provided",
       token
     };
-    await saveGitHubTokenToStorage(token);
+    await saveApiTokenToStorage(token);
   }
 }
 

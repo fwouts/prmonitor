@@ -28,6 +28,7 @@
   },
   "scripts": {
     "start": "webpack-dev-server --open",
-    "build": "rm -rf dist; webpack --mode production"
+    "build": "rm -rf dist; webpack --mode production",
+    "watch": "rm -rf dist; webpack --mode production --watch"
   }
 }

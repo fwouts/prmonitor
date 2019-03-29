@@ -19,7 +19,7 @@ export async function getGitHubApiToken(): Promise<string> {
  * Updates the GitHub API token in settings.
  */
 export function updateGitHubApiToken(token: string) {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(resolve => {
     chromeApi.storage.local.set(
       {
         gitHubApiToken: token

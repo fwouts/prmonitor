@@ -2,9 +2,14 @@ import React, { Component, FormEvent, RefObject } from "react";
 import { getGitHubApiToken, updateGitHubApiToken } from "../auth";
 import { chromeApi } from "../chrome";
 import { PullRequest } from "../github/load-all-pull-requests";
+import { GitHub as GitHubState } from "../state/github";
 import "./Popup.css";
 
-class Popup extends Component {
+export interface PopupProps {
+  github: GitHubState;
+}
+
+class Popup extends Component<PopupProps> {
   state: {
     gitHubApiTokenProvided: boolean;
     unreviewedPullRequests: PullRequest[];
@@ -19,7 +24,7 @@ class Popup extends Component {
 
   inputRef: RefObject<HTMLInputElement>;
 
-  constructor(props: {}) {
+  constructor(props: PopupProps) {
     super(props);
     this.inputRef = React.createRef();
   }
@@ -45,6 +50,10 @@ class Popup extends Component {
           editing: true
         })
       );
+  }
+
+  componentDidMount() {
+    this.props.github.fetchToken();
   }
 
   render() {

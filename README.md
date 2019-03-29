@@ -13,9 +13,10 @@ PR Monitor is a Chrome extension that notifies you when you receive a pull reque
 
 ## How to build it yourself
 
-1. Install [Bazel](https://bazel.build)
-2. Run `bazel build //...`
-3. Install the unpacked Chrome extension from `bazel-genfiles/extension-dir`
+1. Install [Yarn](https://yarnpkg.com).
+2. Install dependencies with `yarn install`.
+3. Run `yarn build`.
+4. Install the Chrome extension from the generated `dist/` directory in developer mode with "Load unpacked".
 
 ## Feedback
 

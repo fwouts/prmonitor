@@ -1,18 +1,22 @@
-import { getGitHubApiToken } from "../auth";
 import { chromeApi } from "../chrome";
 import { PullRequest } from "../github/load-all-pull-requests";
 import { loadPullRequestsRequiringReview } from "../github/loader";
+import { TokenValue } from "../state/github";
 import { showBadgeError, updateBadge } from "./badge";
 import { showNotification } from "./notifications";
 
 /**
  * Checks if there are any new pull requests and notifies the user when required.
  */
-export async function checkPullRequests() {
+export async function checkPullRequests(tokenValue: TokenValue) {
+  if (tokenValue.kind !== "provided") {
+    return;
+  }
   let error;
   try {
-    const token = await getGitHubApiToken();
-    const unreviewedPullRequests = await loadPullRequestsRequiringReview(token);
+    const unreviewedPullRequests = await loadPullRequestsRequiringReview(
+      tokenValue.token
+    );
     await saveUnreviewedPullRequests(unreviewedPullRequests);
     await updateBadge(unreviewedPullRequests.size);
     await showNotificationForNewPullRequests(unreviewedPullRequests);

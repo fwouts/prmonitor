@@ -1,16 +1,12 @@
-import { chromeApi } from "./chrome";
+import { chromeApi } from "../../chrome";
 
 /**
  * Returns the GitHub API token stored in settings.
  */
-export async function getGitHubApiToken(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+export async function getGitHubApiToken(): Promise<string | null> {
+  return new Promise<string | null>(resolve => {
     chromeApi.storage.local.get(["gitHubApiToken"], result => {
-      if (result.gitHubApiToken) {
-        resolve(result.gitHubApiToken);
-      } else {
-        reject(new Error("GitHub API token is not set."));
-      }
+      resolve(result.gitHubApiToken || null);
     });
   });
 }

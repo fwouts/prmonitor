@@ -1,9 +1,11 @@
+import { chromeApi } from "./chrome";
+
 /**
  * Returns the GitHub API token stored in settings.
  */
 export async function getGitHubApiToken(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    chrome.storage.local.get(["gitHubApiToken"], result => {
+    chromeApi.storage.local.get(["gitHubApiToken"], result => {
       if (result.gitHubApiToken) {
         resolve(result.gitHubApiToken);
       } else {
@@ -18,7 +20,7 @@ export async function getGitHubApiToken(): Promise<string> {
  */
 export function updateGitHubApiToken(token: string) {
   return new Promise<string>((resolve, reject) => {
-    chrome.storage.local.set(
+    chromeApi.storage.local.set(
       {
         gitHubApiToken: token
       },

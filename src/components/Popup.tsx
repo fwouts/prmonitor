@@ -1,5 +1,6 @@
 import React, { Component, FormEvent, RefObject } from "react";
 import { getGitHubApiToken, updateGitHubApiToken } from "../auth";
+import { chromeApi } from "../chrome";
 import { PullRequest } from "../github/load-all-pull-requests";
 import "./Popup.css";
 
@@ -24,11 +25,7 @@ class Popup extends Component {
   }
 
   componentWillMount() {
-    if (!chrome.storage) {
-      console.error("Am I running outside of a Chrome extension?");
-      return;
-    }
-    chrome.storage.local.get(["unreviewedPullRequests", "error"], result => {
+    chromeApi.storage.local.get(["unreviewedPullRequests", "error"], result => {
       this.setState({
         unreviewedPullRequests: result.unreviewedPullRequests || [],
         error: result.error || null
@@ -151,7 +148,7 @@ class Popup extends Component {
       gitHubApiTokenProvided: true,
       editing: false
     });
-    chrome.runtime.sendMessage({
+    chromeApi.runtime.sendMessage({
       kind: "refresh"
     });
   };

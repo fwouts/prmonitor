@@ -1,4 +1,5 @@
 import { getGitHubApiToken } from "./auth";
+import { chromeApi } from "./chrome";
 import { PullRequest } from "./github/load-all-pull-requests";
 import { loadPullRequestsRequiringReview } from "./github/loader";
 
@@ -10,32 +11,32 @@ const CHECK_PULL_REQUESTS_ALARM_KEY = "check-pull-requests";
 // setInterval() to schedule regular checks for new pull requests.
 // Instead, we set an alarm three minutes.
 // IMPORTANT: GitHub API only allows us 50 requests per hour in total.
-chrome.alarms.create(CHECK_PULL_REQUESTS_ALARM_KEY, {
+chromeApi.alarms.create(CHECK_PULL_REQUESTS_ALARM_KEY, {
   periodInMinutes: 3
 });
 
 // When alarm is triggered, call checkPullRequests().
-chrome.alarms.onAlarm.addListener(alarm => {
+chromeApi.alarms.onAlarm.addListener(alarm => {
   if (alarm.name === CHECK_PULL_REQUESTS_ALARM_KEY) {
     checkPullRequests().catch(console.error);
   }
 });
 
-chrome.runtime.onMessage.addListener(message => {
+chromeApi.runtime.onMessage.addListener(message => {
   if (message.kind === "refresh") {
     checkPullRequests().catch(console.error);
   }
 });
 
 // Also call checkPullRequests() on install.
-chrome.runtime.onInstalled.addListener(() => {
+chromeApi.runtime.onInstalled.addListener(() => {
   checkPullRequests().catch(console.error);
 });
 
 // Notification IDs are always pull request URLs.
-chrome.notifications.onClicked.addListener(notificationId => {
+chromeApi.notifications.onClicked.addListener(notificationId => {
   window.open(notificationId);
-  chrome.notifications.clear(notificationId);
+  chromeApi.notifications.clear(notificationId);
 });
 
 /**
@@ -54,7 +55,7 @@ async function checkPullRequests() {
     error = e;
     await showBadgeError();
   }
-  chrome.storage.local.set({
+  chromeApi.storage.local.set({
     error: error ? error.message : null
   });
 }
@@ -64,7 +65,7 @@ async function checkPullRequests() {
  */
 async function saveUnreviewedPullRequests(pullRequests: Set<PullRequest>) {
   await new Promise(resolve => {
-    chrome.storage.local.set(
+    chromeApi.storage.local.set(
       {
         unreviewedPullRequests: Array.from(pullRequests)
       },
@@ -77,10 +78,10 @@ async function saveUnreviewedPullRequests(pullRequests: Set<PullRequest>) {
  * Updates the unread PR count in the Chrome extension badge, as well as its color.
  */
 function updateBadge(prCount: number) {
-  chrome.browserAction.setBadgeText({
+  chromeApi.browserAction.setBadgeText({
     text: "" + prCount
   });
-  chrome.browserAction.setBadgeBackgroundColor({
+  chromeApi.browserAction.setBadgeBackgroundColor({
     color: prCount === 0 ? "#4d4" : "#f00"
   });
 }
@@ -89,10 +90,10 @@ function updateBadge(prCount: number) {
  * Shows an error in the Chrome extension badge.
  */
 function showBadgeError() {
-  chrome.browserAction.setBadgeText({
+  chromeApi.browserAction.setBadgeText({
     text: "!"
   });
-  chrome.browserAction.setBadgeBackgroundColor({
+  chromeApi.browserAction.setBadgeBackgroundColor({
     color: "#000"
   });
 }
@@ -123,7 +124,7 @@ function showNotification(pullRequest: PullRequest) {
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.
   const notificationId = pullRequest.html_url;
-  chrome.notifications.create(notificationId, {
+  chromeApi.notifications.create(notificationId, {
     type: "basic",
     iconUrl: "images/GitHub-Mark-120px-plus.png",
     title: "New pull request",
@@ -137,7 +138,7 @@ function showNotification(pullRequest: PullRequest) {
  * next time.
  */
 async function recordSeenPullRequests(pullRequests: Set<PullRequest>) {
-  chrome.storage.local.set({
+  chromeApi.storage.local.set({
     lastSeenPullRequests: Array.from(pullRequests).map(p => p.html_url)
   });
 }
@@ -147,7 +148,7 @@ async function recordSeenPullRequests(pullRequests: Set<PullRequest>) {
  */
 function getLastSeenPullRequestsUrls(): Promise<string[]> {
   return new Promise(resolve => {
-    chrome.storage.local.get(["lastSeenPullRequests"], result => {
+    chromeApi.storage.local.get(["lastSeenPullRequests"], result => {
       resolve(result.lastSeenPullRequests || []);
     });
   });

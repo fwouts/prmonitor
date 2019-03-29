@@ -9,19 +9,13 @@ export async function loadAllPullRequests(
   repo: string,
   state: "open" | "closed" | "all"
 ): Promise<Array<PullRequest>> {
-  let response = await octokit.pullRequests.getAll({
-    owner,
-    repo,
-    state,
-    per_page: 100
-  });
-  let { data } = response;
-  while (octokit.hasNextPage(response as any)) {
-    response = await octokit.getNextPage(response as any);
-    data = data.concat(response.data);
-  }
-  // Unfortunately, Octokit has the wrong types.
-  return (data as any) as PullRequest[];
+  return octokit.paginate(
+    octokit.pulls.list.endpoint.merge({
+      owner,
+      repo,
+      state
+    })
+  );
 }
 
 export interface PullRequest {

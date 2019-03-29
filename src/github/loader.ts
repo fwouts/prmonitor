@@ -11,10 +11,8 @@ export async function loadPullRequestsRequiringReview(
   token: string
 ): Promise<Set<PullRequest>> {
   console.log("Loading pull requests...");
-  const octokit = new Octokit();
-  octokit.authenticate({
-    type: "token",
-    token
+  const octokit = new Octokit({
+    auth: `token ${token}`
   });
   const currentUserLoginPromise = getCurrentUserLogin(octokit);
   const allPullRequests = await loadAllPullRequestsAcrossRepos(octokit);

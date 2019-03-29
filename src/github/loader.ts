@@ -58,10 +58,7 @@ async function loadAllPullRequestsAcrossRepos(octokit: Octokit) {
   const pullRequestsPromises = repos.map(repo =>
     loadPullRequests(octokit, repo.owner.login, repo.name, "open")
   );
-  // TODO: Use .flat() once Chrome 69+ is widespread.
-  return ([] as PullRequest[]).concat(
-    ...(await Promise.all(pullRequestsPromises))
-  );
+  return (await Promise.all(pullRequestsPromises)).flat();
 }
 
 /**

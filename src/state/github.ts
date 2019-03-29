@@ -1,7 +1,7 @@
 import Octokit from "@octokit/rest";
 import { observable } from "mobx";
-import { Repo } from "../github/load-all-repos";
-import { getCurrentUserLogin } from "../github/load-user";
+import { Repo } from "../github/api/repos";
+import { loadAuthenticatedUser, User } from "../github/api/user";
 import {
   getGitHubApiToken as loadApiTokenFromStorage,
   updateGitHubApiToken as saveGitHubTokenToStorage
@@ -13,7 +13,7 @@ export class GitHubState {
   @observable tokenValue: TokenValue = {
     kind: "loading"
   };
-  @observable userLogin: string | null = null;
+  @observable user: User | null = null;
   @observable repos: Repo[] | null = [];
 
   async fetchSignedInUser() {
@@ -26,13 +26,13 @@ export class GitHubState {
       this.octokit = new Octokit({
         auth: `token ${token}`
       });
-      this.userLogin = await getCurrentUserLogin(this.octokit);
+      this.user = await loadAuthenticatedUser(this.octokit);
     } else {
       this.tokenValue = {
         kind: "missing"
       };
       this.octokit = null;
-      this.userLogin = null;
+      this.user = null;
     }
     return this.tokenValue;
   }

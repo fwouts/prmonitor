@@ -1,5 +1,5 @@
-import { GitHub } from "./github";
+import { GitHubState } from "./github";
 
 export const store = {
-  github: new GitHub()
+  github: new GitHubState()
 };

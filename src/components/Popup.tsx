@@ -1,22 +1,21 @@
+import { observer } from "mobx-react";
 import React, { Component, FormEvent, RefObject } from "react";
-import { getGitHubApiToken, updateGitHubApiToken } from "../auth";
 import { chromeApi } from "../chrome";
 import { PullRequest } from "../github/load-all-pull-requests";
-import { GitHub as GitHubState } from "../state/github";
+import { GitHubState } from "../state/github";
 import "./Popup.css";
 
 export interface PopupProps {
   github: GitHubState;
 }
 
+@observer
 class Popup extends Component<PopupProps> {
   state: {
-    gitHubApiTokenProvided: boolean;
     unreviewedPullRequests: PullRequest[];
     editing: boolean;
     error: string | null;
   } = {
-    gitHubApiTokenProvided: false,
     unreviewedPullRequests: [],
     editing: false,
     error: null
@@ -36,20 +35,14 @@ class Popup extends Component<PopupProps> {
         error: result.error || null
       });
     });
-    getGitHubApiToken()
-      .then(() =>
-        // Token is present.
+    this.props.github.fetchToken().then(tokenValue => {
+      if (tokenValue.kind === "missing") {
+        // Automatically open the form to enter a GitHub token.
         this.setState({
-          gitHubApiTokenProvided: true
-        })
-      )
-      .catch(() =>
-        // Token is absent.
-        this.setState({
-          gitHubApiTokenProvided: false,
           editing: true
-        })
-      );
+        });
+      }
+    });
   }
 
   componentDidMount() {
@@ -78,7 +71,7 @@ class Popup extends Component<PopupProps> {
     if (this.state.error) {
       return <p className="error">Error: {this.state.error}</p>;
     }
-    if (!this.state.gitHubApiTokenProvided) {
+    if (this.props.github.tokenValue.kind === "missing") {
       return <p>Please provide an API token below.</p>;
     }
     if (this.state.unreviewedPullRequests.length === 0) {
@@ -110,7 +103,7 @@ class Popup extends Component<PopupProps> {
     if (!this.state.editing) {
       return (
         <p>
-          {this.state.gitHubApiTokenProvided
+          {this.props.github.tokenValue.kind === "provided"
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
           <a href="#" onClick={this.onSettingsEditClick}>
@@ -150,11 +143,10 @@ class Popup extends Component<PopupProps> {
       return;
     }
     const token = this.inputRef.current.value;
-    updateGitHubApiToken(token).then(() =>
-      console.log("GitHub API token updated.")
-    );
+    this.props.github
+      .setNewToken(token)
+      .then(() => console.log("GitHub API token updated."));
     this.setState({
-      gitHubApiTokenProvided: true,
       editing: false
     });
     chromeApi.runtime.sendMessage({

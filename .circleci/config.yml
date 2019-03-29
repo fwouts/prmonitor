@@ -12,16 +12,13 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          name: Install Bazel
-          command: |
-            sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
-            BAZEL_VERSION=0.23.2
-            BAZEL_INSTALL_SCRIPT=bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
-            wget https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/$BAZEL_INSTALL_SCRIPT
-            chmod +x $BAZEL_INSTALL_SCRIPT
-            sudo ./$BAZEL_INSTALL_SCRIPT
-      - run:
-          name: Build
-          command: bazel build //...
+      - restore_cache:
+          keys:
+            - v3-dependencies-{{ checksum "package.json" }}
+            - v3-dependencies-
+      - run: yarn install --frozen-lockfile
+      - save_cache:
+          paths:
+            - node_modules
+          key: v3-dependencies-{{ checksum "package.json" }}
+      - run: yarn build

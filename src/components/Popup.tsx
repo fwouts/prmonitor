@@ -1,6 +1,6 @@
 import React, { Component, FormEvent, RefObject } from "react";
-import { getGitHubApiToken, updateGitHubApiToken } from "./auth";
-import { PullRequest } from "./github/load-all-pull-requests";
+import { getGitHubApiToken, updateGitHubApiToken } from "../auth";
+import { PullRequest } from "../github/load-all-pull-requests";
 import "./Popup.css";
 
 class Popup extends Component {
@@ -24,6 +24,10 @@ class Popup extends Component {
   }
 
   componentWillMount() {
+    if (!chrome.storage) {
+      console.error("Am I running outside of a Chrome extension?");
+      return;
+    }
     chrome.storage.local.get(["unreviewedPullRequests", "error"], result => {
       this.setState({
         unreviewedPullRequests: result.unreviewedPullRequests || [],

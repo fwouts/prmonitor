@@ -1,13 +1,31 @@
 {
   "name": "prmonitor",
   "dependencies": {
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
     "@octokit/rest": "^15.10.0",
     "@types/chrome": "^0.0.69",
     "@types/react": "^16.4.6",
     "@types/react-dom": "^16.0.6",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
+    "babel-loader": "^8.0.5",
+    "copy-webpack-plugin": "^5.0.2",
+    "css-loader": "^2.1.1",
+    "html-webpack-plugin": "^3.2.0",
     "react-scripts": "1.1.4",
-    "typescript": "^2.9.2"
+    "style-loader": "^0.23.1",
+    "terser-webpack-plugin": "^1.2.3",
+    "ts-loader": "^5.3.3",
+    "typescript": "^2.9.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --open",
+    "build": "rm -rf dist; webpack --mode production"
   }
 }

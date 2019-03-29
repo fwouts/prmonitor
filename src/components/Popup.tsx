@@ -6,7 +6,7 @@ import { GitHubState } from "../state/github";
 import "./Popup.css";
 
 export interface PopupProps {
-  github: GitHubState;
+  gitHub: GitHubState;
 }
 
 @observer
@@ -35,7 +35,7 @@ class Popup extends Component<PopupProps> {
         error: result.error || null
       });
     });
-    this.props.github.fetchToken().then(tokenValue => {
+    this.props.gitHub.fetchSignedInUser().then(tokenValue => {
       if (tokenValue.kind === "missing") {
         // Automatically open the form to enter a GitHub token.
         this.setState({
@@ -46,14 +46,26 @@ class Popup extends Component<PopupProps> {
   }
 
   componentDidMount() {
-    this.props.github.fetchToken();
+    this.props.gitHub.fetchSignedInUser();
   }
 
   render() {
     return (
       <div className="Popup">
+        {this.renderUserLogin()}
         {this.renderPullRequestsSection()}
         {this.renderSettingsSection()}
+      </div>
+    );
+  }
+
+  renderUserLogin() {
+    if (!this.props.gitHub.userLogin) {
+      return <></>;
+    }
+    return (
+      <div className="user-login">
+        Signed in as <b>{this.props.gitHub.userLogin}</b>
       </div>
     );
   }
@@ -71,7 +83,7 @@ class Popup extends Component<PopupProps> {
     if (this.state.error) {
       return <p className="error">Error: {this.state.error}</p>;
     }
-    if (this.props.github.tokenValue.kind === "missing") {
+    if (this.props.gitHub.tokenValue.kind === "missing") {
       return <p>Please provide an API token below.</p>;
     }
     if (this.state.unreviewedPullRequests.length === 0) {
@@ -103,7 +115,7 @@ class Popup extends Component<PopupProps> {
     if (!this.state.editing) {
       return (
         <p>
-          {this.props.github.tokenValue.kind === "provided"
+          {this.props.gitHub.tokenValue.kind === "provided"
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
           <a href="#" onClick={this.onSettingsEditClick}>
@@ -143,7 +155,7 @@ class Popup extends Component<PopupProps> {
       return;
     }
     const token = this.inputRef.current.value;
-    this.props.github
+    this.props.gitHub
       .setNewToken(token)
       .then(() => console.log("GitHub API token updated."));
     this.setState({

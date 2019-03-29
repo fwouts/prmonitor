@@ -8,7 +8,7 @@ import {
 } from "./storage/auth";
 
 export class GitHubState {
-  private octokit = new Octokit();
+  private octokit: Octokit | null = null;
 
   @observable tokenValue: TokenValue = {
     kind: "loading"
@@ -16,16 +16,24 @@ export class GitHubState {
   @observable userLogin: string | null = null;
   @observable repos: Repo[] | null = [];
 
-  async fetchToken() {
+  async fetchSignedInUser() {
     const token = await loadApiTokenFromStorage();
-    this.tokenValue = token
-      ? {
-          kind: "provided",
-          token
-        }
-      : {
-          kind: "missing"
-        };
+    if (token) {
+      this.tokenValue = {
+        kind: "provided",
+        token
+      };
+      this.octokit = new Octokit({
+        auth: `token ${token}`
+      });
+      this.userLogin = await getCurrentUserLogin(this.octokit);
+    } else {
+      this.tokenValue = {
+        kind: "missing"
+      };
+      this.octokit = null;
+      this.userLogin = null;
+    }
     return this.tokenValue;
   }
 
@@ -35,18 +43,6 @@ export class GitHubState {
       token
     };
     await saveGitHubTokenToStorage(token);
-  }
-
-  async fetchUser() {
-    if (this.tokenValue.kind !== "provided") {
-      this.userLogin = null;
-      return;
-    }
-    this.octokit.authenticate({
-      type: "token",
-      token: this.tokenValue.token
-    });
-    this.userLogin = await getCurrentUserLogin(this.octokit);
   }
 }
 

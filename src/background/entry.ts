@@ -35,7 +35,7 @@ chromeApi.notifications.onClicked.addListener(onNotificationClicked);
 
 async function triggerRefresh() {
   try {
-    const tokenValue = await store.github.fetchToken();
+    const tokenValue = await store.github.fetchSignedInUser();
     await checkPullRequests(tokenValue);
   } catch (e) {
     console.error(e);

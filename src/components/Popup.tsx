@@ -42,6 +42,7 @@ class Popup extends Component<PopupProps> {
       <div className="Popup">
         {this.renderLoading()}
         {this.renderUserLogin()}
+        {this.renderRepoList()}
         {this.renderPullRequestsSection()}
         {this.renderSettingsSection()}
       </div>
@@ -62,6 +63,17 @@ class Popup extends Component<PopupProps> {
     return (
       <div className="user-login">
         Signed in as <b>{this.props.github.user.login}</b>
+      </div>
+    );
+  }
+
+  renderRepoList() {
+    if (!this.props.github.repoList) {
+      return <></>;
+    }
+    return (
+      <div className="repo-list">
+        You have access to {this.props.github.repoList.length} repos
       </div>
     );
   }

@@ -1,12 +1,56 @@
+import styled from "@emotion/styled";
 import { observer } from "mobx-react";
 import React, { Component, FormEvent, RefObject } from "react";
 import { chromeApi } from "../chrome";
 import { GitHubState } from "../state/github";
-import "./Popup.css";
 
 export interface PopupProps {
   github: GitHubState;
 }
+
+const Header = styled.h1`
+  font-size: 14px;
+  text-align: left;
+`;
+
+const Link = styled.a`
+  text-decoration: none;
+`;
+
+const Error = styled.p`
+  border: 1px solid #d00;
+  background: #fdd;
+  color: #400;
+  padding: 8px;
+`;
+
+const PullRequestList = styled.ul`
+  list-style: none;
+  padding: 0;
+`;
+
+const PullRequest = styled.li`
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  border: 1px solid #ddd;
+  padding: 8px;
+  margin: 8px 0;
+`;
+
+const PullRequestLink = styled.a`
+  display: block;
+  text-decoration: none;
+  color: #333;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const TokenInput = styled.input`
+  margin-right: 8px;
+  flex-grow: 1;
+`;
 
 @observer
 class Popup extends Component<PopupProps> {
@@ -39,7 +83,7 @@ class Popup extends Component<PopupProps> {
 
   render() {
     return (
-      <div className="Popup">
+      <div>
         {this.renderLoading()}
         {this.renderUserLogin()}
         {this.renderRepoList()}
@@ -53,7 +97,7 @@ class Popup extends Component<PopupProps> {
     if (this.props.github.status === "loaded") {
       return <></>;
     }
-    return <div className="loading">Please wait...</div>;
+    return <div>Please wait...</div>;
   }
 
   renderUserLogin() {
@@ -61,7 +105,7 @@ class Popup extends Component<PopupProps> {
       return <></>;
     }
     return (
-      <div className="user-login">
+      <div>
         Signed in as <b>{this.props.github.user.login}</b>
       </div>
     );
@@ -72,19 +116,17 @@ class Popup extends Component<PopupProps> {
       return <></>;
     }
     return (
-      <div className="repo-list">
-        You have access to {this.props.github.repoList.length} repos
-      </div>
+      <div>You have access to {this.props.github.repoList.length} repos</div>
     );
   }
 
   renderPullRequestsSection() {
     if (this.props.github.lastError) {
-      return <p className="error">Error: {this.props.github.lastError}</p>;
+      return <Error>Error: {this.props.github.lastError}</Error>;
     }
     return (
-      <div className="pull-requests">
-        <h1>Incoming pull requests</h1>
+      <div>
+        <Header>Incoming pull requests</Header>
         {this.renderPullRequestList()}
       </div>
     );
@@ -101,24 +143,24 @@ class Popup extends Component<PopupProps> {
       return <p>Nothing to review, yay!</p>;
     }
     return (
-      <ul>
+      <PullRequestList>
         {this.props.github.unreviewedPullRequests.map(pullRequest => (
-          <li>
-            <a target="_blank" href={pullRequest.html_url}>
+          <PullRequest>
+            <PullRequestLink target="_blank" href={pullRequest.html_url}>
               {pullRequest.title}
-            </a>
-          </li>
+            </PullRequestLink>
+          </PullRequest>
         ))}
-      </ul>
+      </PullRequestList>
     );
   }
 
   renderSettingsSection() {
     return (
-      <div className="settings">
-        <h1>Settings</h1>
+      <>
+        <Header>Settings</Header>
         {this.renderSettingsContent()}
-      </div>
+      </>
     );
   }
 
@@ -129,9 +171,9 @@ class Popup extends Component<PopupProps> {
           {this.props.github.token
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
-          <a href="#" onClick={this.onSettingsEditClick}>
+          <Link href="#" onClick={this.onSettingsEditClick}>
             Update it here.
-          </a>
+          </Link>
         </p>
       );
     } else {
@@ -139,16 +181,16 @@ class Popup extends Component<PopupProps> {
         <form onSubmit={this.onSettingsSubmit}>
           <p>
             Enter a GitHub API token with <b>repo</b> scope (
-            <a href="https://github.com/settings/tokens" target="_blank">
+            <Link href="https://github.com/settings/tokens" target="_blank">
               create one
-            </a>
+            </Link>
             ):
           </p>
-          <div className="settings-input-singleline">
-            <input ref={this.inputRef} />
+          <Row>
+            <TokenInput ref={this.inputRef} />
             <button type="submit">Save</button>
             <button onClick={this.onSettingsCancel}>Cancel</button>
-          </div>
+          </Row>
         </form>
       );
     }

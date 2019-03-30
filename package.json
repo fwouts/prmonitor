@@ -1,6 +1,8 @@
 {
   "name": "prmonitor",
   "dependencies": {
+    "@emotion/core": "^10.0.10",
+    "@emotion/styled": "^10.0.10",
     "mobx": "^5.9.0",
     "mobx-react": "^5.4.3",
     "react": "^16.8.6",

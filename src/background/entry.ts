@@ -1,5 +1,4 @@
 import { chromeApi } from "../chrome";
-import { store } from "../state/store";
 import { checkPullRequests } from "./check-pull-requests";
 import { onNotificationClicked } from "./notifications";
 
@@ -34,10 +33,5 @@ chromeApi.runtime.onInstalled.addListener(triggerRefresh);
 chromeApi.notifications.onClicked.addListener(onNotificationClicked);
 
 async function triggerRefresh() {
-  try {
-    const tokenValue = await store.github.fetchSignedInUser();
-    await checkPullRequests(tokenValue);
-  } catch (e) {
-    console.error(e);
-  }
+  checkPullRequests().catch(console.error);
 }

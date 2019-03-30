@@ -14,7 +14,7 @@ a {
   text-decoration: none;
 }
 
-.pull-requests .error {
+.error {
   border: 1px solid #d00;
   background: #fdd;
   color: #400;

@@ -17,9 +17,8 @@ import {
 export class GitHubState {
   private octokit: Octokit | null = null;
 
-  @observable tokenValue: TokenValue = {
-    kind: "loading"
-  };
+  @observable status: "loading" | "loaded" = "loading";
+  @observable token: string | null = null;
   @observable user: User | null = null;
   @observable unreviewedPullRequests: PullRequest[] | null = null;
   @observable lastSeenPullRequestUrls = new Set<string>();
@@ -37,10 +36,7 @@ export class GitHubState {
   }
 
   async setNewToken(token: string) {
-    this.tokenValue = {
-      kind: "provided",
-      token
-    };
+    this.token = token;
     await saveApiTokenToStorage(token);
     await this.setError(null);
     await this.load(token);
@@ -57,11 +53,9 @@ export class GitHubState {
   }
 
   private async load(token: string | null) {
+    this.status = "loading";
     if (token) {
-      this.tokenValue = {
-        kind: "provided",
-        token
-      };
+      this.token = token;
       this.octokit = new Octokit({
         auth: `token ${token}`
       });
@@ -69,24 +63,11 @@ export class GitHubState {
       this.unreviewedPullRequests = await loadUnreviewedPullRequestsFromStorage();
       this.lastSeenPullRequestUrls = await loadLastSeenPullRequestsUrlsFromStorage();
     } else {
-      this.tokenValue = {
-        kind: "missing"
-      };
+      this.token = null;
       this.user = null;
       this.unreviewedPullRequests = null;
       this.lastSeenPullRequestUrls = new Set();
     }
+    this.status = "loaded";
   }
 }
-
-export type TokenValue =
-  | {
-      kind: "loading";
-    }
-  | {
-      kind: "provided";
-      token: string;
-    }
-  | {
-      kind: "missing";
-    };

@@ -25,7 +25,7 @@ class Popup extends Component<PopupProps> {
 
   async componentWillMount() {
     await this.props.gitHub.start();
-    if (this.props.gitHub.tokenValue.kind === "missing") {
+    if (!this.props.gitHub.token) {
       // Automatically open the form to enter a GitHub token.
       this.setState({
         editing: true
@@ -40,11 +40,19 @@ class Popup extends Component<PopupProps> {
   render() {
     return (
       <div className="Popup">
+        {this.renderLoading()}
         {this.renderUserLogin()}
         {this.renderPullRequestsSection()}
         {this.renderSettingsSection()}
       </div>
     );
+  }
+
+  renderLoading() {
+    if (this.props.gitHub.status === "loaded") {
+      return <></>;
+    }
+    return <div className="loading">Please wait...</div>;
   }
 
   renderUserLogin() {
@@ -71,7 +79,7 @@ class Popup extends Component<PopupProps> {
   }
 
   renderPullRequestList() {
-    if (this.props.gitHub.tokenValue.kind === "missing") {
+    if (!this.props.gitHub.token) {
       return <p>Please provide an API token below.</p>;
     }
     if (this.props.gitHub.unreviewedPullRequests === null) {
@@ -106,7 +114,7 @@ class Popup extends Component<PopupProps> {
     if (!this.state.editing) {
       return (
         <p>
-          {this.props.gitHub.tokenValue.kind === "provided"
+          {this.props.gitHub.token
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
           <a href="#" onClick={this.onSettingsEditClick}>

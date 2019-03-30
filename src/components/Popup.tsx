@@ -5,7 +5,7 @@ import { GitHubState } from "../state/github";
 import "./Popup.css";
 
 export interface PopupProps {
-  gitHub: GitHubState;
+  github: GitHubState;
 }
 
 @observer
@@ -24,8 +24,8 @@ class Popup extends Component<PopupProps> {
   }
 
   async componentWillMount() {
-    await this.props.gitHub.start();
-    if (!this.props.gitHub.token) {
+    await this.props.github.start();
+    if (!this.props.github.token) {
       // Automatically open the form to enter a GitHub token.
       this.setState({
         editing: true
@@ -34,7 +34,7 @@ class Popup extends Component<PopupProps> {
   }
 
   componentDidMount() {
-    this.props.gitHub.start();
+    this.props.github.start();
   }
 
   render() {
@@ -49,26 +49,26 @@ class Popup extends Component<PopupProps> {
   }
 
   renderLoading() {
-    if (this.props.gitHub.status === "loaded") {
+    if (this.props.github.status === "loaded") {
       return <></>;
     }
     return <div className="loading">Please wait...</div>;
   }
 
   renderUserLogin() {
-    if (!this.props.gitHub.user) {
+    if (!this.props.github.user) {
       return <></>;
     }
     return (
       <div className="user-login">
-        Signed in as <b>{this.props.gitHub.user.login}</b>
+        Signed in as <b>{this.props.github.user.login}</b>
       </div>
     );
   }
 
   renderPullRequestsSection() {
-    if (this.props.gitHub.lastError) {
-      return <p className="error">Error: {this.props.gitHub.lastError}</p>;
+    if (this.props.github.lastError) {
+      return <p className="error">Error: {this.props.github.lastError}</p>;
     }
     return (
       <div className="pull-requests">
@@ -79,18 +79,18 @@ class Popup extends Component<PopupProps> {
   }
 
   renderPullRequestList() {
-    if (!this.props.gitHub.token) {
+    if (!this.props.github.token) {
       return <p>Please provide an API token below.</p>;
     }
-    if (this.props.gitHub.unreviewedPullRequests === null) {
+    if (this.props.github.unreviewedPullRequests === null) {
       return <p>Loading pull requests...</p>;
     }
-    if (this.props.gitHub.unreviewedPullRequests.length === 0) {
+    if (this.props.github.unreviewedPullRequests.length === 0) {
       return <p>Nothing to review, yay!</p>;
     }
     return (
       <ul>
-        {this.props.gitHub.unreviewedPullRequests.map(pullRequest => (
+        {this.props.github.unreviewedPullRequests.map(pullRequest => (
           <li>
             <a target="_blank" href={pullRequest.html_url}>
               {pullRequest.title}
@@ -114,7 +114,7 @@ class Popup extends Component<PopupProps> {
     if (!this.state.editing) {
       return (
         <p>
-          {this.props.gitHub.token
+          {this.props.github.token
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
           <a href="#" onClick={this.onSettingsEditClick}>
@@ -154,7 +154,7 @@ class Popup extends Component<PopupProps> {
       return;
     }
     const token = this.inputRef.current.value;
-    this.props.gitHub
+    this.props.github
       .setNewToken(token)
       .then(() => console.log("GitHub API token updated."));
     this.setState({

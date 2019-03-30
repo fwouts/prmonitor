@@ -5,6 +5,6 @@ import "./popup.css";
 import { store } from "./state/store";
 
 ReactDOM.render(
-  <Popup gitHub={store.github} />,
+  <Popup github={store.github} />,
   document.getElementById("root")
 );

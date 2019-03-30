@@ -3,22 +3,13 @@ import { observable } from "mobx";
 import { PullRequest } from "../github/api/pull-requests";
 import { loadRepos } from "../github/api/repos";
 import { loadAuthenticatedUser, User } from "../github/api/user";
-import { loadErrorFromStorage, saveErrorToStorage } from "./storage/error";
+import { lastErrorStorage } from "./storage/error";
 import {
-  loadLastSeenPullRequestsUrlsFromStorage,
-  loadUnreviewedPullRequestsFromStorage,
-  saveSeenPullRequestsToStorage,
-  saveUnreviewedPullRequestsToStorage
+  seenPullRequestsUrlsStorage,
+  unreviewedPullRequestsStorage
 } from "./storage/pull-requests";
-import {
-  loadRepoListFromStorage,
-  RepoSummary,
-  saveRepoListToStorage
-} from "./storage/repos";
-import {
-  loadApiTokenFromStorage,
-  saveApiTokenToStorage
-} from "./storage/token";
+import { repoListStorage, RepoSummary } from "./storage/repos";
+import { tokenStorage } from "./storage/token";
 
 /**
  * Repos should be cached for at most 30 minutes.
@@ -35,31 +26,33 @@ export class GitHubState {
   @observable lastError: string | null = null;
 
   async start() {
-    const token = await loadApiTokenFromStorage();
-    this.lastError = await loadErrorFromStorage();
+    const token = await tokenStorage.load();
+    this.lastError = await lastErrorStorage.load();
     await this.load(token);
   }
 
   async setError(error: string | null) {
     this.lastError = error;
-    await saveErrorToStorage(error);
+    await lastErrorStorage.save(error);
   }
 
   async setNewToken(token: string) {
     this.token = token;
-    await saveApiTokenToStorage(token);
+    await tokenStorage.save(token);
     await this.setError(null);
     await this.load(token);
   }
 
   async setUnreviewedPullRequests(pullRequests: PullRequest[]) {
     this.unreviewedPullRequests = pullRequests;
-    await saveUnreviewedPullRequestsToStorage(pullRequests);
+    await unreviewedPullRequestsStorage.save(pullRequests);
   }
 
   async setLastSeenPullRequests(pullRequests: PullRequest[]) {
     this.lastSeenPullRequestUrls = new Set(pullRequests.map(p => p.html_url));
-    await saveSeenPullRequestsToStorage(this.lastSeenPullRequestUrls);
+    await seenPullRequestsUrlsStorage.save(
+      Array.from(this.lastSeenPullRequestUrls)
+    );
   }
 
   private async load(token: string | null) {
@@ -71,8 +64,10 @@ export class GitHubState {
       });
       this.user = await loadAuthenticatedUser(octokit);
       this.repoList = await this.loadRepoList(octokit);
-      this.unreviewedPullRequests = await loadUnreviewedPullRequestsFromStorage();
-      this.lastSeenPullRequestUrls = await loadLastSeenPullRequestsUrlsFromStorage();
+      this.unreviewedPullRequests = await unreviewedPullRequestsStorage.load();
+      this.lastSeenPullRequestUrls = new Set(
+        await seenPullRequestsUrlsStorage.load()
+      );
     } else {
       this.token = null;
       this.user = null;
@@ -83,20 +78,20 @@ export class GitHubState {
   }
 
   private async loadRepoList(octokit: Octokit): Promise<RepoSummary[]> {
-    const repoListStorage = await loadRepoListFromStorage();
+    const storedRepoList = await repoListStorage.load();
     let repoList;
     if (
-      repoListStorage &&
-      repoListStorage.timestamp > Date.now() - MAX_REPOS_AGE_MILLIS
+      storedRepoList &&
+      storedRepoList.timestamp > Date.now() - MAX_REPOS_AGE_MILLIS
     ) {
-      repoList = repoListStorage.list;
+      repoList = storedRepoList.list;
     } else {
       const fullRepoList = await loadRepos(octokit);
       repoList = fullRepoList.map(repo => ({
         owner: repo.owner.login,
         name: repo.name
       }));
-      await saveRepoListToStorage({
+      await repoListStorage.save({
         timestamp: Date.now(),
         list: repoList
       });

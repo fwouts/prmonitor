@@ -1,26 +1,6 @@
-import { chromeApi } from "../../chrome";
+import { storage } from "./helper";
 
 /**
- * Returns the last error message from storage.
+ * Storage of the last error seen when fetching GitHub data.
  */
-export async function loadErrorFromStorage(): Promise<string | null> {
-  return new Promise<string | null>(resolve => {
-    chromeApi.storage.local.get(["error"], result => {
-      resolve(result.error || null);
-    });
-  });
-}
-
-/**
- * Saves the error message to storage.
- */
-export function saveErrorToStorage(error: string | null) {
-  return new Promise<string>(resolve => {
-    chromeApi.storage.local.set(
-      {
-        error
-      },
-      resolve
-    );
-  });
-}
+export const lastErrorStorage = storage<string>("error");

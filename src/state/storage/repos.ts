@@ -1,23 +1,9 @@
-import { chromeApi } from "../../chrome";
+import { storage } from "./helper";
 
-export async function saveRepoListToStorage(repos: RepoListStorage) {
-  await new Promise(resolve => {
-    chromeApi.storage.local.set(
-      {
-        repos: JSON.stringify(repos)
-      },
-      resolve
-    );
-  });
-}
-
-export async function loadRepoListFromStorage(): Promise<RepoListStorage | null> {
-  return new Promise<RepoListStorage>(resolve =>
-    chromeApi.storage.local.get(["repos"], result =>
-      resolve(result.repos ? JSON.parse(result.repos) : null)
-    )
-  );
-}
+/**
+ * Storage of the repos accessible by the user.
+ */
+export const repoListStorage = storage<RepoListStorage>("repos");
 
 export interface RepoListStorage {
   timestamp: number;

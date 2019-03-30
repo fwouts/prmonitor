@@ -9,7 +9,7 @@ import { loadAuthenticatedUser } from "./api/user";
  */
 export async function loadPullRequestsRequiringReview(
   token: string
-): Promise<Set<PullRequest>> {
+): Promise<PullRequest[]> {
   console.log("Loading pull requests...");
   const octokit = new Octokit({
     auth: `token ${token}`
@@ -46,7 +46,7 @@ export async function loadPullRequestsRequiringReview(
     `Found ${anotherReview.length} pull request(s) requiring another review.`
   );
 
-  return new Set(firstReview.concat(anotherReview));
+  return [...new Set(firstReview.concat(anotherReview))];
 }
 
 /**

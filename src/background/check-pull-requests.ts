@@ -11,11 +11,11 @@ export async function checkPullRequests() {
   let error;
   try {
     await store.github.start();
-    if (store.github.tokenValue.kind !== "provided") {
+    if (!store.github.token) {
       return;
     }
     const unreviewedPullRequests = await loadPullRequestsRequiringReview(
-      store.github.tokenValue.token
+      store.github.token
     );
     await store.github.setUnreviewedPullRequests(unreviewedPullRequests);
     await updateBadge(unreviewedPullRequests.length);

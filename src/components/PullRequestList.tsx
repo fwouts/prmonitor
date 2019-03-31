@@ -8,13 +8,6 @@ export interface PullRequestListProps {
   github: GitHubState;
 }
 
-const Error = styled.p`
-  border: 1px solid #d00;
-  background: #fdd;
-  color: #400;
-  padding: 8px;
-`;
-
 const List = styled.ul`
   list-style: none;
   padding: 0;
@@ -36,9 +29,6 @@ const PullRequestLink = styled.a`
 @observer
 export class PullRequestList extends Component<PullRequestListProps> {
   render() {
-    if (this.props.github.lastError) {
-      return <Error>Error: {this.props.github.lastError}</Error>;
-    }
     return (
       <div>
         <Header>Incoming pull requests</Header>

@@ -21,7 +21,11 @@ export class Popup extends Component<PopupProps> {
       <>
         <Summary github={this.props.github} />
         <Error lastError={this.props.github.lastError} />
-        <PullRequestList github={this.props.github} />
+        {this.props.github.unreviewedPullRequests !== null && (
+          <PullRequestList
+            pullRequests={this.props.github.unreviewedPullRequests}
+          />
+        )}
         <Settings github={this.props.github} />
       </>
     );

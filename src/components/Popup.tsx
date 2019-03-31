@@ -181,8 +181,11 @@ class Popup extends Component<PopupProps> {
         <form onSubmit={this.onSettingsSubmit}>
           <p>
             Enter a GitHub API token with <b>repo</b> scope (
-            <Link href="https://github.com/settings/tokens" target="_blank">
-              create one
+            <Link
+              href="https://github.com/settings/tokens/new?description=PR%20Monitor&amp;scopes=repo"
+              target="_blank"
+            >
+              create a new one
             </Link>
             ):
           </p>

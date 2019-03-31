@@ -1,17 +1,13 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { GitHubState } from "../state/github";
+import { PullRequest } from "../github/api/pull-requests";
 import { Header } from "./design/Header";
+import { List } from "./design/List";
 
 export interface PullRequestListProps {
-  github: GitHubState;
+  pullRequests: PullRequest[];
 }
-
-const List = styled.ul`
-  list-style: none;
-  padding: 0;
-`;
 
 const PullRequest = styled.li`
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -30,33 +26,21 @@ const PullRequestLink = styled.a`
 export class PullRequestList extends Component<PullRequestListProps> {
   render() {
     return (
-      <div>
-        <Header>Incoming pull requests</Header>
-        {this.renderPullRequestList()}
-      </div>
-    );
-  }
-
-  renderPullRequestList() {
-    if (!this.props.github.token) {
-      return <p>Please provide an API token.</p>;
-    }
-    if (this.props.github.unreviewedPullRequests === null) {
-      return <p>Loading pull requests...</p>;
-    }
-    if (this.props.github.unreviewedPullRequests.length === 0) {
-      return <p>Nothing to review, yay!</p>;
-    }
-    return (
-      <List>
-        {this.props.github.unreviewedPullRequests.map(pullRequest => (
-          <PullRequest>
-            <PullRequestLink target="_blank" href={pullRequest.html_url}>
-              {pullRequest.title}
-            </PullRequestLink>
-          </PullRequest>
-        ))}
-      </List>
+      <>
+        <Header>Pull requests</Header>
+        <List>
+          {this.props.pullRequests.length === 0 && (
+            <p>Nothing to review, yay!</p>
+          )}
+          {this.props.pullRequests.map(pullRequest => (
+            <PullRequest>
+              <PullRequestLink target="_blank" href={pullRequest.html_url}>
+                {pullRequest.title}
+              </PullRequestLink>
+            </PullRequest>
+          ))}
+        </List>
+      </>
     );
   }
 }

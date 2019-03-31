@@ -5,6 +5,7 @@ import { chromeApi } from "../chrome";
 import { GitHubState } from "../state/github";
 import { Header } from "./design/Header";
 import { Link } from "./design/Link";
+import { Paragraph } from "./design/Paragraph";
 
 export interface SettingsProps {
   github: GitHubState;
@@ -55,19 +56,19 @@ export class Settings extends Component<SettingsProps> {
         : this.state.editing;
     if (!editing) {
       return (
-        <p>
+        <Paragraph>
           {this.props.github.token
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
           <Link href="#" onClick={this.openForm}>
             Update it here.
           </Link>
-        </p>
+        </Paragraph>
       );
     } else {
       return (
         <form onSubmit={this.saveForm}>
-          <p>
+          <Paragraph>
             Enter a GitHub API token with <b>repo</b> scope (
             <Link
               href="https://github.com/settings/tokens/new?description=PR%20Monitor&amp;scopes=repo"
@@ -76,7 +77,7 @@ export class Settings extends Component<SettingsProps> {
               create a new one
             </Link>
             ):
-          </p>
+          </Paragraph>
           <Row>
             <TokenInput ref={this.inputRef} />
             <button type="submit">Save</button>

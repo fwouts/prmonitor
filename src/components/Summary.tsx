@@ -13,7 +13,6 @@ export class Summary extends Component<SummaryProps> {
       <>
         {this.renderLoading()}
         {this.renderUserLogin()}
-        {this.renderRepoList()}
       </>
     );
   }
@@ -33,15 +32,6 @@ export class Summary extends Component<SummaryProps> {
       <div>
         Signed in as <b>{this.props.github.user.login}</b>
       </div>
-    );
-  }
-
-  renderRepoList() {
-    if (!this.props.github.repoList) {
-      return <></>;
-    }
-    return (
-      <div>You have access to {this.props.github.repoList.length} repos</div>
     );
   }
 }

@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import { PullRequest } from "../github/api/pull-requests";
 import { Header } from "./design/Header";
 import { List } from "./design/List";
+import { Paragraph } from "./design/Paragraph";
 
 export interface PullRequestListProps {
   pullRequests: PullRequest[];
@@ -28,18 +29,19 @@ export class PullRequestList extends Component<PullRequestListProps> {
     return (
       <>
         <Header>Pull requests</Header>
-        <List>
-          {this.props.pullRequests.length === 0 && (
-            <p>Nothing to review, yay!</p>
-          )}
-          {this.props.pullRequests.map(pullRequest => (
-            <PullRequest>
-              <PullRequestLink target="_blank" href={pullRequest.html_url}>
-                {pullRequest.title}
-              </PullRequestLink>
-            </PullRequest>
-          ))}
-        </List>
+        {this.props.pullRequests.length === 0 ? (
+          <Paragraph>Nothing to review, yay!</Paragraph>
+        ) : (
+          <List>
+            {this.props.pullRequests.map(pullRequest => (
+              <PullRequest key={pullRequest.id}>
+                <PullRequestLink target="_blank" href={pullRequest.html_url}>
+                  {pullRequest.title}
+                </PullRequestLink>
+              </PullRequest>
+            ))}
+          </List>
+        )}
       </>
     );
   }

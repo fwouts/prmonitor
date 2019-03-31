@@ -49,7 +49,7 @@ export class PullRequestList extends Component<PullRequestListProps> {
 
   renderPullRequestList() {
     if (!this.props.github.token) {
-      return <p>Please provide an API token below.</p>;
+      return <p>Please provide an API token.</p>;
     }
     if (this.props.github.unreviewedPullRequests === null) {
       return <p>Loading pull requests...</p>;

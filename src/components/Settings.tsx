@@ -59,14 +59,14 @@ export class Settings extends Component<SettingsProps> {
           {this.props.github.token
             ? "You have already provided a GitHub API token."
             : "Please provide a GitHub API token."}{" "}
-          <Link href="#" onClick={this.onSettingsEditClick}>
+          <Link href="#" onClick={this.openForm}>
             Update it here.
           </Link>
         </p>
       );
     } else {
       return (
-        <form onSubmit={this.onSettingsSubmit}>
+        <form onSubmit={this.saveForm}>
           <p>
             Enter a GitHub API token with <b>repo</b> scope (
             <Link
@@ -80,20 +80,20 @@ export class Settings extends Component<SettingsProps> {
           <Row>
             <TokenInput ref={this.inputRef} />
             <button type="submit">Save</button>
-            <button onClick={this.onSettingsCancel}>Cancel</button>
+            <button onClick={this.cancelForm}>Cancel</button>
           </Row>
         </form>
       );
     }
   }
 
-  onSettingsEditClick = () => {
+  openForm = () => {
     this.setState({
       editing: true
     });
   };
 
-  onSettingsSubmit = (event: FormEvent<HTMLFormElement>) => {
+  saveForm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!this.inputRef.current) {
       return;
@@ -110,7 +110,7 @@ export class Settings extends Component<SettingsProps> {
     });
   };
 
-  onSettingsCancel = () => {
+  cancelForm = () => {
     this.setState({
       editing: false
     });

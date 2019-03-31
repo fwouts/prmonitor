@@ -1,7 +1,7 @@
 import { css, Global } from "@emotion/core";
 import React from "react";
 import ReactDOM from "react-dom";
-import Popup from "./components/Popup";
+import { Popup } from "./components/Popup";
 import { store } from "./state/store";
 
 ReactDOM.render(

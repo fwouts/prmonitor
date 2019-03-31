@@ -10,20 +10,18 @@ export interface PopupProps {
 }
 
 @observer
-class Popup extends Component<PopupProps> {
+export class Popup extends Component<PopupProps> {
   async componentDidMount() {
     await this.props.github.start();
   }
 
   render() {
     return (
-      <div>
+      <>
         <Summary github={this.props.github} />
         <PullRequestList github={this.props.github} />
         <Settings github={this.props.github} />
-      </div>
+      </>
     );
   }
 }
-
-export default Popup;

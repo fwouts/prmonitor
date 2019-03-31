@@ -35,10 +35,6 @@ const PullRequestLink = styled.a`
 
 @observer
 export class PullRequestList extends Component<PullRequestListProps> {
-  async componentDidMount() {
-    await this.props.github.start();
-  }
-
   render() {
     if (this.props.github.lastError) {
       return <Error>Error: {this.props.github.lastError}</Error>;

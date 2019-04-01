@@ -42,8 +42,18 @@ export function storageWithDefault<T>(
 
 function loadFromStorage<T>(key: string): Promise<T | null> {
   return new Promise<T | null>(resolve => {
-    chromeApi.storage.local.get([key], result => {
-      resolve(result[key] ? JSON.parse(result[key]) : null);
+    chromeApi.storage.local.get([key], dict => {
+      let result;
+      try {
+        result = JSON.parse(dict[key]);
+      } catch (e) {
+        // Because we were previously storing values directly without JSON serialization,
+        // we may need to fall back to non-JSON deserialization.
+        //
+        // For example, the API token was previously stored as `abc`, not `"abc"`.
+        result = dict[key];
+      }
+      resolve(result || null);
     });
   });
 }

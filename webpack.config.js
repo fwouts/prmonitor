@@ -56,7 +56,7 @@ module.exports = {
     }),
     new CopyPlugin([
       { from: "manifest.json", to: "." },
-      { from: "images", to: "." }
+      { from: "images", to: "images" }
     ])
   ],
   optimization: {

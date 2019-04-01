@@ -1,4 +1,4 @@
-import { PullRequest } from "../github/api/pull-requests";
+import { PullsListResponseItem } from "@octokit/rest";
 import { loadPullRequestsRequiringReview } from "../github/loader";
 import { store } from "../state/store";
 import { showBadgeError, updateBadge } from "./badge";
@@ -31,7 +31,9 @@ export async function checkPullRequests() {
 /**
  * Shows a notification for each pull request that we haven't yet notified about.
  */
-async function showNotificationForNewPullRequests(pullRequests: PullRequest[]) {
+async function showNotificationForNewPullRequests(
+  pullRequests: PullsListResponseItem[]
+) {
   for (const pullRequest of pullRequests) {
     if (!store.github.lastSeenPullRequestUrls.has(pullRequest.html_url)) {
       console.log(`Showing ${pullRequest.html_url}`);

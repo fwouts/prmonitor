@@ -1,6 +1,5 @@
-import Octokit from "@octokit/rest";
+import Octokit, { PullsListResponseItem } from "@octokit/rest";
 import { observable } from "mobx";
-import { PullRequest } from "../github/api/pull-requests";
 import { loadRepos } from "../github/api/repos";
 import { loadAuthenticatedUser, User } from "../github/api/user";
 import { lastErrorStorage } from "./storage/error";
@@ -21,7 +20,7 @@ export class GitHubState {
   @observable token: string | null = null;
   @observable user: User | null = null;
   @observable repoList: RepoSummary[] | null = null;
-  @observable unreviewedPullRequests: PullRequest[] | null = null;
+  @observable unreviewedPullRequests: PullsListResponseItem[] | null = null;
   @observable lastSeenPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
@@ -43,12 +42,12 @@ export class GitHubState {
     await this.load(token);
   }
 
-  async setUnreviewedPullRequests(pullRequests: PullRequest[]) {
+  async setUnreviewedPullRequests(pullRequests: PullsListResponseItem[]) {
     this.unreviewedPullRequests = pullRequests;
     await unreviewedPullRequestsStorage.save(pullRequests);
   }
 
-  async setLastSeenPullRequests(pullRequests: PullRequest[]) {
+  async setLastSeenPullRequests(pullRequests: PullsListResponseItem[]) {
     this.lastSeenPullRequestUrls = new Set(pullRequests.map(p => p.html_url));
     await seenPullRequestsUrlsStorage.save(
       Array.from(this.lastSeenPullRequestUrls)

@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { Repo } from "../github/api/repos";
 import { RepoSummary } from "../state/storage/repos";
 import { Header } from "./design/Header";
 import { List } from "./design/List";

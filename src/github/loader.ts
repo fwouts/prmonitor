@@ -1,5 +1,8 @@
-import Octokit from "@octokit/rest";
-import { loadPullRequests, PullRequest } from "./api/pull-requests";
+import Octokit, {
+  PullsListResponse,
+  PullsListResponseItem
+} from "@octokit/rest";
+import { loadPullRequests } from "./api/pull-requests";
 import { loadRepos } from "./api/repos";
 import { loadReviews, Review } from "./api/reviews";
 import { loadAuthenticatedUser } from "./api/user";
@@ -9,7 +12,7 @@ import { loadAuthenticatedUser } from "./api/user";
  */
 export async function loadPullRequestsRequiringReview(
   token: string
-): Promise<PullRequest[]> {
+): Promise<PullsListResponse> {
   console.log("Loading pull requests...");
   const octokit = new Octokit({
     auth: `token ${token}`
@@ -66,7 +69,7 @@ async function loadAllPullRequestsAcrossRepos(octokit: Octokit) {
  */
 async function extractPullRequestsRequiringFirstReview(
   currentUserLogin: string,
-  pullRequests: PullRequest[]
+  pullRequests: PullsListResponseItem[]
 ) {
   return pullRequests.filter(
     pr =>
@@ -80,7 +83,7 @@ async function extractPullRequestsRequiringFirstReview(
 async function extractPullRequestsRequiringAnotherReview(
   octokit: Octokit,
   currentUserLogin: string,
-  pullRequests: PullRequest[]
+  pullRequests: PullsListResponseItem[]
 ) {
   const reviewsPerPullRequestIdPromises = pullRequests.map(async pr => {
     const item: [number, Review[]] = [

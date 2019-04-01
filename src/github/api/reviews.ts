@@ -1,4 +1,4 @@
-import Octokit from "@octokit/rest";
+import Octokit, { PullsListReviewsResponseItem } from "@octokit/rest";
 
 /**
  * Loads all reviews for a given pull request.
@@ -18,10 +18,7 @@ export async function loadReviews(
   );
 }
 
-export interface Review {
+export interface Review extends PullsListReviewsResponseItem {
   state: "PENDING" | "COMMENTED" | "CHANGES_REQUESTED" | "APPROVED";
   submitted_at: string;
-  user: {
-    login: string;
-  };
 }

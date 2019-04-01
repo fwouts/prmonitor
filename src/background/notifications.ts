@@ -1,10 +1,10 @@
+import { PullsListResponseItem } from "@octokit/rest";
 import { chromeApi } from "../chrome";
-import { PullRequest } from "../github/api/pull-requests";
 
 /**
  * Shows a notification if the pull request is new.
  */
-export function showNotification(pullRequest: PullRequest) {
+export function showNotification(pullRequest: PullsListResponseItem) {
   // We set the notification ID to the URL so that we simply cannot have duplicate
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.

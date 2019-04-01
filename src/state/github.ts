@@ -1,4 +1,7 @@
-import Octokit, { PullsListResponseItem } from "@octokit/rest";
+import Octokit, {
+  PullsListResponseItem,
+  ReposGetResponse
+} from "@octokit/rest";
 import { observable } from "mobx";
 import { loadRepos } from "../github/api/repos";
 import {
@@ -10,13 +13,7 @@ import {
   seenPullRequestsUrlsStorage,
   unreviewedPullRequestsStorage
 } from "./storage/pull-requests";
-import { repoListStorage, RepoSummary } from "./storage/repos";
 import { tokenStorage } from "./storage/token";
-
-/**
- * Repos should be cached for at most 30 minutes.
- */
-const MAX_REPOS_AGE_MILLIS = 30 * 60 * 1000;
 
 export class GitHubState {
   octokit: Octokit | null = null;
@@ -24,7 +21,7 @@ export class GitHubState {
   @observable status: "loading" | "loaded" = "loading";
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
-  @observable repoList: RepoSummary[] | null = null;
+  @observable repoList: ReposGetResponse[] | null = null;
   @observable unreviewedPullRequests: PullsListResponseItem[] | null = null;
   @observable lastSeenPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
@@ -67,7 +64,7 @@ export class GitHubState {
         auth: `token ${token}`
       });
       this.user = await loadAuthenticatedUser(this.octokit);
-      this.repoList = await this.loadRepoList(this.octokit);
+      this.repoList = await loadRepos(this.octokit);
       this.unreviewedPullRequests = await unreviewedPullRequestsStorage.load();
       this.lastSeenPullRequestUrls = new Set(
         await seenPullRequestsUrlsStorage.load()
@@ -80,28 +77,5 @@ export class GitHubState {
       this.lastSeenPullRequestUrls = new Set();
     }
     this.status = "loaded";
-  }
-
-  private async loadRepoList(octokit: Octokit): Promise<RepoSummary[]> {
-    const storedRepoList = await repoListStorage.load();
-    let repoList;
-    if (
-      storedRepoList &&
-      storedRepoList.timestamp > Date.now() - MAX_REPOS_AGE_MILLIS
-    ) {
-      repoList = storedRepoList.list;
-    } else {
-      const fullRepoList = await loadRepos(octokit);
-      repoList = fullRepoList.map(repo => ({
-        owner: repo.owner.login,
-        name: repo.name,
-        pushed_at: repo.pushed_at
-      }));
-      await repoListStorage.save({
-        timestamp: Date.now(),
-        list: repoList
-      });
-    }
-    return repoList;
   }
 }

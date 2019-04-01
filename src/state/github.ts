@@ -91,7 +91,8 @@ export class GitHubState {
       const fullRepoList = await loadRepos(octokit);
       repoList = fullRepoList.map(repo => ({
         owner: repo.owner.login,
-        name: repo.name
+        name: repo.name,
+        pushed_at: repo.pushed_at
       }));
       await repoListStorage.save({
         timestamp: Date.now(),

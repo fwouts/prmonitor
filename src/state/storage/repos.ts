@@ -13,4 +13,7 @@ export interface RepoListStorage {
 export interface RepoSummary {
   owner: string;
   name: string;
+
+  /** Date when the last commit was pushed (across any branch). */
+  pushed_at: string;
 }

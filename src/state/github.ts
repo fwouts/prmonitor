@@ -1,7 +1,10 @@
 import Octokit, { PullsListResponseItem } from "@octokit/rest";
 import { observable } from "mobx";
 import { loadRepos } from "../github/api/repos";
-import { loadAuthenticatedUser, User } from "../github/api/user";
+import {
+  GetAuthenticatedUserResponse,
+  loadAuthenticatedUser
+} from "../github/api/user";
 import { lastErrorStorage } from "./storage/error";
 import {
   seenPullRequestsUrlsStorage,
@@ -18,7 +21,7 @@ const MAX_REPOS_AGE_MILLIS = 30 * 60 * 1000;
 export class GitHubState {
   @observable status: "loading" | "loaded" = "loading";
   @observable token: string | null = null;
-  @observable user: User | null = null;
+  @observable user: GetAuthenticatedUserResponse | null = null;
   @observable repoList: RepoSummary[] | null = null;
   @observable unreviewedPullRequests: PullsListResponseItem[] | null = null;
   @observable lastSeenPullRequestUrls = new Set<string>();

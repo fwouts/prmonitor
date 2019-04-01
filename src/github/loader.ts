@@ -4,7 +4,7 @@ import Octokit, {
 } from "@octokit/rest";
 import { loadPullRequests } from "./api/pull-requests";
 import { loadRepos } from "./api/repos";
-import { loadReviews, Review } from "./api/reviews";
+import { loadReviews, PullsListReviewsResponseItem } from "./api/reviews";
 import { loadAuthenticatedUser } from "./api/user";
 
 /**
@@ -86,7 +86,7 @@ async function extractPullRequestsRequiringAnotherReview(
   pullRequests: PullsListResponseItem[]
 ) {
   const reviewsPerPullRequestIdPromises = pullRequests.map(async pr => {
-    const item: [number, Review[]] = [
+    const item: [number, PullsListReviewsResponseItem[]] = [
       pr.id,
       await loadReviews(
         octokit,
@@ -105,7 +105,7 @@ async function extractPullRequestsRequiringAnotherReview(
       return acc;
     },
     {} as {
-      [id: number]: Review[];
+      [id: number]: PullsListReviewsResponseItem[];
     }
   );
   return pullRequests.filter(
@@ -122,7 +122,10 @@ async function extractPullRequestsRequiringAnotherReview(
 /**
  * Returns whether the user wrote at least once review.
  */
-function userReviewed(currentUserLogin: string, reviews: Review[]) {
+function userReviewed(
+  currentUserLogin: string,
+  reviews: PullsListReviewsResponseItem[]
+) {
   return reviews.findIndex(r => r.user.login === currentUserLogin) !== -1;
 }
 
@@ -132,7 +135,7 @@ function userReviewed(currentUserLogin: string, reviews: Review[]) {
 function isNewReviewNeeded(
   pullRequestAuthorLogin: string,
   currentUserLogin: string,
-  reviews: Review[]
+  reviews: PullsListReviewsResponseItem[]
 ) {
   let lastReviewFromCurrentUser = 0;
   let lastChangeFromAuthor = 0;

@@ -2,28 +2,33 @@ import Octokit, {
   PullsListResponse,
   PullsListResponseItem
 } from "@octokit/rest";
+import { GitHubState } from "../state/github";
+import { RepoSummary } from "../state/storage/repos";
 import { loadPullRequests } from "./api/pull-requests";
-import { loadRepos } from "./api/repos";
 import { loadReviews, PullsListReviewsResponseItem } from "./api/reviews";
-import { loadAuthenticatedUser } from "./api/user";
 
 /**
  * Loads the set of pull requests that the user must review.
  */
 export async function loadPullRequestsRequiringReview(
-  token: string
+  githubState: GitHubState
 ): Promise<PullsListResponse> {
+  if (!githubState.octokit) {
+    throw new Error(`Not authenticated.`);
+  }
+  if (!githubState.user || !githubState.repoList) {
+    throw new Error(`GitHub state not loaded yet.`);
+  }
+  const currentUserLogin = githubState.user.login;
+
   console.log("Loading pull requests...");
-  const octokit = new Octokit({
-    auth: `token ${token}`
-  });
-  const currentUserPromise = loadAuthenticatedUser(octokit);
-  const allPullRequests = await loadAllPullRequestsAcrossRepos(octokit);
-  const currentUser = await currentUserPromise;
-  console.log(`User identified as ${currentUser}.`);
+  const allPullRequests = await loadAllPullRequestsAcrossRepos(
+    githubState.octokit,
+    githubState.repoList
+  );
 
   const nonAuthoredPullRequests = allPullRequests.filter(
-    pr => pr.user.login !== currentUser.login
+    pr => pr.user.login !== currentUserLogin
   );
   console.log(
     `Found ${
@@ -33,12 +38,12 @@ export async function loadPullRequestsRequiringReview(
 
   const [firstReview, anotherReview] = await Promise.all([
     extractPullRequestsRequiringFirstReview(
-      currentUser.login,
+      currentUserLogin,
       nonAuthoredPullRequests
     ),
     extractPullRequestsRequiringAnotherReview(
-      octokit,
-      currentUser.login,
+      githubState.octokit,
+      currentUserLogin,
       nonAuthoredPullRequests
     )
   ]);
@@ -55,11 +60,12 @@ export async function loadPullRequestsRequiringReview(
 /**
  * Loads all open pull requests across all repositories that the user has access to.
  */
-async function loadAllPullRequestsAcrossRepos(octokit: Octokit) {
-  const repos = await loadRepos(octokit);
-  console.log(`Found ${repos.length} repos.`);
+async function loadAllPullRequestsAcrossRepos(
+  octokit: Octokit,
+  repos: RepoSummary[]
+) {
   const pullRequestsPromises = repos.map(repo =>
-    loadPullRequests(octokit, repo.owner.login, repo.name, "open")
+    loadPullRequests(octokit, repo.owner, repo.name, "open")
   );
   return (await Promise.all(pullRequestsPromises)).flat();
 }

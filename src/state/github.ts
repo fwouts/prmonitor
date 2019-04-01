@@ -19,6 +19,8 @@ import { tokenStorage } from "./storage/token";
 const MAX_REPOS_AGE_MILLIS = 30 * 60 * 1000;
 
 export class GitHubState {
+  octokit: Octokit | null = null;
+
   @observable status: "loading" | "loaded" = "loading";
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
@@ -61,17 +63,18 @@ export class GitHubState {
     this.status = "loading";
     if (token) {
       this.token = token;
-      const octokit = new Octokit({
+      this.octokit = new Octokit({
         auth: `token ${token}`
       });
-      this.user = await loadAuthenticatedUser(octokit);
-      this.repoList = await this.loadRepoList(octokit);
+      this.user = await loadAuthenticatedUser(this.octokit);
+      this.repoList = await this.loadRepoList(this.octokit);
       this.unreviewedPullRequests = await unreviewedPullRequestsStorage.load();
       this.lastSeenPullRequestUrls = new Set(
         await seenPullRequestsUrlsStorage.load()
       );
     } else {
       this.token = null;
+      this.octokit = null;
       this.user = null;
       this.unreviewedPullRequests = null;
       this.lastSeenPullRequestUrls = new Set();

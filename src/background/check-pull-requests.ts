@@ -15,7 +15,7 @@ export async function checkPullRequests() {
       return;
     }
     const unreviewedPullRequests = await loadPullRequestsRequiringReview(
-      store.github.token
+      store.github
     );
     await store.github.setUnreviewedPullRequests(unreviewedPullRequests);
     await updateBadge(unreviewedPullRequests.length);

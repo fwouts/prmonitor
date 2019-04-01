@@ -1,16 +1,11 @@
-import Octokit from "@octokit/rest";
+import Octokit, { ReposGetResponse } from "@octokit/rest";
 
 /**
  * Loads all repositories that a user has access to.
  */
-export async function loadRepos(octokit: Octokit): Promise<Array<Repo>> {
+export async function loadRepos(octokit: Octokit): Promise<ReposListResponse> {
   return octokit.paginate(octokit.repos.list.endpoint.merge({}));
 }
 
-export interface Repo {
-  owner: {
-    login: string;
-  };
-  name: string;
-  updated_at: string;
-}
+// Type missing from @octokit/rest.
+export type ReposListResponse = ReposGetResponse[];

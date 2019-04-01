@@ -1,4 +1,6 @@
-import Octokit from "@octokit/rest";
+import Octokit, {
+  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem
+} from "@octokit/rest";
 
 /**
  * Loads all reviews for a given pull request.
@@ -8,7 +10,7 @@ export async function loadReviews(
   owner: string,
   repo: string,
   pullRequestNumber: number
-): Promise<Review[]> {
+): Promise<PullsListReviewsResponse> {
   return octokit.paginate(
     octokit.pulls.listReviews.endpoint.merge({
       owner,
@@ -18,10 +20,12 @@ export async function loadReviews(
   );
 }
 
-export interface Review {
+export type PullsListReviewsResponse = PullsListReviewsResponseItem[];
+
+// PullsListReviewsResponseItem provides in @octokit/rest isn't specific enough
+// about state and lacks fields such as submitted_at.
+export interface PullsListReviewsResponseItem
+  extends IncompletePullsListReviewsResponseItem {
   state: "PENDING" | "COMMENTED" | "CHANGES_REQUESTED" | "APPROVED";
   submitted_at: string;
-  user: {
-    login: string;
-  };
 }

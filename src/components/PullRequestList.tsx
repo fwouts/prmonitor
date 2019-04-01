@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
+import { PullsListResponseItem } from "@octokit/rest";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { PullRequest } from "../github/api/pull-requests";
 import { Header } from "./design/Header";
 import { List } from "./design/List";
 import { Paragraph } from "./design/Paragraph";
 
 export interface PullRequestListProps {
-  pullRequests: PullRequest[];
+  pullRequests: PullsListResponseItem[];
 }
 
 const PullRequest = styled.li`

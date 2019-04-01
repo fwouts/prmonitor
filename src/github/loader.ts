@@ -1,9 +1,9 @@
 import Octokit, {
   PullsListResponse,
-  PullsListResponseItem
+  PullsListResponseItem,
+  ReposGetResponse
 } from "@octokit/rest";
 import { GitHubState } from "../state/github";
-import { RepoSummary } from "../state/storage/repos";
 import { loadPullRequests } from "./api/pull-requests";
 import { loadReviews, PullsListReviewsResponseItem } from "./api/reviews";
 
@@ -62,10 +62,10 @@ export async function loadPullRequestsRequiringReview(
  */
 async function loadAllPullRequestsAcrossRepos(
   octokit: Octokit,
-  repos: RepoSummary[]
+  repos: ReposGetResponse[]
 ) {
   const pullRequestsPromises = repos.map(repo =>
-    loadPullRequests(octokit, repo.owner, repo.name, "open")
+    loadPullRequests(octokit, repo.owner.login, repo.name, "open")
   );
   return (await Promise.all(pullRequestsPromises)).flat();
 }

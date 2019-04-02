@@ -65,6 +65,7 @@ export class GitHubState {
       });
       this.user = await loadAuthenticatedUser(this.octokit);
       this.repoList = await loadRepos(this.octokit);
+      console.log(JSON.parse(JSON.stringify(this.repoList)));
       this.unreviewedPullRequests = await unreviewedPullRequestsStorage.load();
       this.lastSeenPullRequestUrls = new Set(
         await seenPullRequestsUrlsStorage.load()

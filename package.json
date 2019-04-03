@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.4.2",
+    "@babel/preset-env": "^7.4.3",
     "@octokit/rest": "^16.22.0",
     "@types/chrome": "^0.0.81",
     "@types/node": "^11.13.0",

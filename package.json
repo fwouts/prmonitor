@@ -9,7 +9,7 @@
     "react-dom": "^16.8.6"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.0",
+    "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.2",
     "@octokit/rest": "^16.22.0",
     "@types/chrome": "^0.0.81",

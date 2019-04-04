@@ -8,13 +8,21 @@ ReactDOM.render(
   <>
     <Global
       styles={css`
+        @import url("https://fonts.googleapis.com/css?family=Roboto");
+
         body {
+          background: #f6f8fc;
+          color: #444;
           margin: 0;
           padding: 8px;
-          min-width: 400px;
-          font-family: sans-serif;
+          overflow: hidden;
+          width: 600px;
+          font-family: Roboto, sans-serif;
           font-size: 14px;
-          color: #222;
+        }
+
+        a {
+          color: #000;
         }
       `}
     />

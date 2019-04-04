@@ -22,7 +22,7 @@ import { tokenStorage } from "./storage/token";
 export class GitHubState {
   octokit: Octokit | null = null;
 
-  @observable status: "loading" | "loaded" = "loading";
+  @observable status: "loading" | "loaded" | "failed" = "loading";
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
   @observable lastCheck: LastCheck | null = null;
@@ -44,7 +44,12 @@ export class GitHubState {
     this.token = token;
     await tokenStorage.save(token);
     await this.setError(null);
+    await this.setLastSeenPullRequests([]);
+    await this.setLastCheck(null);
     await this.load(token);
+    if (this.status === "loaded") {
+      await this.refreshPullRequests();
+    }
   }
 
   async setLastSeenPullRequests(pullRequests: PullRequest[]) {
@@ -69,13 +74,12 @@ export class GitHubState {
       octokit,
       openPullRequests
     );
-    this.lastCheck = {
+    await this.setLastCheck({
       openPullRequests: openPullRequests.map(pr =>
         pullRequestFromResponse(pr, reviewsPerPullRequest[pr.node_id])
       ),
       repos
-    };
-    lastCheckStorage.save(this.lastCheck);
+    });
   }
 
   @computed
@@ -89,26 +93,36 @@ export class GitHubState {
     );
   }
 
+  private async setLastCheck(lastCheck: LastCheck | null) {
+    this.lastCheck = lastCheck;
+    await lastCheckStorage.save(lastCheck);
+  }
+
   private async load(token: string | null) {
     this.status = "loading";
-    if (token) {
-      this.token = token;
-      this.octokit = new Octokit({
-        auth: `token ${token}`
-      });
-      this.user = await loadAuthenticatedUser(this.octokit);
-      this.lastCheck = await lastCheckStorage.load();
-      this.lastSeenPullRequestUrls = new Set(
-        await seenPullRequestsUrlsStorage.load()
-      );
-    } else {
-      this.token = null;
-      this.octokit = null;
-      this.user = null;
-      this.lastCheck = null;
-      this.lastSeenPullRequestUrls = new Set();
+    try {
+      if (token !== null) {
+        this.token = token;
+        this.octokit = new Octokit({
+          auth: `token ${token}`
+        });
+        this.user = await loadAuthenticatedUser(this.octokit);
+        this.lastCheck = await lastCheckStorage.load();
+        this.lastSeenPullRequestUrls = new Set(
+          await seenPullRequestsUrlsStorage.load()
+        );
+      } else {
+        this.token = null;
+        this.octokit = null;
+        this.user = null;
+        this.lastCheck = null;
+        this.lastSeenPullRequestUrls = new Set();
+      }
+      this.status = "loaded";
+    } catch (e) {
+      console.error(e);
+      this.status = "failed";
+      this.setError(e.message);
     }
-    await this.refreshPullRequests();
-    this.status = "loaded";
   }
 }

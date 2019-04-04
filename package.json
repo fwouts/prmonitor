@@ -6,7 +6,8 @@
     "mobx": "^5.9.4",
     "mobx-react": "^5.4.3",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "react-spinners": "^0.5.3"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",

@@ -11,6 +11,10 @@ export interface SettingsProps {
   github: GitHubState;
 }
 
+const UserLogin = styled.span`
+  color: #000;
+`;
+
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -55,13 +59,26 @@ export class Settings extends Component<SettingsProps> {
         ? !this.props.github.token
         : this.state.editing;
     if (!editing) {
-      return (
+      return this.props.github.user ? (
         <Paragraph>
-          {this.props.github.token
-            ? "You have already provided a GitHub API token."
-            : "Please provide a GitHub API token."}{" "}
+          Signed in as <UserLogin>{this.props.github.user.login}</UserLogin> (
           <Link href="#" onClick={this.openForm}>
-            Update it here.
+            update token
+          </Link>
+          ).
+        </Paragraph>
+      ) : this.props.github.status === "failed" ? (
+        <Paragraph>
+          It looks like your token is invalid.
+          <Link href="#" onClick={this.openForm}>
+            Please provide a valid GitHub API token.
+          </Link>
+        </Paragraph>
+      ) : (
+        <Paragraph>
+          You haven't yet set a GitHub API token.
+          <Link href="#" onClick={this.openForm}>
+            Update token.
           </Link>
         </Paragraph>
       );

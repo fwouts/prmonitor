@@ -22,7 +22,7 @@ export class Popup extends Component<PopupProps> {
     return (
       <>
         <Error lastError={this.props.github.lastError} />
-        {!this.props.github.lastError && (
+        {this.props.github.token && !this.props.github.lastError && (
           <>
             <Header>Pull requests</Header>
             {this.props.github.unreviewedPullRequests === null ? (

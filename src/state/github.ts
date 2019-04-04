@@ -1,18 +1,21 @@
-import Octokit, {
-  PullsListResponseItem,
-  ReposGetResponse
-} from "@octokit/rest";
-import { observable } from "mobx";
+import Octokit, { ReposGetResponse } from "@octokit/rest";
+import { computed, observable } from "mobx";
 import { loadRepos } from "../github/api/repos";
 import {
   GetAuthenticatedUserResponse,
   loadAuthenticatedUser
 } from "../github/api/user";
+import { isReviewNeeded } from "./filtering/review-needed";
+import { refreshOpenPullRequests } from "./loading/pull-requests";
+import { loadAllReviews } from "./loading/reviews";
 import { lastErrorStorage } from "./storage/error";
 import {
-  seenPullRequestsUrlsStorage,
-  unreviewedPullRequestsStorage
-} from "./storage/pull-requests";
+  LastCheck,
+  lastCheckStorage,
+  PullRequest,
+  pullRequestFromResponse
+} from "./storage/last-check";
+import { seenPullRequestsUrlsStorage } from "./storage/pull-requests";
 import { tokenStorage } from "./storage/token";
 
 export class GitHubState {
@@ -22,7 +25,7 @@ export class GitHubState {
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
   @observable repoList: ReposGetResponse[] | null = null;
-  @observable unreviewedPullRequests: PullsListResponseItem[] | null = null;
+  @observable lastCheck: LastCheck | null = null;
   @observable lastSeenPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
@@ -30,6 +33,7 @@ export class GitHubState {
     const token = await tokenStorage.load();
     this.lastError = await lastErrorStorage.load();
     await this.load(token);
+    await this.refreshPullRequests();
   }
 
   async setError(error: string | null) {
@@ -44,15 +48,47 @@ export class GitHubState {
     await this.load(token);
   }
 
-  async setUnreviewedPullRequests(pullRequests: PullsListResponseItem[]) {
-    this.unreviewedPullRequests = pullRequests;
-    await unreviewedPullRequestsStorage.save(pullRequests);
-  }
-
-  async setLastSeenPullRequests(pullRequests: PullsListResponseItem[]) {
-    this.lastSeenPullRequestUrls = new Set(pullRequests.map(p => p.html_url));
+  async setLastSeenPullRequests(pullRequests: PullRequest[]) {
+    this.lastSeenPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
     await seenPullRequestsUrlsStorage.save(
       Array.from(this.lastSeenPullRequestUrls)
+    );
+  }
+
+  async refreshPullRequests() {
+    const octokit = this.octokit;
+    if (!octokit) {
+      throw new Error(`Not authenticated.`);
+    }
+    if (!this.repoList) {
+      throw new Error(`Repo list has not been loaded yet.`);
+    }
+    const openPullRequests = await refreshOpenPullRequests(
+      octokit,
+      this.repoList,
+      this.lastCheck
+    );
+    const reviewsPerPullRequest = await loadAllReviews(
+      octokit,
+      openPullRequests
+    );
+    this.lastCheck = {
+      openPullRequests: openPullRequests.map(pr =>
+        pullRequestFromResponse(pr, reviewsPerPullRequest[pr.node_id])
+      ),
+      maximumPushedAt: this.repoList[0] ? this.repoList[0].pushed_at : null
+    };
+    lastCheckStorage.save(this.lastCheck);
+  }
+
+  @computed
+  get unreviewedPullRequests(): PullRequest[] | null {
+    if (!this.lastCheck || !this.user) {
+      return null;
+    }
+    const userLogin = this.user.login;
+    return this.lastCheck.openPullRequests.filter(pr =>
+      isReviewNeeded(pr, userLogin)
     );
   }
 
@@ -65,7 +101,7 @@ export class GitHubState {
       });
       this.user = await loadAuthenticatedUser(this.octokit);
       this.repoList = await loadRepos(this.octokit);
-      this.unreviewedPullRequests = await unreviewedPullRequestsStorage.load();
+      this.lastCheck = await lastCheckStorage.load();
       this.lastSeenPullRequestUrls = new Set(
         await seenPullRequestsUrlsStorage.load()
       );
@@ -73,7 +109,7 @@ export class GitHubState {
       this.token = null;
       this.octokit = null;
       this.user = null;
-      this.unreviewedPullRequests = null;
+      this.lastCheck = null;
       this.lastSeenPullRequestUrls = new Set();
     }
     this.status = "loaded";

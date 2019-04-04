@@ -1,4 +1,4 @@
-import Octokit, { ReposGetResponse } from "@octokit/rest";
+import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
 import { loadRepos } from "../github/api/repos";
 import {
@@ -13,7 +13,8 @@ import {
   LastCheck,
   lastCheckStorage,
   PullRequest,
-  pullRequestFromResponse
+  pullRequestFromResponse,
+  repoFromResponse
 } from "./storage/last-check";
 import { seenPullRequestsUrlsStorage } from "./storage/pull-requests";
 import { tokenStorage } from "./storage/token";
@@ -24,7 +25,6 @@ export class GitHubState {
   @observable status: "loading" | "loaded" = "loading";
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
-  @observable repoList: ReposGetResponse[] | null = null;
   @observable lastCheck: LastCheck | null = null;
   @observable lastSeenPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
@@ -60,13 +60,11 @@ export class GitHubState {
     if (!octokit) {
       throw new Error(`Not authenticated.`);
     }
-    if (!this.repoList) {
-      throw new Error(`Repo list has not been loaded yet.`);
-    }
+    const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
     const openPullRequests = await refreshOpenPullRequests(
       octokit,
-      this.repoList,
-      this.lastCheck
+      repos,
+      this.lastCheck ? this.lastCheck.openPullRequests : null
     );
     const reviewsPerPullRequest = await loadAllReviews(
       octokit,
@@ -76,7 +74,7 @@ export class GitHubState {
       openPullRequests: openPullRequests.map(pr =>
         pullRequestFromResponse(pr, reviewsPerPullRequest[pr.node_id])
       ),
-      maximumPushedAt: this.repoList[0] ? this.repoList[0].pushed_at : null
+      repos
     };
     lastCheckStorage.save(this.lastCheck);
   }
@@ -100,7 +98,6 @@ export class GitHubState {
         auth: `token ${token}`
       });
       this.user = await loadAuthenticatedUser(this.octokit);
-      this.repoList = await loadRepos(this.octokit);
       this.lastCheck = await lastCheckStorage.load();
       this.lastSeenPullRequestUrls = new Set(
         await seenPullRequestsUrlsStorage.load()

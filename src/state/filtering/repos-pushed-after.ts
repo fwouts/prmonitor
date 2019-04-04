@@ -1,4 +1,4 @@
-import { ReposGetResponse } from "@octokit/rest";
+import { Repo } from "../storage/last-check";
 
 /**
  * Returns a predicate that will return true if the repo was pushed after the given timestamp.
@@ -7,10 +7,10 @@ import { ReposGetResponse } from "@octokit/rest";
  */
 export function repoWasPushedAfter(
   pushedAt: string | null
-): (repo: ReposGetResponse) => boolean {
+): (repo: Repo) => boolean {
   if (!pushedAt) {
     return () => true;
   }
   const minPushedAt = new Date(pushedAt);
-  return (repo: ReposGetResponse) => new Date(repo.pushed_at) > minPushedAt;
+  return (repo: Repo) => new Date(repo.pushedAt) > minPushedAt;
 }

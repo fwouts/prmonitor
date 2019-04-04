@@ -1,4 +1,8 @@
-import { PullsGetResponse, PullsListResponseItem } from "@octokit/rest";
+import {
+  PullsGetResponse,
+  PullsListResponseItem,
+  ReposGetResponse
+} from "@octokit/rest";
 import {
   PullsListReviewsResponse,
   ReviewState
@@ -12,6 +16,11 @@ export const lastCheckStorage = storage<LastCheck>("lastCheck");
 
 export interface LastCheck {
   /**
+   * The list of all repositories that the user is a member of.
+   */
+  repos: Repo[];
+
+  /**
    * The list of all open pull requests across all repositories.
    *
    * This includes pull requests that the user isn't involved in (yet). We will check the
@@ -24,19 +33,22 @@ export interface LastCheck {
    * where `pushed_at` has changed since our last check.
    */
   openPullRequests: PullRequest[];
+}
 
-  /**
-   * The most recent `pushed_at` value seen across all repositories (ie the first one, since
-   * we order repositories in decreasing order).
-   *
-   * This allows us to know which repositories have not been pushed since the last check.
-   * Note that this also implies that there was no pull request either, because GitHub updates
-   * the `pushed_at` value when a pull request is created (likely because they automatically
-   * create an associated branch).
-   *
-   * This will be `null` when there were no repositories in the last check.
-   */
-  maximumPushedAt: string | null;
+export interface Repo {
+  owner: string;
+  name: string;
+
+  /** Date when the last commit was pushed (across any branch). */
+  pushedAt: string;
+}
+
+export function repoFromResponse(response: ReposGetResponse): Repo {
+  return {
+    owner: response.owner.login,
+    name: response.name,
+    pushedAt: response.pushed_at
+  };
 }
 
 export interface PullRequest {

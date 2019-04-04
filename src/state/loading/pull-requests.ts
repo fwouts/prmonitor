@@ -6,9 +6,8 @@ import {
   loadPullRequest,
   loadPullRequests
 } from "../../github/api/pull-requests";
-import { ReposListResponse } from "../../github/api/repos";
 import { repoWasPushedAfter } from "../filtering/repos-pushed-after";
-import { LastCheck } from "../storage/last-check";
+import { PullRequest, Repo } from "../storage/last-check";
 
 /**
  * Refreshes the list of pull requests for a list of repositories.
@@ -19,12 +18,14 @@ import { LastCheck } from "../storage/last-check";
  */
 export async function refreshOpenPullRequests(
   octokit: Octokit,
-  repoList: ReposListResponse,
-  lastCheck: LastCheck | null
+  repos: Repo[],
+  previouslyOpenPullRequests: PullRequest[] | null
 ): Promise<Array<PullsListResponseItem | PullsGetResponse>> {
+  const maximumPushedAt = repos.length > 0 ? repos[0].pushedAt : null;
+
   // Look for new pull requests in repos that have been recently pushed.
-  const reposWithPotentiallyNewPullRequests = repoList.filter(
-    repoWasPushedAfter(lastCheck ? lastCheck.maximumPushedAt : null)
+  const reposWithPotentiallyNewPullRequests = repos.filter(
+    repoWasPushedAfter(maximumPushedAt)
   );
 
   // For each recently pushed repo, load all open pull requests.
@@ -32,7 +33,7 @@ export async function refreshOpenPullRequests(
     PullsListResponseItem | PullsGetResponse
   > = (await Promise.all(
     reposWithPotentiallyNewPullRequests.map(repo =>
-      loadPullRequests(octokit, repo.owner.login, repo.name, "open")
+      loadPullRequests(octokit, repo.owner, repo.name, "open")
     )
   )).flat();
 
@@ -42,9 +43,9 @@ export async function refreshOpenPullRequests(
   );
 
   // Also update the status of every other known pull request.
-  if (lastCheck) {
+  if (previouslyOpenPullRequests) {
     const updatedPullRequests = await Promise.all(
-      lastCheck.openPullRequests
+      previouslyOpenPullRequests
         .filter(pr => !alreadyLoadedPullRequestNodeIds.has(pr.nodeId))
         .map(pr =>
           loadPullRequest(

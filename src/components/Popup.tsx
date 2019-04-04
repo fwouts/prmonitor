@@ -22,8 +22,8 @@ export class Popup extends Component<PopupProps> {
       <>
         <Summary github={this.props.github} />
         <Error lastError={this.props.github.lastError} />
-        {this.props.github.repoList !== null && (
-          <RepoList repos={this.props.github.repoList} />
+        {this.props.github.lastCheck !== null && (
+          <RepoList repos={this.props.github.lastCheck.repos} />
         )}
         {this.props.github.unreviewedPullRequests !== null && (
           <PullRequestList

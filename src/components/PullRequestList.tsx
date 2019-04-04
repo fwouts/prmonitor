@@ -67,7 +67,8 @@ export class PullRequestList extends Component<PullRequestListProps> {
             <Title>{pullRequest.title}</Title>
             <Information>
               <Repo>
-                {pullRequest.repoOwner}/{pullRequest.repoName}
+                {pullRequest.repoOwner}/{pullRequest.repoName} (#
+                {pullRequest.pullRequestNumber})
               </Repo>
               <Author>{pullRequest.authorLogin}</Author>
             </Information>

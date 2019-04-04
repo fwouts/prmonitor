@@ -3,9 +3,12 @@ import { observer } from "mobx-react";
 import React, { Component, FormEvent, RefObject } from "react";
 import { chromeApi } from "../chrome";
 import { GitHubState } from "../state/github";
+import { Button } from "./design/Button";
+import { Center } from "./design/Center";
 import { Header } from "./design/Header";
 import { Link } from "./design/Link";
 import { Paragraph } from "./design/Paragraph";
+import { Row } from "./design/Row";
 
 export interface SettingsProps {
   github: GitHubState;
@@ -15,14 +18,14 @@ const UserLogin = styled.span`
   color: #000;
 `;
 
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const TokenInput = styled.input`
-  margin-right: 8px;
   flex-grow: 1;
+  padding: 4px 8px;
+  margin-right: 8px;
+
+  &:focus {
+    outline-color: #2ee59d;
+  }
 `;
 
 @observer
@@ -61,30 +64,43 @@ export class Settings extends Component<SettingsProps> {
     if (!editing) {
       return this.props.github.user ? (
         <Paragraph>
-          Signed in as <UserLogin>{this.props.github.user.login}</UserLogin> (
-          <Link href="#" onClick={this.openForm}>
-            update token
-          </Link>
-          ).
+          <Row>
+            <span>
+              Signed in as <UserLogin>{this.props.github.user.login}</UserLogin>
+              .
+            </span>
+            <Button onClick={this.openForm}>Update token</Button>
+          </Row>
         </Paragraph>
       ) : this.props.github.status === "failed" ? (
         <Paragraph>
-          It looks like your token is invalid.
-          <Link href="#" onClick={this.openForm}>
-            Please provide a valid GitHub API token.
-          </Link>
+          <Row>
+            It looks like your token is invalid.
+            <Button onClick={this.openForm}>Update token</Button>
+          </Row>
         </Paragraph>
       ) : (
-        <Paragraph>
-          You haven't yet set a GitHub API token.
-          <Link href="#" onClick={this.openForm}>
-            Update token.
-          </Link>
-        </Paragraph>
+        <>
+          <Paragraph>
+            Welcome to PR Monitor! In order to use this Chrome extension, you
+            need to provide a GitHub API token. This will be used to load your
+            pull requests.
+          </Paragraph>
+          <Center>
+            <Button onClick={this.openForm}>Update token</Button>
+          </Center>
+        </>
       );
     } else {
       return (
         <form onSubmit={this.saveForm}>
+          {!this.props.github.token && (
+            <Paragraph>
+              Welcome to PR Monitor! In order to use this Chrome extension, you
+              need to provide a GitHub API token. This will be used to load your
+              pull requests.
+            </Paragraph>
+          )}
           <Paragraph>
             Enter a GitHub API token with <b>repo</b> scope (
             <Link
@@ -97,8 +113,8 @@ export class Settings extends Component<SettingsProps> {
           </Paragraph>
           <Row>
             <TokenInput ref={this.inputRef} />
-            <button type="submit">Save</button>
-            <button onClick={this.cancelForm}>Cancel</button>
+            <Button type="submit">Save</Button>
+            <Button onClick={this.cancelForm}>Cancel</Button>
           </Row>
         </form>
       );

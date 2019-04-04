@@ -33,7 +33,6 @@ export class GitHubState {
     const token = await tokenStorage.load();
     this.lastError = await lastErrorStorage.load();
     await this.load(token);
-    await this.refreshPullRequests();
   }
 
   async setError(error: string | null) {
@@ -64,7 +63,7 @@ export class GitHubState {
     const openPullRequests = await refreshOpenPullRequests(
       octokit,
       repos,
-      this.lastCheck ? this.lastCheck.openPullRequests : null
+      this.lastCheck
     );
     const reviewsPerPullRequest = await loadAllReviews(
       octokit,
@@ -109,6 +108,7 @@ export class GitHubState {
       this.lastCheck = null;
       this.lastSeenPullRequestUrls = new Set();
     }
+    await this.refreshPullRequests();
     this.status = "loaded";
   }
 }

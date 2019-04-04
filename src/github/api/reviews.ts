@@ -26,6 +26,12 @@ export type PullsListReviewsResponse = PullsListReviewsResponseItem[];
 // about state and lacks fields such as submitted_at.
 export interface PullsListReviewsResponseItem
   extends IncompletePullsListReviewsResponseItem {
-  state: "PENDING" | "COMMENTED" | "CHANGES_REQUESTED" | "APPROVED";
+  state: ReviewState;
   submitted_at: string;
 }
+
+export type ReviewState =
+  | "PENDING"
+  | "COMMENTED"
+  | "CHANGES_REQUESTED"
+  | "APPROVED";

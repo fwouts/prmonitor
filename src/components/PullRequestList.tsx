@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
-import { PullsListResponseItem } from "@octokit/rest";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
+import { PullRequest } from "../state/storage/last-check";
 import { Header } from "./design/Header";
 import { List } from "./design/List";
 import { Paragraph } from "./design/Paragraph";
 
 export interface PullRequestListProps {
-  pullRequests: PullsListResponseItem[];
+  pullRequests: PullRequest[];
 }
 
 const PullRequest = styled.li`
@@ -34,8 +34,8 @@ export class PullRequestList extends Component<PullRequestListProps> {
         ) : (
           <List>
             {this.props.pullRequests.map(pullRequest => (
-              <PullRequest key={pullRequest.id}>
-                <PullRequestLink target="_blank" href={pullRequest.html_url}>
+              <PullRequest key={pullRequest.nodeId}>
+                <PullRequestLink target="_blank" href={pullRequest.htmlUrl}>
                   {pullRequest.title}
                 </PullRequestLink>
               </PullRequest>

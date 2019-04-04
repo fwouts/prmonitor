@@ -1,5 +1,4 @@
-import { PullsListResponseItem } from "@octokit/rest";
-import { loadPullRequestsRequiringReview } from "../github/loader";
+import { PullRequest } from "../state/storage/last-check";
 import { store } from "../state/store";
 import { showBadgeError, updateBadge } from "./badge";
 import { showNotification } from "./notifications";
@@ -14,10 +13,11 @@ export async function checkPullRequests() {
     if (!store.github.token) {
       return;
     }
-    const unreviewedPullRequests = await loadPullRequestsRequiringReview(
-      store.github
-    );
-    await store.github.setUnreviewedPullRequests(unreviewedPullRequests);
+    await store.github.refreshPullRequests();
+    const unreviewedPullRequests = store.github.unreviewedPullRequests;
+    if (!unreviewedPullRequests) {
+      throw new Error(`Pull requests should have been loaded.`);
+    }
     await updateBadge(unreviewedPullRequests.length);
     await showNotificationForNewPullRequests(unreviewedPullRequests);
     error = null;
@@ -31,15 +31,13 @@ export async function checkPullRequests() {
 /**
  * Shows a notification for each pull request that we haven't yet notified about.
  */
-async function showNotificationForNewPullRequests(
-  pullRequests: PullsListResponseItem[]
-) {
+async function showNotificationForNewPullRequests(pullRequests: PullRequest[]) {
   for (const pullRequest of pullRequests) {
-    if (!store.github.lastSeenPullRequestUrls.has(pullRequest.html_url)) {
-      console.log(`Showing ${pullRequest.html_url}`);
+    if (!store.github.lastSeenPullRequestUrls.has(pullRequest.htmlUrl)) {
+      console.log(`Showing ${pullRequest.htmlUrl}`);
       showNotification(pullRequest);
     } else {
-      console.log(`Filtering ${pullRequest.html_url}`);
+      console.log(`Filtering ${pullRequest.htmlUrl}`);
     }
   }
   store.github.setLastSeenPullRequests(pullRequests);

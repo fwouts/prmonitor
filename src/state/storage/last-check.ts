@@ -1,13 +1,18 @@
+import { PullsGetResponse, PullsListResponseItem } from "@octokit/rest";
+import {
+  PullsListReviewsResponse,
+  ReviewState
+} from "../../github/api/reviews";
 import { storage } from "./helper";
 
 /**
- * Storage of the time we last checked for pull requests.
+ * Storage of the last information we loaded about pull requests.
  */
-export const lastCheckTimeStorage = storage<string>("lastCheckTime");
+export const lastCheckStorage = storage<LastCheck>("lastCheck");
 
 export interface LastCheck {
   /**
-   * The list of all opened pull requests across all repositories.
+   * The list of all open pull requests across all repositories.
    *
    * This includes pull requests that the user isn't involved in (yet). We will check the
    * status of each pull request to see whether its status has changed, or whether the user
@@ -18,7 +23,7 @@ export interface LastCheck {
    * is created. This allows us to only ever look for new pull requests in repositories that
    * where `pushed_at` has changed since our last check.
    */
-  openedPullRequests: PullRequest[];
+  openPullRequests: PullRequest[];
 
   /**
    * The most recent `pushed_at` value seen across all repositories (ie the first one, since
@@ -35,7 +40,40 @@ export interface LastCheck {
 }
 
 export interface PullRequest {
-  owner: string;
-  name: string;
-  pullRequestId: number;
+  nodeId: string;
+  htmlUrl: string;
+  repoOwner: string;
+  repoName: string;
+  pullRequestNumber: number;
+  authorLogin: string;
+  title: string;
+  requestedReviewers: string[];
+  reviews: Review[];
+}
+
+export interface Review {
+  authorLogin: string;
+  state: ReviewState;
+  submittedAt: string;
+}
+
+export function pullRequestFromResponse(
+  response: PullsGetResponse | PullsListResponseItem,
+  reviews: PullsListReviewsResponse
+): PullRequest {
+  return {
+    nodeId: response.node_id,
+    htmlUrl: response.html_url,
+    repoOwner: response.base.repo.owner.login,
+    repoName: response.base.repo.name,
+    pullRequestNumber: response.number,
+    authorLogin: response.user.login,
+    title: response.title,
+    requestedReviewers: response.requested_reviewers.map(r => r.login),
+    reviews: reviews.map(r => ({
+      authorLogin: r.user.login,
+      state: r.state,
+      submittedAt: r.submitted_at
+    }))
+  };
 }

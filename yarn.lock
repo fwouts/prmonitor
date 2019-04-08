@@ -4455,10 +4455,10 @@ react-lifecycles-compat@^3.0.2:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-spinners@^0.5.3:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.5.3.tgz#b4fa956da9674f3300442cef10186de7d749099c"
-  integrity sha512-5erLzg/7uduB0rbO2CAvi8seg1FJ98dQhYxWoBgjU8XNnfb45RF1eARUemMwjtRQ3b5zZ9JVK4+AQtlHOK4ksQ==
+react-spinners@^0.5.4:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.5.4.tgz#58166f8bf84cbf06dd7accad4b94a5797cfea9b9"
+  integrity sha512-jo7BE8prvnZNL7xNrQL16geVXH6LmaWrhvvXnmUwz2MhFO14bhlAdCLuKCwqmUJ37kGphH0C2CJRThwkjfpVzw==
   dependencies:
     "@emotion/core" "^10.0.4"
     prop-types "^15.5.10"

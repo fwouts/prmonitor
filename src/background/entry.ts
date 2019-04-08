@@ -34,6 +34,12 @@ chromeApi.runtime.onInstalled.addListener(() => {
 
 chromeApi.notifications.onClicked.addListener(onNotificationClicked);
 
+// Auto-update as soon as possible.
+chromeApi.runtime.onUpdateAvailable.addListener(() => {
+  console.debug("Update available");
+  chrome.runtime.reload();
+});
+
 async function triggerRefresh() {
   checkPullRequests().catch(console.error);
 }

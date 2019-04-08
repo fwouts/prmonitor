@@ -1,7 +1,6 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   module: {
@@ -58,8 +57,5 @@ module.exports = {
       { from: "manifest.json", to: "." },
       { from: "images", to: "images" }
     ])
-  ],
-  optimization: {
-    minimizer: [new TerserPlugin()]
-  }
+  ]
 };

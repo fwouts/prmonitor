@@ -15,7 +15,7 @@ export interface PopupProps {
 @observer
 export class Popup extends Component<PopupProps> {
   async componentDidMount() {
-    await this.props.github.start();
+    await this.props.github.load();
     await this.props.github.refreshPullRequests();
   }
 

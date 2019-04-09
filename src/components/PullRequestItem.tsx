@@ -86,7 +86,7 @@ export class PullRequestItem extends Component<PullRequestItemProps> {
         <Info>
           <Title>
             {this.props.pullRequest.title}
-            <SmallButton onClick={this.mute}>
+            <SmallButton title="Mute until next update" onClick={this.mute}>
               <FontAwesomeIcon icon="bell-slash" />
             </SmallButton>
           </Title>

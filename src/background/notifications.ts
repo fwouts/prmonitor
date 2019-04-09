@@ -9,12 +9,15 @@ export function showNotification(pullRequest: PullRequest) {
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.
   const notificationId = pullRequest.htmlUrl;
+
+  // Chrome supports requireInteraction, but it crashes Firefox.
+  const supportsRequireInteraction = navigator.userAgent.toLowerCase().indexOf('firefox') === -1;
   chromeApi.notifications.create(notificationId, {
     type: "basic",
     iconUrl: "images/GitHub-Mark-120px-plus.png",
     title: "New pull request",
     message: pullRequest.title,
-    requireInteraction: true
+    ...(supportsRequireInteraction ? {requireInteraction: true} : {})
   });
 }
 

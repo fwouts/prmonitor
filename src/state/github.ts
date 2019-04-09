@@ -73,7 +73,12 @@ export class GitHubState {
   async refreshPullRequests() {
     const octokit = this.octokit;
     if (!octokit) {
-      throw new Error(`Not authenticated.`);
+      console.debug("Not authenticated, skipping refresh.");
+      return;
+    }
+    if (!navigator.onLine) {
+      console.debug("Not online, skipping refresh.");
+      return;
     }
     const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
     const openPullRequests = await refreshOpenPullRequests(

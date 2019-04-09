@@ -1,26 +1,50 @@
 import { chromeApi } from "./chrome";
-import { PullRequest } from "./state/storage/last-check";
 
-/**
- * Updates the unread PR count in the Chrome extension badge, as well as its color.
- */
-export function updateBadge(unreviewedPullRequests: PullRequest[]) {
+export type BadgeState =
+  | {
+      kind: "initializing";
+    }
+  | {
+      kind: "loaded";
+      unreviewedPullRequestCount: number;
+    }
+  | {
+      kind: "reloading";
+      unreviewedPullRequestCount: number;
+    }
+  | {
+      kind: "error";
+    };
+
+export function updateBadge(state: BadgeState) {
   chromeApi.browserAction.setBadgeText({
-    text: "" + unreviewedPullRequests.length
+    text: badgeLabel(state)
   });
   chromeApi.browserAction.setBadgeBackgroundColor({
-    color: unreviewedPullRequests.length === 0 ? "#4d4" : "#f00"
+    color: badgeColor(state)
   });
 }
 
-/**
- * Shows an error in the Chrome extension badge.
- */
-export function showBadgeError() {
-  chromeApi.browserAction.setBadgeText({
-    text: "!"
-  });
-  chromeApi.browserAction.setBadgeBackgroundColor({
-    color: "#000"
-  });
+function badgeLabel(state: BadgeState): string {
+  switch (state.kind) {
+    case "initializing":
+      return "⟳";
+    case "loaded":
+    case "reloading":
+      return `${state.unreviewedPullRequestCount}`;
+    case "error":
+      return "!";
+  }
+}
+
+function badgeColor(state: BadgeState): string {
+  switch (state.kind) {
+    case "initializing":
+      return "#48f";
+    case "loaded":
+    case "reloading":
+      return state.unreviewedPullRequestCount === 0 ? "#4d4" : "#f00";
+    case "error":
+      return "#000";
+  }
 }

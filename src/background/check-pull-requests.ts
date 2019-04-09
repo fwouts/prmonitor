@@ -1,4 +1,3 @@
-import { showBadgeError } from "../badge";
 import { GitHubState } from "../state/github";
 
 /**
@@ -16,7 +15,6 @@ export async function checkPullRequests() {
     error = null;
   } catch (e) {
     error = e;
-    await showBadgeError();
   }
   github.setError(error ? error.message : null);
 }

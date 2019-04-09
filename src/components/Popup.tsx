@@ -36,7 +36,7 @@ export class Popup extends Component<PopupProps> {
             )}
           </>
         )}
-        {this.props.github.status !== "loading" && (
+        {this.props.github.overallStatus !== "loading" && (
           <Settings github={this.props.github} />
         )}
       </>

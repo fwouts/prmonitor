@@ -8,7 +8,6 @@ import {
 import { isReviewNeeded } from "./filtering/review-needed";
 import { refreshOpenPullRequests } from "./loading/pull-requests";
 import { loadAllReviews } from "./loading/reviews";
-import { notifiedPullRequestsStorage } from "./storage/already-notified-pull-requests";
 import { lastErrorStorage } from "./storage/error";
 import {
   LastCheck,
@@ -17,6 +16,7 @@ import {
   pullRequestFromResponse,
   repoFromResponse
 } from "./storage/last-check";
+import { notifiedPullRequestsStorage } from "./storage/notified-pull-requests";
 import { tokenStorage } from "./storage/token";
 
 export class GitHubState {

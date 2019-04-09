@@ -1,4 +1,5 @@
 import { PullRequest, Review } from "../storage/last-check";
+import { MuteConfiguration } from "../storage/mute";
 
 /**
  * Returns whether another review is needed for a PR:
@@ -7,10 +8,12 @@ import { PullRequest, Review } from "../storage/last-check";
  */
 export function isReviewNeeded(
   pr: PullRequest,
-  currentUserLogin: string
+  currentUserLogin: string,
+  muteConfiguration: MuteConfiguration
 ): boolean {
   return (
     pr.authorLogin !== currentUserLogin &&
+    !isMuted(pr, muteConfiguration) &&
     (reviewRequested(pr, currentUserLogin) ||
       (userDidReview(pr, currentUserLogin) &&
         isNewReviewNeeded(pr.authorLogin, currentUserLogin, pr.reviews)))
@@ -39,8 +42,36 @@ function isNewReviewNeeded(
   currentUserLogin: string,
   reviews: Review[]
 ): boolean {
-  let lastReviewFromCurrentUser = 0;
-  let lastChangeFromAuthor = 0;
+  let lastReviewFromCurrentUser = getLastChangeFrom(currentUserLogin, reviews);
+  let lastChangeFromAuthor = getLastChangeFrom(pullRequestAuthorLogin, reviews);
+  return lastReviewFromCurrentUser < lastChangeFromAuthor;
+}
+
+/**
+ * Returns whether the pull request is muted.
+ */
+function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
+  for (const muted of muteConfiguration.mutedPullRequests) {
+    if (
+      muted.repo.owner === pr.repoOwner &&
+      muted.repo.name === pr.repoName &&
+      muted.number === pr.pullRequestNumber
+    ) {
+      // It's a match.
+      switch (muted.until.kind) {
+        case "next-update":
+          const updatedSince =
+            getLastChangeFrom(pr.authorLogin, pr.reviews) >
+            muted.until.mutedAtTimestamp;
+          return !updatedSince;
+      }
+    }
+  }
+  return false;
+}
+
+function getLastChangeFrom(login: string, reviews: Review[]) {
+  let lastChange = 0;
   for (const review of reviews) {
     if (review.state === "PENDING") {
       // Ignore pending reviews (we don't want a user to think that they've submitted their
@@ -48,13 +79,9 @@ function isNewReviewNeeded(
       continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();
-    if (review.authorLogin === pullRequestAuthorLogin) {
-      lastChangeFromAuthor = submittedAt;
-    } else if (review.authorLogin === currentUserLogin) {
-      lastReviewFromCurrentUser = submittedAt;
-    } else {
-      // Comment from someone else. Ignore.
+    if (review.authorLogin === login) {
+      lastChange = submittedAt;
     }
   }
-  return lastReviewFromCurrentUser < lastChangeFromAuthor;
+  return lastChange;
 }

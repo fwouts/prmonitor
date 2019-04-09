@@ -1,8 +1,12 @@
 import { css, Global } from "@emotion/core";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import ReactDOM from "react-dom";
 import { Popup } from "./components/Popup";
 import { store } from "./state/store";
+
+library.add(faBellSlash);
 
 ReactDOM.render(
   <>

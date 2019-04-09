@@ -44,6 +44,14 @@ export class Popup extends Component<PopupProps> {
   }
 
   private onMute = (pullRequest: PullRequest) => {
-    this.props.github.mutePullRequest(pullRequest);
+    if (
+      confirm(
+        `Are you sure you want to mute the following pull request?\n\n${
+          pullRequest.title
+        }\n\nThe pull request will re-appear when the author updates it.`
+      )
+    ) {
+      this.props.github.mutePullRequest(pullRequest);
+    }
   };
 }

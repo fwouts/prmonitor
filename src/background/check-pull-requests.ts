@@ -33,12 +33,12 @@ export async function checkPullRequests() {
  */
 async function showNotificationForNewPullRequests(pullRequests: PullRequest[]) {
   for (const pullRequest of pullRequests) {
-    if (!store.github.lastSeenPullRequestUrls.has(pullRequest.htmlUrl)) {
+    if (!store.github.notifiedPullRequestUrls.has(pullRequest.htmlUrl)) {
       console.log(`Showing ${pullRequest.htmlUrl}`);
       showNotification(pullRequest);
     } else {
       console.log(`Filtering ${pullRequest.htmlUrl}`);
     }
   }
-  store.github.setLastSeenPullRequests(pullRequests);
+  store.github.setNotifiedPullRequests(pullRequests);
 }

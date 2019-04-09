@@ -1,14 +1,15 @@
-import { chromeApi } from "../chrome";
+import { chromeApi } from "./chrome";
+import { PullRequest } from "./state/storage/last-check";
 
 /**
  * Updates the unread PR count in the Chrome extension badge, as well as its color.
  */
-export function updateBadge(prCount: number) {
+export function updateBadge(unreviewedPullRequests: PullRequest[]) {
   chromeApi.browserAction.setBadgeText({
-    text: "" + prCount
+    text: "" + unreviewedPullRequests.length
   });
   chromeApi.browserAction.setBadgeBackgroundColor({
-    color: prCount === 0 ? "#4d4" : "#f00"
+    color: unreviewedPullRequests.length === 0 ? "#4d4" : "#f00"
   });
 }
 

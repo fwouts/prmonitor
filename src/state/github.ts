@@ -1,5 +1,7 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
+import { showNotificationForNewPullRequests } from "../background/notifications";
+import { updateBadge } from "../badge";
 import { chromeApi } from "../chrome";
 import { loadRepos } from "../github/api/repos";
 import {
@@ -89,6 +91,13 @@ export class GitHubState {
       ),
       repos
     });
+    const unreviewedPullRequests = this.unreviewedPullRequests || [];
+    await updateBadge(unreviewedPullRequests);
+    await showNotificationForNewPullRequests(
+      unreviewedPullRequests,
+      this.notifiedPullRequestUrls
+    );
+    await this.setNotifiedPullRequests(unreviewedPullRequests);
   }
 
   async mutePullRequest(pullRequest: PullRequest) {
@@ -104,7 +113,8 @@ export class GitHubState {
       }
     });
     await this.setMuteConfiguration(this.muteConfiguration);
-    this.triggerBackgroundRefresh();
+    const unreviewedPullRequests = this.unreviewedPullRequests || [];
+    await updateBadge(unreviewedPullRequests);
   }
 
   @computed

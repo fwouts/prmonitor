@@ -4,7 +4,7 @@ import { faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import ReactDOM from "react-dom";
 import { Popup } from "./components/Popup";
-import { store } from "./state/store";
+import { GitHubState } from "./state/github";
 
 library.add(faBellSlash);
 
@@ -30,7 +30,7 @@ ReactDOM.render(
         }
       `}
     />
-    <Popup github={store.github} />
+    <Popup github={new GitHubState()} />
   </>,
   document.getElementById("root")
 );

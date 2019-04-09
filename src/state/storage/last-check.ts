@@ -57,7 +57,12 @@ export interface PullRequest {
   repoOwner: string;
   repoName: string;
   pullRequestNumber: number;
+  // TODO: Remove in May 2019 (deprecated in favour of author object).
   authorLogin: string;
+  author?: {
+    login: string;
+    avatarUrl: string;
+  };
   title: string;
   requestedReviewers: string[];
   reviews: Review[];
@@ -80,6 +85,10 @@ export function pullRequestFromResponse(
     repoName: response.base.repo.name,
     pullRequestNumber: response.number,
     authorLogin: response.user.login,
+    author: {
+      login: response.user.login,
+      avatarUrl: response.user.avatar_url
+    },
     title: response.title,
     requestedReviewers: response.requested_reviewers.map(r => r.login),
     reviews: reviews.map(r => ({

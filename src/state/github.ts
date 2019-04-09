@@ -1,7 +1,7 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
 import { showNotificationForNewPullRequests } from "../background/notifications";
-import { updateBadge } from "../badge";
+import { BadgeState, updateBadge } from "../badge";
 import { chromeApi } from "../chrome";
 import { loadRepos } from "../github/api/repos";
 import { loadAuthenticatedUser } from "../github/api/user";
@@ -27,17 +27,27 @@ import { tokenStorage } from "./storage/token";
 export class GitHubState {
   octokit: Octokit | null = null;
 
-  @observable status: "loading" | "loaded" = "loading";
+  @observable overallStatus: "loading" | "loaded" = "loading";
+  @observable refreshing: boolean = false;
   @observable token: string | null = null;
   @observable lastCheck: LastCheck | null = null;
   @observable muteConfiguration = NOTHING_MUTED;
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
+  constructor() {
+    chromeApi.runtime.onMessage.addListener(message => {
+      console.debug("Message received", message);
+      if (message.kind === "reload") {
+        this.load();
+      }
+    });
+  }
+
   async load() {
     this.token = await tokenStorage.load();
     this.lastError = await lastErrorStorage.load();
-    this.status = "loading";
+    this.overallStatus = "loading";
     try {
       if (this.token !== null) {
         this.octokit = new Octokit({
@@ -59,12 +69,14 @@ export class GitHubState {
       console.error(e);
       this.setError(e.message);
     }
-    this.status = "loaded";
+    this.overallStatus = "loaded";
+    this.updateBadge();
   }
 
   async setError(error: string | null) {
     this.lastError = error;
     await lastErrorStorage.save(error);
+    this.updateBadge();
   }
 
   async setNewToken(token: string) {
@@ -75,9 +87,6 @@ export class GitHubState {
     await this.setLastCheck(null);
     await this.setMuteConfiguration(NOTHING_MUTED);
     await this.load();
-    if (this.status === "loaded") {
-      await this.refreshPullRequests();
-    }
     this.triggerBackgroundRefresh();
   }
 
@@ -98,31 +107,38 @@ export class GitHubState {
       console.debug("Not online, skipping refresh.");
       return;
     }
-    const user = await loadAuthenticatedUser(octokit);
-    const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
-    const openPullRequests = await refreshOpenPullRequests(
-      octokit,
-      repos,
-      this.lastCheck
-    );
-    const reviewsPerPullRequest = await loadAllReviews(
-      octokit,
-      openPullRequests
-    );
-    await this.setLastCheck({
-      userLogin: user.login,
-      openPullRequests: openPullRequests.map(pr =>
-        pullRequestFromResponse(pr, reviewsPerPullRequest[pr.node_id])
-      ),
-      repos
-    });
-    const unreviewedPullRequests = this.unreviewedPullRequests || [];
-    await updateBadge(unreviewedPullRequests);
-    await showNotificationForNewPullRequests(
-      unreviewedPullRequests,
-      this.notifiedPullRequestUrls
-    );
-    await this.setNotifiedPullRequests(unreviewedPullRequests);
+    this.refreshing = true;
+    this.updateBadge();
+    try {
+      const user = await loadAuthenticatedUser(octokit);
+      const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
+      const openPullRequests = await refreshOpenPullRequests(
+        octokit,
+        repos,
+        this.lastCheck
+      );
+      const reviewsPerPullRequest = await loadAllReviews(
+        octokit,
+        openPullRequests
+      );
+      await this.setLastCheck({
+        userLogin: user.login,
+        openPullRequests: openPullRequests.map(pr =>
+          pullRequestFromResponse(pr, reviewsPerPullRequest[pr.node_id])
+        ),
+        repos
+      });
+      const unreviewedPullRequests = this.unreviewedPullRequests || [];
+      await showNotificationForNewPullRequests(
+        unreviewedPullRequests,
+        this.notifiedPullRequestUrls
+      );
+      await this.setNotifiedPullRequests(unreviewedPullRequests);
+      this.updateBadge();
+    } finally {
+      this.refreshing = false;
+      this.triggerReload();
+    }
   }
 
   async mutePullRequest(pullRequest: PullRequest) {
@@ -138,8 +154,7 @@ export class GitHubState {
       }
     });
     await this.setMuteConfiguration(this.muteConfiguration);
-    const unreviewedPullRequests = this.unreviewedPullRequests || [];
-    await updateBadge(unreviewedPullRequests);
+    this.updateBadge();
   }
 
   @computed
@@ -163,9 +178,40 @@ export class GitHubState {
     await muteConfigurationStorage.save(muteConfiguration);
   }
 
+  private updateBadge() {
+    let badgeState: BadgeState;
+    const unreviewedPullRequests = this.unreviewedPullRequests;
+    if (this.lastError || !this.token) {
+      badgeState = {
+        kind: "error"
+      };
+    } else if (!unreviewedPullRequests) {
+      badgeState = {
+        kind: "initializing"
+      };
+    } else if (this.refreshing) {
+      badgeState = {
+        kind: "reloading",
+        unreviewedPullRequestCount: unreviewedPullRequests.length
+      };
+    } else {
+      badgeState = {
+        kind: "loaded",
+        unreviewedPullRequestCount: unreviewedPullRequests.length
+      };
+    }
+    updateBadge(badgeState);
+  }
+
   private triggerBackgroundRefresh() {
     chromeApi.runtime.sendMessage({
       kind: "refresh"
+    });
+  }
+
+  private triggerReload() {
+    chromeApi.runtime.sendMessage({
+      kind: "reload"
     });
   }
 }

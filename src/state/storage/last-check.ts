@@ -15,6 +15,9 @@ import { storage } from "./helper";
 export const lastCheckStorage = storage<LastCheck>("lastCheck");
 
 export interface LastCheck {
+  // TODO: Make it required once the field has been populated for long enough.
+  userLogin?: string;
+
   /**
    * The list of all repositories that the user is a member of.
    */

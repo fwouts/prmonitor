@@ -8,7 +8,7 @@ export async function checkPullRequests() {
   let error;
   const github = new GitHubState();
   try {
-    await github.start();
+    await github.load();
     if (!github.token) {
       return;
     }

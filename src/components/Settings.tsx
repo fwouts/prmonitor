@@ -61,20 +61,30 @@ export class Settings extends Component<SettingsProps> {
         ? !this.props.github.token
         : this.state.editing;
     if (!editing) {
-      return this.props.github.user ? (
+      return this.props.github.lastCheck ? (
         <Paragraph>
           <Row>
             <span>
-              Signed in as <UserLogin>{this.props.github.user.login}</UserLogin>
+              Signed in as{" "}
+              <UserLogin>
+                {this.props.github.lastCheck.userLogin || "unknown"}
+              </UserLogin>
               .
             </span>
             <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Row>
         </Paragraph>
-      ) : this.props.github.status === "failed" ? (
+      ) : this.props.github.lastError ? (
         <Paragraph>
           <Row>
-            It looks like your token is invalid.
+            Is your token valid?
+            <LargeButton onClick={this.openForm}>Update token</LargeButton>
+          </Row>
+        </Paragraph>
+      ) : this.props.github.token ? (
+        <Paragraph>
+          <Row>
+            We're loading your pull requests. This could take a while...
             <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Row>
         </Paragraph>

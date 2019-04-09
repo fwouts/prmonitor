@@ -8,6 +8,7 @@ import {
 import { isReviewNeeded } from "./filtering/review-needed";
 import { refreshOpenPullRequests } from "./loading/pull-requests";
 import { loadAllReviews } from "./loading/reviews";
+import { notifiedPullRequestsStorage } from "./storage/already-notified-pull-requests";
 import { lastErrorStorage } from "./storage/error";
 import {
   LastCheck,
@@ -16,7 +17,6 @@ import {
   pullRequestFromResponse,
   repoFromResponse
 } from "./storage/last-check";
-import { seenPullRequestsUrlsStorage } from "./storage/pull-requests";
 import { tokenStorage } from "./storage/token";
 
 export class GitHubState {
@@ -26,7 +26,7 @@ export class GitHubState {
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
   @observable lastCheck: LastCheck | null = null;
-  @observable lastSeenPullRequestUrls = new Set<string>();
+  @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
   async start() {
@@ -44,7 +44,7 @@ export class GitHubState {
     this.token = token;
     await tokenStorage.save(token);
     await this.setError(null);
-    await this.setLastSeenPullRequests([]);
+    await this.setNotifiedPullRequests([]);
     await this.setLastCheck(null);
     await this.load(token);
     if (this.status === "loaded") {
@@ -52,10 +52,10 @@ export class GitHubState {
     }
   }
 
-  async setLastSeenPullRequests(pullRequests: PullRequest[]) {
-    this.lastSeenPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
-    await seenPullRequestsUrlsStorage.save(
-      Array.from(this.lastSeenPullRequestUrls)
+  async setNotifiedPullRequests(pullRequests: PullRequest[]) {
+    this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
+    await notifiedPullRequestsStorage.save(
+      Array.from(this.notifiedPullRequestUrls)
     );
   }
 
@@ -108,15 +108,15 @@ export class GitHubState {
         });
         this.user = await loadAuthenticatedUser(this.octokit);
         this.lastCheck = await lastCheckStorage.load();
-        this.lastSeenPullRequestUrls = new Set(
-          await seenPullRequestsUrlsStorage.load()
+        this.notifiedPullRequestUrls = new Set(
+          await notifiedPullRequestsStorage.load()
         );
       } else {
         this.token = null;
         this.octokit = null;
         this.user = null;
         this.lastCheck = null;
-        this.lastSeenPullRequestUrls = new Set();
+        this.notifiedPullRequestUrls = new Set();
       }
       this.status = "loaded";
     } catch (e) {

@@ -1,9 +1,8 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react";
 import React, { Component, FormEvent, RefObject } from "react";
-import { chromeApi } from "../chrome";
 import { GitHubState } from "../state/github";
-import { Button } from "./design/Button";
+import { LargeButton } from "./design/Button";
 import { Center } from "./design/Center";
 import { Header } from "./design/Header";
 import { Link } from "./design/Link";
@@ -69,14 +68,14 @@ export class Settings extends Component<SettingsProps> {
               Signed in as <UserLogin>{this.props.github.user.login}</UserLogin>
               .
             </span>
-            <Button onClick={this.openForm}>Update token</Button>
+            <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Row>
         </Paragraph>
       ) : this.props.github.status === "failed" ? (
         <Paragraph>
           <Row>
             It looks like your token is invalid.
-            <Button onClick={this.openForm}>Update token</Button>
+            <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Row>
         </Paragraph>
       ) : (
@@ -87,7 +86,7 @@ export class Settings extends Component<SettingsProps> {
             pull requests.
           </Paragraph>
           <Center>
-            <Button onClick={this.openForm}>Update token</Button>
+            <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Center>
         </>
       );
@@ -113,8 +112,8 @@ export class Settings extends Component<SettingsProps> {
           </Paragraph>
           <Row>
             <TokenInput ref={this.inputRef} />
-            <Button type="submit">Save</Button>
-            <Button onClick={this.cancelForm}>Cancel</Button>
+            <LargeButton type="submit">Save</LargeButton>
+            <LargeButton onClick={this.cancelForm}>Cancel</LargeButton>
           </Row>
         </form>
       );
@@ -138,9 +137,6 @@ export class Settings extends Component<SettingsProps> {
       .then(() => console.log("GitHub API token updated."));
     this.setState({
       editing: false
-    });
-    chromeApi.runtime.sendMessage({
-      kind: "refresh"
     });
   };
 

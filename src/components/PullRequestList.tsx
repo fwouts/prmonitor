@@ -7,6 +7,7 @@ import { PullRequestItem } from "./PullRequestItem";
 
 export interface PullRequestListProps {
   pullRequests: PullRequest[];
+  onMute(pullRequest: PullRequest): void;
 }
 
 @observer
@@ -17,7 +18,11 @@ export class PullRequestList extends Component<PullRequestListProps> {
     ) : (
       <List>
         {this.props.pullRequests.map(pullRequest => (
-          <PullRequestItem key={pullRequest.nodeId} pullRequest={pullRequest} />
+          <PullRequestItem
+            key={pullRequest.nodeId}
+            pullRequest={pullRequest}
+            onMute={this.props.onMute}
+          />
         ))}
       </List>
     );

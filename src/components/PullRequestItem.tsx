@@ -1,10 +1,13 @@
 import styled from "@emotion/styled";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
 import { PullRequest } from "../state/storage/last-check";
+import { SmallButton } from "./design/Button";
 
 export interface PullRequestItemProps {
   pullRequest: PullRequest;
+  onMute(pullRequest: PullRequest): void;
 }
 
 const PullRequestBox = styled.a`
@@ -81,7 +84,12 @@ export class PullRequestItem extends Component<PullRequestItemProps> {
         href={this.props.pullRequest.htmlUrl}
       >
         <Info>
-          <Title>{this.props.pullRequest.title}</Title>
+          <Title>
+            {this.props.pullRequest.title}
+            <SmallButton title="Mute until next update" onClick={this.mute}>
+              <FontAwesomeIcon icon="bell-slash" />
+            </SmallButton>
+          </Title>
           <Repo>
             {this.props.pullRequest.repoOwner}/{this.props.pullRequest.repoName}{" "}
             (#
@@ -97,4 +105,9 @@ export class PullRequestItem extends Component<PullRequestItemProps> {
       </PullRequestBox>
     );
   }
+
+  private mute = (e: React.MouseEvent) => {
+    this.props.onMute(this.props.pullRequest);
+    e.preventDefault();
+  };
 }

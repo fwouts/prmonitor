@@ -1,6 +1,7 @@
 import { observer } from "mobx-react";
 import React, { Component } from "react";
 import { GitHubState } from "../state/github";
+import { PullRequest } from "../state/storage/last-check";
 import { Header } from "./design/Header";
 import { Error } from "./Error";
 import { Loader } from "./Loader";
@@ -30,6 +31,7 @@ export class Popup extends Component<PopupProps> {
             ) : (
               <PullRequestList
                 pullRequests={this.props.github.unreviewedPullRequests}
+                onMute={this.onMute}
               />
             )}
           </>
@@ -40,4 +42,8 @@ export class Popup extends Component<PopupProps> {
       </>
     );
   }
+
+  private onMute = (pullRequest: PullRequest) => {
+    this.props.github.mutePullRequest(pullRequest);
+  };
 }

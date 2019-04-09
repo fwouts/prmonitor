@@ -1,5 +1,8 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
+import { showNotificationForNewPullRequests } from "../background/notifications";
+import { updateBadge } from "../badge";
+import { chromeApi } from "../chrome";
 import { loadRepos } from "../github/api/repos";
 import {
   GetAuthenticatedUserResponse,
@@ -16,6 +19,11 @@ import {
   pullRequestFromResponse,
   repoFromResponse
 } from "./storage/last-check";
+import {
+  MuteConfiguration,
+  muteConfigurationStorage,
+  NOTHING_MUTED
+} from "./storage/mute";
 import { notifiedPullRequestsStorage } from "./storage/notified-pull-requests";
 import { tokenStorage } from "./storage/token";
 
@@ -26,6 +34,7 @@ export class GitHubState {
   @observable token: string | null = null;
   @observable user: GetAuthenticatedUserResponse | null = null;
   @observable lastCheck: LastCheck | null = null;
+  @observable muteConfiguration = NOTHING_MUTED;
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
@@ -46,10 +55,12 @@ export class GitHubState {
     await this.setError(null);
     await this.setNotifiedPullRequests([]);
     await this.setLastCheck(null);
+    await this.setMuteConfiguration(NOTHING_MUTED);
     await this.load(token);
     if (this.status === "loaded") {
       await this.refreshPullRequests();
     }
+    this.triggerBackgroundRefresh();
   }
 
   async setNotifiedPullRequests(pullRequests: PullRequest[]) {
@@ -80,6 +91,30 @@ export class GitHubState {
       ),
       repos
     });
+    const unreviewedPullRequests = this.unreviewedPullRequests || [];
+    await updateBadge(unreviewedPullRequests);
+    await showNotificationForNewPullRequests(
+      unreviewedPullRequests,
+      this.notifiedPullRequestUrls
+    );
+    await this.setNotifiedPullRequests(unreviewedPullRequests);
+  }
+
+  async mutePullRequest(pullRequest: PullRequest) {
+    this.muteConfiguration.mutedPullRequests.push({
+      repo: {
+        owner: pullRequest.repoOwner,
+        name: pullRequest.repoName
+      },
+      number: pullRequest.pullRequestNumber,
+      until: {
+        kind: "next-update",
+        mutedAtTimestamp: Date.now()
+      }
+    });
+    await this.setMuteConfiguration(this.muteConfiguration);
+    const unreviewedPullRequests = this.unreviewedPullRequests || [];
+    await updateBadge(unreviewedPullRequests);
   }
 
   @computed
@@ -89,13 +124,18 @@ export class GitHubState {
     }
     const userLogin = this.user.login;
     return this.lastCheck.openPullRequests.filter(pr =>
-      isReviewNeeded(pr, userLogin)
+      isReviewNeeded(pr, userLogin, this.muteConfiguration)
     );
   }
 
   private async setLastCheck(lastCheck: LastCheck | null) {
     this.lastCheck = lastCheck;
     await lastCheckStorage.save(lastCheck);
+  }
+
+  private async setMuteConfiguration(muteConfiguration: MuteConfiguration) {
+    this.muteConfiguration = muteConfiguration;
+    await muteConfigurationStorage.save(muteConfiguration);
   }
 
   private async load(token: string | null) {
@@ -111,12 +151,14 @@ export class GitHubState {
         this.notifiedPullRequestUrls = new Set(
           await notifiedPullRequestsStorage.load()
         );
+        this.muteConfiguration = await muteConfigurationStorage.load();
       } else {
         this.token = null;
         this.octokit = null;
         this.user = null;
         this.lastCheck = null;
         this.notifiedPullRequestUrls = new Set();
+        this.muteConfiguration = NOTHING_MUTED;
       }
       this.status = "loaded";
     } catch (e) {
@@ -124,5 +166,11 @@ export class GitHubState {
       this.status = "failed";
       this.setError(e.message);
     }
+  }
+
+  private triggerBackgroundRefresh() {
+    chromeApi.runtime.sendMessage({
+      kind: "refresh"
+    });
   }
 }

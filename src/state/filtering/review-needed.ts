@@ -15,8 +15,8 @@ export function isReviewNeeded(
     pr.authorLogin !== currentUserLogin &&
     !isMuted(pr, muteConfiguration) &&
     (reviewRequested(pr, currentUserLogin) ||
-      (userDidReview(pr, currentUserLogin) &&
-        isNewReviewNeeded(pr, currentUserLogin)))
+      userDidReview(pr, currentUserLogin)) &&
+    isNewReviewNeeded(pr, currentUserLogin)
   );
 }
 

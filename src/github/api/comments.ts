@@ -10,7 +10,7 @@ export async function loadComments(
   pullRequestNumber: number
 ): Promise<PullsListCommentsResponse> {
   return octokit.paginate(
-    octokit.pulls.listComments.endpoint.merge({
+    octokit.issues.listComments.endpoint.merge({
       owner,
       repo,
       number: pullRequestNumber

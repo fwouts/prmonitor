@@ -1,6 +1,6 @@
 import Octokit, {
+  IssuesListCommentsResponse,
   PullsGetResponse,
-  PullsListCommentsResponse,
   PullsListResponseItem
 } from "@octokit/rest";
 import { loadComments } from "../../github/api/comments";
@@ -14,13 +14,13 @@ export async function loadAllComments(
   octokit: Octokit,
   pullRequests: Array<PullsListResponseItem | PullsGetResponse>
 ): Promise<{
-  [pullRequestNodeId: string]: PullsListCommentsResponse;
+  [pullRequestNodeId: string]: IssuesListCommentsResponse;
 }> {
   const comments = await Promise.all(
     pullRequests.map(
       async (
         pr
-      ): Promise<[string /* node ID */, PullsListCommentsResponse]> => [
+      ): Promise<[string /* node ID */, IssuesListCommentsResponse]> => [
         pr.node_id,
         await loadComments(
           octokit,
@@ -32,7 +32,7 @@ export async function loadAllComments(
     )
   );
   const commentsPerPullRequest = comments.reduce<{
-    [pullRequestNodeId: string]: PullsListCommentsResponse;
+    [pullRequestNodeId: string]: IssuesListCommentsResponse;
   }>((acc, [nodeId, comments]) => {
     acc[nodeId] = comments;
     return acc;

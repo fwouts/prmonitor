@@ -1,6 +1,6 @@
 import {
+  IssuesListCommentsResponse,
   PullsGetResponse,
-  PullsListCommentsResponse,
   PullsListResponseItem,
   ReposGetResponse
 } from "@octokit/rest";
@@ -91,7 +91,7 @@ export interface Review {
 export function pullRequestFromResponse(
   response: PullsGetResponse | PullsListResponseItem,
   reviews: PullsListReviewsResponse,
-  comments: PullsListCommentsResponse
+  comments: IssuesListCommentsResponse
 ): PullRequest {
   return {
     nodeId: response.node_id,

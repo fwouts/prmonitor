@@ -1,5 +1,6 @@
 import {
   PullsGetResponse,
+  PullsListCommentsResponse,
   PullsListResponseItem,
   ReposGetResponse
 } from "@octokit/rest";
@@ -62,13 +63,23 @@ export interface PullRequest {
   pullRequestNumber: number;
   // TODO: Remove in May 2019 (deprecated in favour of author object).
   authorLogin: string;
+  // TODO: Make required in May 2019.
   author?: {
     login: string;
     avatarUrl: string;
   };
+  // TODO: Make required in May 2019.
+  updatedAt?: string;
   title: string;
   requestedReviewers: string[];
   reviews: Review[];
+  // TODO: Make required in May 2019.
+  comments?: Comment[];
+}
+
+export interface Comment {
+  authorLogin: string;
+  createdAt: string;
 }
 
 export interface Review {
@@ -79,7 +90,8 @@ export interface Review {
 
 export function pullRequestFromResponse(
   response: PullsGetResponse | PullsListResponseItem,
-  reviews: PullsListReviewsResponse
+  reviews: PullsListReviewsResponse,
+  comments: PullsListCommentsResponse
 ): PullRequest {
   return {
     nodeId: response.node_id,
@@ -92,12 +104,17 @@ export function pullRequestFromResponse(
       login: response.user.login,
       avatarUrl: response.user.avatar_url
     },
+    updatedAt: response.updated_at,
     title: response.title,
     requestedReviewers: response.requested_reviewers.map(r => r.login),
     reviews: reviews.map(r => ({
       authorLogin: r.user.login,
       state: r.state,
       submittedAt: r.submitted_at
+    })),
+    comments: comments.map(c => ({
+      authorLogin: c.user.login,
+      createdAt: c.created_at
     }))
   };
 }

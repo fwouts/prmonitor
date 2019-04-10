@@ -1,4 +1,4 @@
-import { PullRequest, Review } from "../storage/last-check";
+import { PullRequest } from "../storage/last-check";
 import { MuteConfiguration } from "../storage/mute";
 
 /**
@@ -16,7 +16,7 @@ export function isReviewNeeded(
     !isMuted(pr, muteConfiguration) &&
     (reviewRequested(pr, currentUserLogin) ||
       (userDidReview(pr, currentUserLogin) &&
-        isNewReviewNeeded(pr.authorLogin, currentUserLogin, pr.reviews)))
+        isNewReviewNeeded(pr, currentUserLogin)))
   );
 }
 
@@ -31,19 +31,18 @@ function reviewRequested(pr: PullRequest, currentUserLogin: string): boolean {
  * Returns whether the user previously reviewed a PR (even if not explicitly requested).
  */
 function userDidReview(pr: PullRequest, currentUserLogin: string): boolean {
-  return pr.reviews.findIndex(r => r.authorLogin === currentUserLogin) !== -1;
+  return (
+    (pr.comments || []).findIndex(r => r.authorLogin === currentUserLogin) !==
+      -1 || pr.reviews.findIndex(r => r.authorLogin === currentUserLogin) !== -1
+  );
 }
 
 /**
  * Returns whether the user, who previously wrote a review, needs to take another look.
  */
-function isNewReviewNeeded(
-  pullRequestAuthorLogin: string,
-  currentUserLogin: string,
-  reviews: Review[]
-): boolean {
-  let lastReviewFromCurrentUser = getLastChangeFrom(currentUserLogin, reviews);
-  let lastChangeFromAuthor = getLastChangeFrom(pullRequestAuthorLogin, reviews);
+function isNewReviewNeeded(pr: PullRequest, currentUserLogin: string): boolean {
+  let lastReviewFromCurrentUser = getLastReviewTimestamp(pr, currentUserLogin);
+  let lastChangeFromAuthor = getLastAuthorUpdateTimestamp(pr);
   return lastReviewFromCurrentUser < lastChangeFromAuthor;
 }
 
@@ -61,8 +60,7 @@ function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
       switch (muted.until.kind) {
         case "next-update":
           const updatedSince =
-            getLastChangeFrom(pr.authorLogin, pr.reviews) >
-            muted.until.mutedAtTimestamp;
+            getLastAuthorUpdateTimestamp(pr) > muted.until.mutedAtTimestamp;
           return !updatedSince;
       }
     }
@@ -70,9 +68,16 @@ function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
   return false;
 }
 
-function getLastChangeFrom(login: string, reviews: Review[]) {
+function getLastAuthorUpdateTimestamp(pr: PullRequest): number {
+  return Math.max(
+    getLastReviewTimestamp(pr, pr.authorLogin),
+    pr.updatedAt ? new Date(pr.updatedAt).getTime() : 0
+  );
+}
+
+function getLastReviewTimestamp(pr: PullRequest, login: string): number {
   let lastChange = 0;
-  for (const review of reviews) {
+  for (const review of pr.reviews) {
     if (review.state === "PENDING") {
       // Ignore pending reviews (we don't want a user to think that they've submitted their
       // review when they didn't yet).
@@ -80,7 +85,13 @@ function getLastChangeFrom(login: string, reviews: Review[]) {
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (review.authorLogin === login) {
-      lastChange = submittedAt;
+      lastChange = Math.max(lastChange, submittedAt);
+    }
+  }
+  for (const comment of pr.comments || []) {
+    const createdAt = new Date(comment.createdAt).getTime();
+    if (comment.authorLogin === login) {
+      lastChange = Math.max(lastChange, createdAt);
     }
   }
   return lastChange;

@@ -31,7 +31,10 @@ function reviewRequested(pr: PullRequest, currentUserLogin: string): boolean {
  * Returns whether the user previously reviewed a PR (even if not explicitly requested).
  */
 function userDidReview(pr: PullRequest, currentUserLogin: string): boolean {
-  return pr.reviews.findIndex(r => r.authorLogin === currentUserLogin) !== -1;
+  return (
+    (pr.comments || []).findIndex(r => r.authorLogin === currentUserLogin) !==
+      -1 || pr.reviews.findIndex(r => r.authorLogin === currentUserLogin) !== -1
+  );
 }
 
 /**
@@ -82,7 +85,13 @@ function getLastReviewTimestamp(pr: PullRequest, login: string): number {
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (review.authorLogin === login) {
-      lastChange = submittedAt;
+      lastChange = Math.max(lastChange, submittedAt);
+    }
+  }
+  for (const comment of pr.comments || []) {
+    const createdAt = new Date(comment.createdAt).getTime();
+    if (comment.authorLogin === login) {
+      lastChange = Math.max(lastChange, createdAt);
     }
   }
   return lastChange;

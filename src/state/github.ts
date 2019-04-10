@@ -6,6 +6,7 @@ import { chromeApi } from "../chrome";
 import { loadRepos } from "../github/api/repos";
 import { loadAuthenticatedUser } from "../github/api/user";
 import { isReviewNeeded } from "./filtering/review-needed";
+import { loadAllComments } from "./loading/comments";
 import { refreshOpenPullRequests } from "./loading/pull-requests";
 import { loadAllReviews } from "./loading/reviews";
 import { lastErrorStorage } from "./storage/error";
@@ -121,10 +122,18 @@ export class GitHubState {
         octokit,
         openPullRequests
       );
+      const commentsPerPullRequest = await loadAllComments(
+        octokit,
+        openPullRequests
+      );
       await this.setLastCheck({
         userLogin: user.login,
         openPullRequests: openPullRequests.map(pr =>
-          pullRequestFromResponse(pr, reviewsPerPullRequest[pr.node_id])
+          pullRequestFromResponse(
+            pr,
+            reviewsPerPullRequest[pr.node_id],
+            commentsPerPullRequest[pr.node_id]
+          )
         ),
         repos
       });

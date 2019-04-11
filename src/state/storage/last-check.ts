@@ -9,7 +9,7 @@ import {
   PullsListReviewsResponse,
   ReviewState
 } from "../../github/api/reviews";
-import { storage } from "./helper";
+import { storage } from "../../storage/internal/chrome-value-storage";
 
 /**
  * Storage of the last information we loaded about pull requests.

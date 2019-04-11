@@ -1,5 +1,5 @@
 import { ChromeApi } from "../../chrome";
-import { ValueStorage } from "../../storage/api";
+import { ValueStorage } from "../api";
 /**
  * Returns a storage handler to load and save from the given key.
  *

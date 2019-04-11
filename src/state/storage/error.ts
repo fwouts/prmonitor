@@ -1,5 +1,5 @@
 import { ChromeApi } from "../../chrome";
-import { storage } from "./helper";
+import { storage } from "../../storage/internal/chrome-value-storage";
 
 /**
  * Storage of the last error seen when fetching GitHub data.

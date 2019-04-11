@@ -1,5 +1,5 @@
 import { ChromeApi } from "../../chrome";
-import { storage } from "./helper";
+import { storage } from "../../storage/internal/chrome-value-storage";
 
 /**
  * Storage of the user's provided GitHub token.

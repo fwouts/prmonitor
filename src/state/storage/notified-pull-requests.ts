@@ -1,5 +1,5 @@
 import { ChromeApi } from "../../chrome";
-import { storageWithDefault } from "./helper";
+import { storageWithDefault } from "../../storage/internal/chrome-value-storage";
 
 /**
  * Storage of the URLs of pull requests that we have already notified the user about.

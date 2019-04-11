@@ -1,3 +1,5 @@
+import { Badger } from "../badge/api";
+import { buildBadger } from "../badge/implementation";
 import { ChromeApi, chromeApiSingleton } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { buildNotifier } from "../notifications/implementation";
@@ -9,13 +11,15 @@ console.debug("Background entry point running...");
 background(
   chromeApiSingleton,
   githubLoaderSingleton,
-  buildNotifier(chromeApiSingleton)
+  buildNotifier(chromeApiSingleton),
+  buildBadger(chromeApiSingleton)
 );
 
 function background(
   chromeApi: ChromeApi,
   githubLoader: GitHubLoader,
-  notifier: Notifier
+  notifier: Notifier,
+  badger: Badger
 ) {
   // Beause it isn't a persistent background script, we cannot simply use
   // setInterval() to schedule regular checks for new pull requests.
@@ -53,6 +57,8 @@ function background(
   });
 
   async function triggerRefresh() {
-    checkPullRequests(chromeApi, githubLoader, notifier).catch(console.error);
+    checkPullRequests(chromeApi, githubLoader, notifier, badger).catch(
+      console.error
+    );
   }
 }

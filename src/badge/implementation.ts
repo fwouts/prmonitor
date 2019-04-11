@@ -1,22 +1,15 @@
-import { ChromeApi } from "./chrome";
+import { ChromeApi } from "../chrome";
+import { Badger, BadgeState } from "./api";
 
-export type BadgeState =
-  | {
-      kind: "initializing";
+export function buildBadger(chromeApi: ChromeApi): Badger {
+  return {
+    update(state) {
+      updateBadge(chromeApi, state);
     }
-  | {
-      kind: "loaded";
-      unreviewedPullRequestCount: number;
-    }
-  | {
-      kind: "reloading";
-      unreviewedPullRequestCount: number;
-    }
-  | {
-      kind: "error";
-    };
+  };
+}
 
-export function updateBadge(chromeApi: ChromeApi, state: BadgeState) {
+function updateBadge(chromeApi: ChromeApi, state: BadgeState) {
   chromeApi.browserAction.setBadgeText({
     text: badgeLabel(state)
   });

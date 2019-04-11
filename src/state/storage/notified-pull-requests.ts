@@ -1,3 +1,4 @@
+import { ChromeApi } from "../../chrome";
 import { storageWithDefault } from "./helper";
 
 /**
@@ -6,7 +7,5 @@ import { storageWithDefault } from "./helper";
  * This is used to avoid notifying twice about the same pull request (unless it is no
  * longer in a reviewable state, and then becomes reviewable again).
  */
-export const notifiedPullRequestsStorage = storageWithDefault<string[]>(
-  "lastSeenPullRequests",
-  []
-);
+export const notifiedPullRequestsStorage = (chromeApi: ChromeApi) =>
+  storageWithDefault<string[]>(chromeApi, "lastSeenPullRequests", []);

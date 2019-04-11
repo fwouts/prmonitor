@@ -4,6 +4,7 @@ import {
   PullsListResponseItem,
   ReposGetResponse
 } from "@octokit/rest";
+import { ChromeApi } from "../../chrome";
 import {
   PullsListReviewsResponse,
   ReviewState
@@ -13,7 +14,8 @@ import { storage } from "./helper";
 /**
  * Storage of the last information we loaded about pull requests.
  */
-export const lastCheckStorage = storage<LastCheck>("lastCheck");
+export const lastCheckStorage = (chromeApi: ChromeApi) =>
+  storage<LastCheck>(chromeApi, "lastCheck");
 
 export interface LastCheck {
   // TODO: Make it required once the field has been populated for long enough.

@@ -1,11 +1,13 @@
+import { ChromeApi } from "../chrome";
 import { GitHubState } from "../state/github";
+import { getStore } from "../state/storage/store";
 
 /**
  * Checks if there are any new pull requests and notifies the user when required.
  */
-export async function checkPullRequests() {
+export async function checkPullRequests(chromeApi: ChromeApi) {
   let error;
-  const github = new GitHubState();
+  const github = new GitHubState(chromeApi, getStore(chromeApi));
   try {
     await github.load();
     if (!github.token) {

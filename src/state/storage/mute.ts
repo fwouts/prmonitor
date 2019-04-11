@@ -1,13 +1,12 @@
+import { ChromeApi } from "../../chrome";
 import { storageWithDefault } from "./helper";
 
 export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: []
 };
 
-export const muteConfigurationStorage = storageWithDefault(
-  "mute",
-  NOTHING_MUTED
-);
+export const muteConfigurationStorage = (chromeApi: ChromeApi) =>
+  storageWithDefault(chromeApi, "mute", NOTHING_MUTED);
 
 export interface MuteConfiguration {
   mutedPullRequests: MutedPullRequest[];

@@ -2,31 +2,26 @@ import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
 import { showNotificationForNewPullRequests } from "../background/notifications";
 import { BadgeState, updateBadge } from "../badge";
-import { chromeApi } from "../chrome";
+import { ChromeApi } from "../chrome";
 import { loadRepos } from "../github/api/repos";
 import { loadAuthenticatedUser } from "../github/api/user";
 import { isReviewNeeded } from "./filtering/review-needed";
 import { loadAllComments } from "./loading/comments";
 import { refreshOpenPullRequests } from "./loading/pull-requests";
 import { loadAllReviews } from "./loading/reviews";
-import { lastErrorStorage } from "./storage/error";
 import {
   LastCheck,
-  lastCheckStorage,
   PullRequest,
   pullRequestFromResponse,
   repoFromResponse
 } from "./storage/last-check";
-import {
-  MuteConfiguration,
-  muteConfigurationStorage,
-  NOTHING_MUTED
-} from "./storage/mute";
-import { notifiedPullRequestsStorage } from "./storage/notified-pull-requests";
-import { tokenStorage } from "./storage/token";
+import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
+import { Store } from "./storage/store";
 
 export class GitHubState {
-  octokit: Octokit | null = null;
+  private readonly chromeApi: ChromeApi;
+  private readonly store: Store;
+  private octokit: Octokit | null = null;
 
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
@@ -36,7 +31,9 @@ export class GitHubState {
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
-  constructor() {
+  constructor(chromeApi: ChromeApi, store: Store) {
+    this.chromeApi = chromeApi;
+    this.store = store;
     chromeApi.runtime.onMessage.addListener(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
@@ -46,19 +43,19 @@ export class GitHubState {
   }
 
   async load() {
-    this.token = await tokenStorage.load();
-    this.lastError = await lastErrorStorage.load();
+    this.token = await this.store.token.load();
+    this.lastError = await this.store.lastError.load();
     this.overallStatus = "loading";
     try {
       if (this.token !== null) {
         this.octokit = new Octokit({
           auth: `token ${this.token}`
         });
-        this.lastCheck = await lastCheckStorage.load();
+        this.lastCheck = await this.store.lastCheck.load();
         this.notifiedPullRequestUrls = new Set(
-          await notifiedPullRequestsStorage.load()
+          await this.store.notifiedPullRequests.load()
         );
-        this.muteConfiguration = await muteConfigurationStorage.load();
+        this.muteConfiguration = await this.store.muteConfiguration.load();
       } else {
         this.token = null;
         this.octokit = null;
@@ -76,13 +73,13 @@ export class GitHubState {
 
   async setError(error: string | null) {
     this.lastError = error;
-    await lastErrorStorage.save(error);
+    await this.store.lastError.save(error);
     this.updateBadge();
   }
 
   async setNewToken(token: string) {
     this.token = token;
-    await tokenStorage.save(token);
+    await this.store.token.save(token);
     await this.setError(null);
     await this.setNotifiedPullRequests([]);
     await this.setLastCheck(null);
@@ -93,7 +90,7 @@ export class GitHubState {
 
   async setNotifiedPullRequests(pullRequests: PullRequest[]) {
     this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
-    await notifiedPullRequestsStorage.save(
+    await this.store.notifiedPullRequests.save(
       Array.from(this.notifiedPullRequestUrls)
     );
   }
@@ -139,6 +136,7 @@ export class GitHubState {
       });
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
       await showNotificationForNewPullRequests(
+        this.chromeApi,
         unreviewedPullRequests,
         this.notifiedPullRequestUrls
       );
@@ -179,12 +177,12 @@ export class GitHubState {
 
   private async setLastCheck(lastCheck: LastCheck | null) {
     this.lastCheck = lastCheck;
-    await lastCheckStorage.save(lastCheck);
+    await this.store.lastCheck.save(lastCheck);
   }
 
   private async setMuteConfiguration(muteConfiguration: MuteConfiguration) {
     this.muteConfiguration = muteConfiguration;
-    await muteConfigurationStorage.save(muteConfiguration);
+    await this.store.muteConfiguration.save(muteConfiguration);
   }
 
   private updateBadge() {
@@ -209,17 +207,17 @@ export class GitHubState {
         unreviewedPullRequestCount: unreviewedPullRequests.length
       };
     }
-    updateBadge(badgeState);
+    updateBadge(this.chromeApi, badgeState);
   }
 
   private triggerBackgroundRefresh() {
-    chromeApi.runtime.sendMessage({
+    this.chromeApi.runtime.sendMessage({
       kind: "refresh"
     });
   }
 
   private triggerReload() {
-    chromeApi.runtime.sendMessage({
+    this.chromeApi.runtime.sendMessage({
       kind: "reload"
     });
   }

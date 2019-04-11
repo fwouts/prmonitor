@@ -1,3 +1,4 @@
+import { Badger, BadgeState } from "../badge/api";
 import { ChromeApi, ChromeStorageItems } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Core } from "./core";
@@ -12,7 +13,14 @@ describe("Core", () => {
     const store = mockStore();
     const githubLoader = jest.fn();
     const notifier = fakeNotifier();
-    const core = new Core(chrome.chromeApi, store, githubLoader, notifier);
+    const badger = fakeBadger();
+    const core = new Core(
+      chrome.chromeApi,
+      store,
+      githubLoader,
+      notifier,
+      badger
+    );
     await core.load();
   });
 });
@@ -51,6 +59,19 @@ function fakeNotifier() {
   return {
     ...notifier,
     notified
+  };
+}
+
+function fakeBadger() {
+  const updated: BadgeState[] = [];
+  const badger: Badger = {
+    update(state) {
+      updated.push(state);
+    }
+  };
+  return {
+    ...badger,
+    updated
   };
 }
 

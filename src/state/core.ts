@@ -1,13 +1,13 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
-import { BadgeState, updateBadge } from "../badge";
+import { Badger, BadgeState } from "../badge/api";
 import { ChromeApi } from "../chrome";
+import { Notifier } from "../notifications/api";
 import { isReviewNeeded } from "./filtering/review-needed";
 import { GitHubLoader } from "./github-loader";
 import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
 import { Store } from "./storage/store";
-import { Notifier } from "../notifications/api";
 
 export class Core {
   private octokit: Octokit | null = null;
@@ -24,7 +24,9 @@ export class Core {
     private readonly chromeApi: ChromeApi,
     private readonly store: Store,
     private readonly githubLoader: GitHubLoader,
-    private readonly notifier: Notifier) {
+    private readonly notifier: Notifier,
+    private readonly badger: Badger
+  ) {
     chromeApi.runtime.onMessage.addListener(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
@@ -173,7 +175,7 @@ export class Core {
         unreviewedPullRequestCount: unreviewedPullRequests.length
       };
     }
-    updateBadge(this.chromeApi, badgeState);
+    this.badger.update(badgeState);
   }
 
   private triggerBackgroundRefresh() {

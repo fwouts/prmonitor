@@ -9,6 +9,7 @@ import { buildNotifier } from "./notifications/implementation";
 import { Core } from "./state/core";
 import { githubLoaderSingleton } from "./state/github-loader";
 import { getStore } from "./state/storage/store";
+import { buildBadger } from "./badge/implementation";
 
 library.add(faBellSlash);
 
@@ -40,7 +41,8 @@ ReactDOM.render(
           chromeApiSingleton,
           getStore(chromeApiSingleton),
           githubLoaderSingleton,
-          buildNotifier(chromeApiSingleton)
+          buildNotifier(chromeApiSingleton),
+          buildBadger(chromeApiSingleton)
         )
       }
     />

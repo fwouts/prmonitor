@@ -1,3 +1,4 @@
+import { Badger } from "../badge/api";
 import { ChromeApi } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Core } from "../state/core";
@@ -10,9 +11,16 @@ import { getStore } from "../state/storage/store";
 export async function checkPullRequests(
   chromeApi: ChromeApi,
   githubLoader: GitHubLoader,
-  notifier: Notifier
+  notifier: Notifier,
+  badger: Badger
 ) {
-  const core = new Core(chromeApi, getStore(chromeApi), githubLoader, notifier);
+  const core = new Core(
+    chromeApi,
+    getStore(chromeApi),
+    githubLoader,
+    notifier,
+    badger
+  );
   await core.load();
   if (!core.token) {
     return;

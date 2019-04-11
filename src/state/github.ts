@@ -3,24 +3,16 @@ import { computed, observable } from "mobx";
 import { showNotificationForNewPullRequests } from "../background/notifications";
 import { BadgeState, updateBadge } from "../badge";
 import { ChromeApi } from "../chrome";
-import { loadRepos } from "../github/api/repos";
-import { loadAuthenticatedUser } from "../github/api/user";
 import { isReviewNeeded } from "./filtering/review-needed";
-import { loadAllComments } from "./loading/comments";
-import { refreshOpenPullRequests } from "./loading/pull-requests";
-import { loadAllReviews } from "./loading/reviews";
-import {
-  LastCheck,
-  PullRequest,
-  pullRequestFromResponse,
-  repoFromResponse
-} from "./storage/last-check";
+import { GitHubLoader } from "./github-loader";
+import { LastCheck, PullRequest } from "./storage/last-check";
 import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
 import { Store } from "./storage/store";
 
 export class GitHubState {
   private readonly chromeApi: ChromeApi;
   private readonly store: Store;
+  private readonly githubLoader: GitHubLoader;
   private octokit: Octokit | null = null;
 
   @observable overallStatus: "loading" | "loaded" = "loading";
@@ -31,9 +23,10 @@ export class GitHubState {
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
-  constructor(chromeApi: ChromeApi, store: Store) {
+  constructor(chromeApi: ChromeApi, store: Store, githubLoader: GitHubLoader) {
     this.chromeApi = chromeApi;
     this.store = store;
+    this.githubLoader = githubLoader;
     chromeApi.runtime.onMessage.addListener(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
@@ -108,32 +101,7 @@ export class GitHubState {
     this.refreshing = true;
     this.updateBadge();
     try {
-      const user = await loadAuthenticatedUser(octokit);
-      const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
-      const openPullRequests = await refreshOpenPullRequests(
-        octokit,
-        repos,
-        this.lastCheck
-      );
-      const reviewsPerPullRequest = await loadAllReviews(
-        octokit,
-        openPullRequests
-      );
-      const commentsPerPullRequest = await loadAllComments(
-        octokit,
-        openPullRequests
-      );
-      await this.setLastCheck({
-        userLogin: user.login,
-        openPullRequests: openPullRequests.map(pr =>
-          pullRequestFromResponse(
-            pr,
-            reviewsPerPullRequest[pr.node_id],
-            commentsPerPullRequest[pr.node_id]
-          )
-        ),
-        repos
-      });
+      await this.setLastCheck(await this.githubLoader(octokit, this.lastCheck));
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
       await showNotificationForNewPullRequests(
         this.chromeApi,

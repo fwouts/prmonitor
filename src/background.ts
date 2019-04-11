@@ -12,16 +12,22 @@ import { buildStore } from "./storage/implementation";
 
 // This is the entry point of the background script of the Chrome extension.
 console.debug("Background entry point running...");
-background(
-  chromeApiSingleton,
-  buildStore(chromeApiSingleton),
-  githubLoaderSingleton,
-  buildNotifier(chromeApiSingleton),
-  buildBadger(chromeApiSingleton),
-  buildMessenger(chromeApiSingleton)
+const chromeApi = chromeApiSingleton;
+const githubLoader = githubLoaderSingleton;
+const store = buildStore(chromeApi);
+const notifier = buildNotifier(chromeApi);
+const badger = buildBadger(chromeApi);
+const messenger = buildMessenger(chromeApi);
+setUpBackgroundScript(
+  chromeApi,
+  store,
+  githubLoader,
+  notifier,
+  badger,
+  messenger
 );
 
-function background(
+function setUpBackgroundScript(
   chromeApi: ChromeApi,
   store: Store,
   githubLoader: GitHubLoader,

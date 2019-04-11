@@ -5,7 +5,7 @@ import { loadAllComments } from "./loading/comments";
 import { refreshOpenPullRequests } from "./loading/pull-requests";
 import { loadAllReviews } from "./loading/reviews";
 import {
-  LastCheck,
+  LoadedState,
   pullRequestFromResponse,
   repoFromResponse
 } from "./storage/last-check";
@@ -15,8 +15,8 @@ import {
  */
 export const githubLoaderSingleton: GitHubLoader = async function load(
   octokit: Octokit,
-  lastCheck: LastCheck | null
-): Promise<LastCheck> {
+  lastCheck: LoadedState | null
+): Promise<LoadedState> {
   const user = await loadAuthenticatedUser(octokit);
   const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
   const openPullRequests = await refreshOpenPullRequests(
@@ -44,5 +44,5 @@ export const githubLoaderSingleton: GitHubLoader = async function load(
 
 export type GitHubLoader = (
   octokit: Octokit,
-  lastCheck: LastCheck | null
-) => Promise<LastCheck>;
+  lastCheck: LoadedState | null
+) => Promise<LoadedState>;

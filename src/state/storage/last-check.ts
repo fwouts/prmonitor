@@ -15,9 +15,9 @@ import { storage } from "./helper";
  * Storage of the last information we loaded about pull requests.
  */
 export const lastCheckStorage = (chromeApi: ChromeApi) =>
-  storage<LastCheck>(chromeApi, "lastCheck");
+  storage<LoadedState>(chromeApi, "lastCheck");
 
-export interface LastCheck {
+export interface LoadedState {
   // TODO: Make it required once the field has been populated for long enough.
   userLogin?: string;
 

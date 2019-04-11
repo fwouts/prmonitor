@@ -1,5 +1,5 @@
 import { ChromeApi } from "../chrome";
-import { GitHubState } from "../state/github";
+import { Core } from "../state/core";
 import { GitHubLoader } from "../state/github-loader";
 import { getStore } from "../state/storage/store";
 
@@ -11,16 +11,16 @@ export async function checkPullRequests(
   githubLoader: GitHubLoader
 ) {
   let error;
-  const github = new GitHubState(chromeApi, getStore(chromeApi), githubLoader);
+  const core = new Core(chromeApi, getStore(chromeApi), githubLoader);
   try {
-    await github.load();
-    if (!github.token) {
+    await core.load();
+    if (!core.token) {
       return;
     }
-    await github.refreshPullRequests();
+    await core.refreshPullRequests();
     error = null;
   } catch (e) {
     error = e;
   }
-  github.setError(error ? error.message : null);
+  core.setError(error ? error.message : null);
 }

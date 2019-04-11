@@ -1,24 +1,24 @@
 import { ChromeApi, ChromeStorageItems } from "../chrome";
-import { GitHubState } from "./github";
+import { Core } from "./core";
 import { Storage } from "./storage/helper";
-import { LastCheck } from "./storage/last-check";
+import { LoadedState } from "./storage/last-check";
 import { MuteConfiguration } from "./storage/mute";
 import { Store } from "./storage/store";
 
-describe("GitHubState", () => {
+describe("Core", () => {
   it("does something", async () => {
     const chrome = fakeChrome();
     const store = mockStore();
     const githubLoader = jest.fn();
-    const github = new GitHubState(chrome.chromeApi, store, githubLoader);
-    await github.load();
+    const core = new Core(chrome.chromeApi, store, githubLoader);
+    await core.load();
   });
 });
 
 function mockStore(): Store {
   return {
     lastError: mockStorage<string | null>(),
-    lastCheck: mockStorage<LastCheck | null>(),
+    lastCheck: mockStorage<LoadedState | null>(),
     muteConfiguration: mockStorage<MuteConfiguration>(),
     notifiedPullRequests: mockStorage<string[]>(),
     token: mockStorage<string | null>()

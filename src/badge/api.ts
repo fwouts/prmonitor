@@ -1,5 +1,5 @@
 export interface Badger {
-  update(state: BadgeState): void
+  update(state: BadgeState): void;
 }
 
 export type BadgeState =

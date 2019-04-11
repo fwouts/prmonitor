@@ -5,7 +5,10 @@ import { ChromeApi } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Store } from "../storage/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
-import { MuteConfiguration, NOTHING_MUTED } from "../storage/mute-configuration";
+import {
+  MuteConfiguration,
+  NOTHING_MUTED
+} from "../storage/mute-configuration";
 import { isReviewNeeded } from "./filtering/review-needed";
 import { GitHubLoader } from "./github-loader";
 

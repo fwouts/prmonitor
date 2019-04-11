@@ -3,8 +3,10 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import ReactDOM from "react-dom";
+import { chromeApiSingleton } from "./chrome";
 import { Popup } from "./components/Popup";
 import { GitHubState } from "./state/github";
+import { getStore } from "./state/storage/store";
 
 library.add(faBellSlash);
 
@@ -30,7 +32,9 @@ ReactDOM.render(
         }
       `}
     />
-    <Popup github={new GitHubState()} />
+    <Popup
+      github={new GitHubState(chromeApiSingleton, getStore(chromeApiSingleton))}
+    />
   </>,
   document.getElementById("root")
 );

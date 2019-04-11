@@ -3,11 +3,11 @@ import { computed, observable } from "mobx";
 import { Badger, BadgeState } from "../badge/api";
 import { ChromeApi } from "../chrome";
 import { Notifier } from "../notifications/api";
+import { Store } from "../storage/api";
 import { isReviewNeeded } from "./filtering/review-needed";
 import { GitHubLoader } from "./github-loader";
 import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
-import { Store } from "./storage/store";
 
 export class Core {
   private octokit: Octokit | null = null;

@@ -1,11 +1,11 @@
 import { Badger, BadgeState } from "../badge/api";
 import { ChromeApi, ChromeStorageItems } from "../chrome";
 import { Notifier } from "../notifications/api";
+import { Store } from "../storage/api";
 import { Core } from "./core";
 import { Storage } from "./storage/helper";
 import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration } from "./storage/mute";
-import { Store } from "./storage/store";
 
 describe("Core", () => {
   it("does something", async () => {

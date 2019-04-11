@@ -1,3 +1,7 @@
+export const NOTHING_MUTED: MuteConfiguration = {
+  mutedPullRequests: []
+};
+
 export interface MuteConfiguration {
   mutedPullRequests: MutedPullRequest[];
 }

@@ -5,10 +5,9 @@ import { ChromeApi } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Store } from "../storage/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
-import { MuteConfiguration } from "../storage/mute-configuration";
+import { MuteConfiguration, NOTHING_MUTED } from "../storage/mute-configuration";
 import { isReviewNeeded } from "./filtering/review-needed";
 import { GitHubLoader } from "./github-loader";
-import { NOTHING_MUTED } from "./storage/mute";
 
 export class Core {
   private octokit: Octokit | null = null;

@@ -3,13 +3,13 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import ReactDOM from "react-dom";
+import { buildBadger } from "./badge/implementation";
 import { chromeApiSingleton } from "./chrome";
 import { Popup } from "./components/Popup";
 import { buildNotifier } from "./notifications/implementation";
 import { Core } from "./state/core";
 import { githubLoaderSingleton } from "./state/github-loader";
-import { getStore } from "./state/storage/store";
-import { buildBadger } from "./badge/implementation";
+import { buildStore } from "./storage/implementation";
 
 library.add(faBellSlash);
 
@@ -39,7 +39,7 @@ ReactDOM.render(
       core={
         new Core(
           chromeApiSingleton,
-          getStore(chromeApiSingleton),
+          buildStore(chromeApiSingleton),
           githubLoaderSingleton,
           buildNotifier(chromeApiSingleton),
           buildBadger(chromeApiSingleton)

@@ -36,8 +36,9 @@
   },
   "scripts": {
     "start": "webpack-dev-server --open",
+    "watch:dev": "rm -rf dist; webpack --mode development --watch",
+    "watch:prod": "rm -rf dist; webpack --mode production --watch",
     "build": "rm -rf dist; webpack --mode production && cd dist && zip extension.zip -r *",
-    "watch": "rm -rf dist; webpack --mode production --watch",
     "test": "jest"
   }
 }

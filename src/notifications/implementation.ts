@@ -1,4 +1,4 @@
-import { ChromeApi } from "../chrome";
+import { ChromeApi } from "../chrome/api";
 import { PullRequest } from "../storage/loaded-state";
 import { Notifier } from "./api";
 

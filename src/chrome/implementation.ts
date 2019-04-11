@@ -1,4 +1,5 @@
-import { fakeChromeApi } from "./fake-chrome-api";
+import { ChromeApi } from "./api";
+import { fakeChrome } from "./fake-chrome";
 
 // This file exists to facilitate development.
 //
@@ -14,13 +15,7 @@ export let chromeApiSingleton: ChromeApi;
 if (!chrome.extension && process.env.NODE_ENV === "development") {
   // We're developing outside of the Chrome extension environment.
   // Create a partial fake covering the APIs we need.
-  chromeApiSingleton = fakeChromeApi;
+  chromeApiSingleton = fakeChrome;
 } else {
   chromeApiSingleton = chrome;
-}
-
-export type ChromeApi = typeof chrome;
-
-export interface ChromeStorageItems {
-  [key: string]: any;
 }

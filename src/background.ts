@@ -1,6 +1,7 @@
 import { Badger } from "./badge/api";
 import { buildBadger } from "./badge/implementation";
-import { ChromeApi, chromeApiSingleton } from "./chrome";
+import { ChromeApi } from "./chrome/api";
+import { chromeApiSingleton } from "./chrome/implementation";
 import { CrossScriptMessenger } from "./messaging/api";
 import { buildMessenger } from "./messaging/implementation";
 import { Notifier } from "./notifications/api";

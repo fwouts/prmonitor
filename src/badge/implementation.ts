@@ -1,4 +1,4 @@
-import { ChromeApi } from "../chrome";
+import { ChromeApi } from "../chrome/api";
 import { Badger, BadgeState } from "./api";
 
 export function buildBadger(chromeApi: ChromeApi): Badger {

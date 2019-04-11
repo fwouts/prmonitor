@@ -1,4 +1,4 @@
-import { ChromeApi } from "../chrome";
+import { ChromeApi } from "../chrome/api";
 import { Store } from "./api";
 import {
   chromeValueStorage,

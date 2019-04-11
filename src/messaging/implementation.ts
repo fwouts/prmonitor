@@ -1,4 +1,4 @@
-import { ChromeApi } from "../chrome";
+import { ChromeApi } from "../chrome/api";
 import { CrossScriptMessenger } from "./api";
 
 export function buildMessenger(chromeApi: ChromeApi): CrossScriptMessenger {

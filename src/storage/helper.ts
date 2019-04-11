@@ -1,14 +1,19 @@
-import { ChromeApi } from "../../chrome/api";
-import { ValueStorage } from "../api";
+import { ChromeApi } from "../chrome/api";
+
+export interface Storage<T> {
+  load(): Promise<T>;
+  save(value: T | null): Promise<void>;
+}
+
 /**
  * Returns a storage handler to load and save from the given key.
  *
  * This doesn't have a default value. When the key is not set, `null` will be returned.
  */
-export function chromeValueStorage<T>(
+export function storage<T>(
   chromeApi: ChromeApi,
   key: string
-): ValueStorage<T | null> {
+): Storage<T | null> {
   return {
     load() {
       return loadFromStorage<T>(chromeApi, key);
@@ -24,11 +29,11 @@ export function chromeValueStorage<T>(
  *
  * Unlike {@link storage}, this has a default value which it will return when the key is not set.
  */
-export function chromeValueStorageWithDefault<T>(
+export function storageWithDefault<T>(
   chromeApi: ChromeApi,
   key: string,
   defaultValue: T
-): ValueStorage<T> {
+): Storage<T> {
   return {
     async load() {
       return (await loadFromStorage<T>(chromeApi, key)) || defaultValue;

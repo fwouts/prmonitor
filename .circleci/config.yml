@@ -32,7 +32,7 @@ jobs:
             - node_modules
           key: v3-dependencies-{{ checksum "package.json" }}
       - run: yarn test --passWithNoTests
-  prettier-check:
+  prettier:
     docker:
       - image: circleci/node
     working_directory: ~/repo

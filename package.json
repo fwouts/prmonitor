@@ -16,7 +16,7 @@
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@octokit/rest": "^16.22.0",
-    "@types/chrome": "^0.0.81",
+    "@types/chrome": "^0.0.82",
     "@types/jest": "^24.0.11",
     "@types/node": "^11.13.4",
     "@types/react": "^16.8.13",
@@ -29,7 +29,7 @@
     "style-loader": "^0.23.1",
     "ts-jest": "^24.0.2",
     "ts-loader": "^5.3.3",
-    "typescript": "^3.4.2",
+    "typescript": "^3.4.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.3.1"

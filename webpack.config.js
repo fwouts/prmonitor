@@ -29,7 +29,7 @@ module.exports = {
     ]
   },
   entry: {
-    background: "./src/background/entry.ts",
+    background: "./src/background.ts",
     popup: "./src/popup.tsx"
   },
   resolve: {

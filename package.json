@@ -17,6 +17,7 @@
     "@babel/preset-env": "^7.4.3",
     "@octokit/rest": "^16.22.0",
     "@types/chrome": "^0.0.81",
+    "@types/jest": "^24.0.11",
     "@types/node": "^11.13.2",
     "@types/react": "^16.8.13",
     "@types/react-dom": "^16.8.3",
@@ -24,7 +25,9 @@
     "copy-webpack-plugin": "^5.0.2",
     "css-loader": "^2.1.1",
     "html-webpack-plugin": "^3.2.0",
+    "jest": "^24.7.1",
     "style-loader": "^0.23.1",
+    "ts-jest": "^24.0.2",
     "ts-loader": "^5.3.3",
     "typescript": "^3.4.2",
     "webpack": "^4.29.6",
@@ -34,6 +37,7 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "build": "rm -rf dist; webpack --mode production && cd dist && zip extension.zip -r *",
-    "watch": "rm -rf dist; webpack --mode production --watch"
+    "watch": "rm -rf dist; webpack --mode production --watch",
+    "test": "jest"
   }
 }

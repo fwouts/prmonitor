@@ -6,11 +6,11 @@ import ReactDOM from "react-dom";
 import { buildBadger } from "./badge/implementation";
 import { chromeApiSingleton } from "./chrome";
 import { Popup } from "./components/Popup";
+import { buildMessenger } from "./messaging/implementation";
 import { buildNotifier } from "./notifications/implementation";
 import { Core } from "./state/core";
 import { githubLoaderSingleton } from "./state/github-loader";
 import { buildStore } from "./storage/implementation";
-import { buildMessenger } from "./messaging/implementation";
 
 library.add(faBellSlash);
 
@@ -43,7 +43,7 @@ ReactDOM.render(
           githubLoaderSingleton,
           buildNotifier(chromeApiSingleton),
           buildBadger(chromeApiSingleton),
-          buildMessenger(chromeApiSingleton),
+          buildMessenger(chromeApiSingleton)
         )
       }
     />

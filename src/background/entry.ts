@@ -1,12 +1,13 @@
 import { ChromeApi, chromeApiSingleton } from "../chrome";
+import { GitHubLoader, githubLoaderSingleton } from "../state/github-loader";
 import { checkPullRequests } from "./check-pull-requests";
 import { onNotificationClicked } from "./notifications";
 
 // This is the entry point of the background script of the Chrome extension.
 console.debug("Background entry point running...");
-background(chromeApiSingleton);
+background(chromeApiSingleton, githubLoaderSingleton);
 
-function background(chromeApi: ChromeApi) {
+function background(chromeApi: ChromeApi, githubLoader: GitHubLoader) {
   // Beause it isn't a persistent background script, we cannot simply use
   // setInterval() to schedule regular checks for new pull requests.
   // Instead, we set an alarm three minutes.
@@ -45,6 +46,6 @@ function background(chromeApi: ChromeApi) {
   });
 
   async function triggerRefresh() {
-    checkPullRequests(chromeApi).catch(console.error);
+    checkPullRequests(chromeApi, githubLoader).catch(console.error);
   }
 }

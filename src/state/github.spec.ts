@@ -9,7 +9,8 @@ describe("GitHubState", () => {
   it("does something", async () => {
     const chrome = fakeChrome();
     const store = mockStore();
-    const github = new GitHubState(chrome.chromeApi, store);
+    const githubLoader = jest.fn();
+    const github = new GitHubState(chrome.chromeApi, store, githubLoader);
     await github.load();
   });
 });

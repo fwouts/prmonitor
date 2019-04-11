@@ -1,6 +1,5 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
-import { showNotificationForNewPullRequests } from "../background/notifications";
 import { BadgeState, updateBadge } from "../badge";
 import { ChromeApi } from "../chrome";
 import { isReviewNeeded } from "./filtering/review-needed";
@@ -8,11 +7,9 @@ import { GitHubLoader } from "./github-loader";
 import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
 import { Store } from "./storage/store";
+import { Notifier } from "../notifications/api";
 
 export class Core {
-  private readonly chromeApi: ChromeApi;
-  private readonly store: Store;
-  private readonly githubLoader: GitHubLoader;
   private octokit: Octokit | null = null;
 
   @observable overallStatus: "loading" | "loaded" = "loading";
@@ -23,10 +20,11 @@ export class Core {
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
-  constructor(chromeApi: ChromeApi, store: Store, githubLoader: GitHubLoader) {
-    this.chromeApi = chromeApi;
-    this.store = store;
-    this.githubLoader = githubLoader;
+  constructor(
+    private readonly chromeApi: ChromeApi,
+    private readonly store: Store,
+    private readonly githubLoader: GitHubLoader,
+    private readonly notifier: Notifier) {
     chromeApi.runtime.onMessage.addListener(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
@@ -87,8 +85,7 @@ export class Core {
         await this.githubLoader(octokit, this.loadedState)
       );
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
-      await showNotificationForNewPullRequests(
-        this.chromeApi,
+      await this.notifier.notify(
         unreviewedPullRequests,
         this.notifiedPullRequestUrls
       );

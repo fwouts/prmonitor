@@ -1,4 +1,5 @@
 import { ChromeApi } from "../chrome";
+import { Notifier } from "../notifications/api";
 import { Core } from "../state/core";
 import { GitHubLoader } from "../state/github-loader";
 import { getStore } from "../state/storage/store";
@@ -8,9 +9,10 @@ import { getStore } from "../state/storage/store";
  */
 export async function checkPullRequests(
   chromeApi: ChromeApi,
-  githubLoader: GitHubLoader
+  githubLoader: GitHubLoader,
+  notifier: Notifier
 ) {
-  const core = new Core(chromeApi, getStore(chromeApi), githubLoader);
+  const core = new Core(chromeApi, getStore(chromeApi), githubLoader, notifier);
   await core.load();
   if (!core.token) {
     return;

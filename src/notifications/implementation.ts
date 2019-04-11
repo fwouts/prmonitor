@@ -1,10 +1,28 @@
 import { ChromeApi } from "../chrome";
 import { PullRequest } from "../state/storage/last-check";
+import { Notifier } from "./api";
+
+export function buildNotifier(chromeApi: ChromeApi): Notifier {
+  return {
+    notify(unreviewedPullRequests, notifiedPullRequestUrls) {
+      showNotificationForNewPullRequests(
+        chromeApi,
+        unreviewedPullRequests,
+        notifiedPullRequestUrls
+      );
+    },
+    registerClickListener() {
+      chromeApi.notifications.onClicked.addListener(notificationId =>
+        onNotificationClicked(chromeApi, notificationId)
+      );
+    }
+  };
+}
 
 /**
  * Shows a notification for each pull request that we haven't yet notified about.
  */
-export async function showNotificationForNewPullRequests(
+async function showNotificationForNewPullRequests(
   chromeApi: ChromeApi,
   unreviewedPullRequests: PullRequest[],
   notifiedPullRequestUrls: Set<string>
@@ -44,10 +62,7 @@ function showNotification(chromeApi: ChromeApi, pullRequest: PullRequest) {
   });
 }
 
-export function onNotificationClicked(
-  chromeApi: ChromeApi,
-  notificationId: string
-) {
+function onNotificationClicked(chromeApi: ChromeApi, notificationId: string) {
   // Notification IDs are always pull request URLs (see above).
   window.open(notificationId);
   chromeApi.notifications.clear(notificationId);

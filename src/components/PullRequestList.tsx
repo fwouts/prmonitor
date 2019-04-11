@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { PullRequest } from "../state/storage/last-check";
+import { PullRequest } from "../storage/loaded-state";
 import { List } from "./design/List";
 import { Paragraph } from "./design/Paragraph";
 import { PullRequestItem } from "./PullRequestItem";

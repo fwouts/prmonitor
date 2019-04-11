@@ -1,21 +1,4 @@
-import {
-  IssuesListCommentsResponse,
-  PullsGetResponse,
-  PullsListResponseItem,
-  ReposGetResponse
-} from "@octokit/rest";
-import { ChromeApi } from "../../chrome";
-import {
-  PullsListReviewsResponse,
-  ReviewState
-} from "../../github/api/reviews";
-import { storage } from "./helper";
-
-/**
- * Storage of the last information we loaded about pull requests.
- */
-export const lastCheckStorage = (chromeApi: ChromeApi) =>
-  storage<LoadedState>(chromeApi, "lastCheck");
+import { ReviewState } from "../github/api/reviews";
 
 export interface LoadedState {
   // TODO: Make it required once the field has been populated for long enough.
@@ -48,15 +31,6 @@ export interface Repo {
   /** Date when the last commit was pushed (across any branch). */
   pushedAt: string;
 }
-
-export function repoFromResponse(response: ReposGetResponse): Repo {
-  return {
-    owner: response.owner.login,
-    name: response.name,
-    pushedAt: response.pushed_at
-  };
-}
-
 export interface PullRequest {
   nodeId: string;
   htmlUrl: string;
@@ -88,35 +62,4 @@ export interface Review {
   authorLogin: string;
   state: ReviewState;
   submittedAt: string;
-}
-
-export function pullRequestFromResponse(
-  response: PullsGetResponse | PullsListResponseItem,
-  reviews: PullsListReviewsResponse,
-  comments: IssuesListCommentsResponse
-): PullRequest {
-  return {
-    nodeId: response.node_id,
-    htmlUrl: response.html_url,
-    repoOwner: response.base.repo.owner.login,
-    repoName: response.base.repo.name,
-    pullRequestNumber: response.number,
-    authorLogin: response.user.login,
-    author: {
-      login: response.user.login,
-      avatarUrl: response.user.avatar_url
-    },
-    updatedAt: response.updated_at,
-    title: response.title,
-    requestedReviewers: response.requested_reviewers.map(r => r.login),
-    reviews: reviews.map(r => ({
-      authorLogin: r.user.login,
-      state: r.state,
-      submittedAt: r.submitted_at
-    })),
-    comments: comments.map(c => ({
-      authorLogin: c.user.login,
-      createdAt: c.created_at
-    }))
-  };
 }

@@ -6,8 +6,8 @@ import {
   loadPullRequest,
   loadPullRequests
 } from "../../github/api/pull-requests";
+import { LoadedState, Repo } from "../../storage/loaded-state";
 import { repoWasPushedAfter } from "../filtering/repos-pushed-after";
-import { LoadedState, Repo } from "../storage/last-check";
 
 /**
  * Refreshes the list of pull requests for a list of repositories.

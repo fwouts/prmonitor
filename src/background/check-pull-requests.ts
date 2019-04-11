@@ -3,7 +3,7 @@ import { ChromeApi } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Core } from "../state/core";
 import { GitHubLoader } from "../state/github-loader";
-import { getStore } from "../state/storage/store";
+import { buildStore } from "../storage/implementation";
 
 /**
  * Checks if there are any new pull requests and notifies the user when required.
@@ -16,7 +16,7 @@ export async function checkPullRequests(
 ) {
   const core = new Core(
     chromeApi,
-    getStore(chromeApi),
+    buildStore(chromeApi),
     githubLoader,
     notifier,
     badger

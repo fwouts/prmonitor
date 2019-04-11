@@ -1,5 +1,5 @@
-import { PullRequest } from "../storage/last-check";
-import { MuteConfiguration } from "../storage/mute";
+import { PullRequest } from "../../storage/loaded-state";
+import { MuteConfiguration } from "../../storage/mute-configuration";
 
 /**
  * Returns whether another review is needed for a PR:

@@ -1,11 +1,10 @@
 import { Badger, BadgeState } from "../badge/api";
 import { ChromeApi, ChromeStorageItems } from "../chrome";
 import { Notifier } from "../notifications/api";
+import { Store, ValueStorage } from "../storage/api";
+import { LoadedState, PullRequest } from "../storage/loaded-state";
+import { MuteConfiguration } from "../storage/mute-configuration";
 import { Core } from "./core";
-import { Storage } from "./storage/helper";
-import { LoadedState, PullRequest } from "./storage/last-check";
-import { MuteConfiguration } from "./storage/mute";
-import { Store } from "./storage/store";
 
 describe("Core", () => {
   it("does something", async () => {
@@ -35,7 +34,7 @@ function mockStore(): Store {
   };
 }
 
-function mockStorage<T>(): Storage<T> {
+function mockStorage<T>(): ValueStorage<T> {
   return {
     load: jest.fn(),
     save: jest.fn()

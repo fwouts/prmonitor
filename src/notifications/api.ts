@@ -1,4 +1,4 @@
-import { PullRequest } from "../state/storage/last-check";
+import { PullRequest } from "../storage/loaded-state";
 
 export interface Notifier {
   notify(

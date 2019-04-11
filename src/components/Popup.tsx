@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import React, { Component } from "react";
 import { Core } from "../state/core";
-import { PullRequest } from "../state/storage/last-check";
+import { PullRequest } from "../storage/loaded-state";
 import { Header } from "./design/Header";
 import { Error } from "./Error";
 import { Loader } from "./Loader";

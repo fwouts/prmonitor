@@ -2,8 +2,8 @@ import { Badger, BadgeState } from "../badge/api";
 import { ChromeApi, ChromeStorageItems } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Store, ValueStorage } from "../storage/api";
+import { LoadedState, PullRequest } from "../storage/loaded-state";
 import { Core } from "./core";
-import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration } from "./storage/mute";
 
 describe("Core", () => {

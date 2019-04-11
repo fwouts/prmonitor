@@ -1,5 +1,5 @@
 import { ChromeApi } from "../chrome";
-import { PullRequest } from "../state/storage/last-check";
+import { PullRequest } from "../storage/loaded-state";
 import { Notifier } from "./api";
 
 export function buildNotifier(chromeApi: ChromeApi): Notifier {

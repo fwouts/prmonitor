@@ -1,4 +1,4 @@
-import { PullRequest } from "../storage/last-check";
+import { PullRequest } from "../../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute";
 
 /**

@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { PullRequest } from "../state/storage/last-check";
+import { PullRequest } from "../storage/loaded-state";
 import { SmallButton } from "./design/Button";
 
 export interface PullRequestItemProps {

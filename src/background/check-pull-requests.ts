@@ -10,17 +10,10 @@ export async function checkPullRequests(
   chromeApi: ChromeApi,
   githubLoader: GitHubLoader
 ) {
-  let error;
   const core = new Core(chromeApi, getStore(chromeApi), githubLoader);
-  try {
-    await core.load();
-    if (!core.token) {
-      return;
-    }
-    await core.refreshPullRequests();
-    error = null;
-  } catch (e) {
-    error = e;
+  await core.load();
+  if (!core.token) {
+    return;
   }
-  core.setError(error ? error.message : null);
+  await core.refreshPullRequests();
 }

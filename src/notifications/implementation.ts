@@ -1,10 +1,20 @@
 import { ChromeApi } from "../chrome";
 import { PullRequest } from "../state/storage/last-check";
+import { Notifier } from "./api";
+
+export function buildNotifier(chromeApi: ChromeApi): Notifier {
+  return (unreviewedPullRequests, notifiedPullRequestUrls) =>
+    showNotificationForNewPullRequests(
+      chromeApi,
+      unreviewedPullRequests,
+      notifiedPullRequestUrls
+    );
+}
 
 /**
  * Shows a notification for each pull request that we haven't yet notified about.
  */
-export async function showNotificationForNewPullRequests(
+async function showNotificationForNewPullRequests(
   chromeApi: ChromeApi,
   unreviewedPullRequests: PullRequest[],
   notifiedPullRequestUrls: Set<string>

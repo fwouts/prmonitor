@@ -1,7 +1,7 @@
 import { ChromeApi, chromeApiSingleton } from "../chrome";
+import { onNotificationClicked } from "../notifications/notifications";
 import { GitHubLoader, githubLoaderSingleton } from "../state/github-loader";
 import { checkPullRequests } from "./check-pull-requests";
-import { onNotificationClicked } from "./notifications";
 
 // This is the entry point of the background script of the Chrome extension.
 console.debug("Background entry point running...");

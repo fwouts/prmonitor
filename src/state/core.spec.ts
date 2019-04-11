@@ -10,7 +10,8 @@ describe("Core", () => {
     const chrome = fakeChrome();
     const store = mockStore();
     const githubLoader = jest.fn();
-    const core = new Core(chrome.chromeApi, store, githubLoader);
+    const notifier = jest.fn();
+    const core = new Core(chrome.chromeApi, store, githubLoader, notifier);
     await core.load();
   });
 });

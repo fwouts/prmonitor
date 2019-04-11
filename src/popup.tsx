@@ -5,6 +5,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { chromeApiSingleton } from "./chrome";
 import { Popup } from "./components/Popup";
+import { buildNotifier } from "./notifications/implementation";
 import { Core } from "./state/core";
 import { githubLoaderSingleton } from "./state/github-loader";
 import { getStore } from "./state/storage/store";
@@ -38,7 +39,8 @@ ReactDOM.render(
         new Core(
           chromeApiSingleton,
           getStore(chromeApiSingleton),
-          githubLoaderSingleton
+          githubLoaderSingleton,
+          buildNotifier(chromeApiSingleton)
         )
       }
     />

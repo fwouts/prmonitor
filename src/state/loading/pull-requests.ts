@@ -7,7 +7,7 @@ import {
   loadPullRequests
 } from "../../github/api/pull-requests";
 import { repoWasPushedAfter } from "../filtering/repos-pushed-after";
-import { LastCheck, Repo } from "../storage/last-check";
+import { LoadedState, Repo } from "../storage/last-check";
 
 /**
  * Refreshes the list of pull requests for a list of repositories.
@@ -19,7 +19,7 @@ import { LastCheck, Repo } from "../storage/last-check";
 export async function refreshOpenPullRequests(
   octokit: Octokit,
   freshlyLoadedRepos: Repo[],
-  lastCheck: LastCheck | null
+  lastCheck: LoadedState | null
 ): Promise<Array<PullsListResponseItem | PullsGetResponse>> {
   const maximumPushedAt =
     lastCheck && lastCheck.repos.length > 0

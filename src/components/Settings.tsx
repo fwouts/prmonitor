@@ -61,13 +61,13 @@ export class Settings extends Component<SettingsProps> {
         ? !this.props.core.token
         : this.state.editing;
     if (!editing) {
-      return this.props.core.lastCheck ? (
+      return this.props.core.loadedState ? (
         <Paragraph>
           <Row>
             <span>
               Signed in as{" "}
               <UserLogin>
-                {this.props.core.lastCheck.userLogin || "unknown"}
+                {this.props.core.loadedState.userLogin || "unknown"}
               </UserLogin>
               .
             </span>

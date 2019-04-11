@@ -5,7 +5,7 @@ import { BadgeState, updateBadge } from "../badge";
 import { ChromeApi } from "../chrome";
 import { isReviewNeeded } from "./filtering/review-needed";
 import { GitHubLoader } from "./github-loader";
-import { LastCheck, PullRequest } from "./storage/last-check";
+import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
 import { Store } from "./storage/store";
 
@@ -18,7 +18,7 @@ export class Core {
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
   @observable token: string | null = null;
-  @observable lastCheck: LastCheck | null = null;
+  @observable loadedState: LoadedState | null = null;
   @observable muteConfiguration = NOTHING_MUTED;
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
@@ -44,7 +44,7 @@ export class Core {
         this.octokit = new Octokit({
           auth: `token ${this.token}`
         });
-        this.lastCheck = await this.store.lastCheck.load();
+        this.loadedState = await this.store.lastCheck.load();
         this.notifiedPullRequestUrls = new Set(
           await this.store.notifiedPullRequests.load()
         );
@@ -52,7 +52,7 @@ export class Core {
       } else {
         this.token = null;
         this.octokit = null;
-        this.lastCheck = null;
+        this.loadedState = null;
         this.notifiedPullRequestUrls = new Set();
         this.muteConfiguration = NOTHING_MUTED;
       }
@@ -101,7 +101,9 @@ export class Core {
     this.refreshing = true;
     this.updateBadge();
     try {
-      await this.setLastCheck(await this.githubLoader(octokit, this.lastCheck));
+      await this.setLastCheck(
+        await this.githubLoader(octokit, this.loadedState)
+      );
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
       await showNotificationForNewPullRequests(
         this.chromeApi,
@@ -134,7 +136,7 @@ export class Core {
 
   @computed
   get unreviewedPullRequests(): PullRequest[] | null {
-    const lastCheck = this.lastCheck;
+    const lastCheck = this.loadedState;
     if (!lastCheck || !lastCheck.userLogin) {
       return null;
     }
@@ -143,8 +145,8 @@ export class Core {
     );
   }
 
-  private async setLastCheck(lastCheck: LastCheck | null) {
-    this.lastCheck = lastCheck;
+  private async setLastCheck(lastCheck: LoadedState | null) {
+    this.loadedState = lastCheck;
     await this.store.lastCheck.save(lastCheck);
   }
 

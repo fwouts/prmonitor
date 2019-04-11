@@ -1,10 +1,5 @@
 import { ChromeApi } from "../../chrome";
-
-export interface Storage<T> {
-  load(): Promise<T>;
-  save(value: T | null): Promise<void>;
-}
-
+import { ValueStorage } from "../../storage/api";
 /**
  * Returns a storage handler to load and save from the given key.
  *
@@ -13,7 +8,7 @@ export interface Storage<T> {
 export function storage<T>(
   chromeApi: ChromeApi,
   key: string
-): Storage<T | null> {
+): ValueStorage<T | null> {
   return {
     load() {
       return loadFromStorage<T>(chromeApi, key);
@@ -33,7 +28,7 @@ export function storageWithDefault<T>(
   chromeApi: ChromeApi,
   key: string,
   defaultValue: T
-): Storage<T> {
+): ValueStorage<T> {
   return {
     async load() {
       return (await loadFromStorage<T>(chromeApi, key)) || defaultValue;

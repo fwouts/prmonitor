@@ -1,5 +1,4 @@
 import { ChromeApi, chromeApiSingleton } from "../chrome";
-import { getStore } from "../state/storage/store";
 import { checkPullRequests } from "./check-pull-requests";
 import { onNotificationClicked } from "./notifications";
 
@@ -8,8 +7,6 @@ console.debug("Background entry point running...");
 background(chromeApiSingleton);
 
 function background(chromeApi: ChromeApi) {
-  const store = getStore(chromeApi);
-
   // Beause it isn't a persistent background script, we cannot simply use
   // setInterval() to schedule regular checks for new pull requests.
   // Instead, we set an alarm three minutes.
@@ -48,6 +45,6 @@ function background(chromeApi: ChromeApi) {
   });
 
   async function triggerRefresh() {
-    checkPullRequests(chromeApi, store).catch(console.error);
+    checkPullRequests(chromeApi).catch(console.error);
   }
 }

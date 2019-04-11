@@ -1,4 +1,4 @@
-import { chromeApi } from "../../chrome";
+import { ChromeApi } from "../../chrome";
 
 export interface Storage<T> {
   load(): Promise<T>;
@@ -10,13 +10,16 @@ export interface Storage<T> {
  *
  * This doesn't have a default value. When the key is not set, `null` will be returned.
  */
-export function storage<T>(key: string): Storage<T | null> {
+export function storage<T>(
+  chromeApi: ChromeApi,
+  key: string
+): Storage<T | null> {
   return {
     load() {
-      return loadFromStorage<T>(key);
+      return loadFromStorage<T>(chromeApi, key);
     },
     save(value: T | null) {
-      return saveToStorage<T>(key, value);
+      return saveToStorage<T>(chromeApi, key, value);
     }
   };
 }
@@ -27,20 +30,24 @@ export function storage<T>(key: string): Storage<T | null> {
  * Unlike {@link storage}, this has a default value which it will return when the key is not set.
  */
 export function storageWithDefault<T>(
+  chromeApi: ChromeApi,
   key: string,
   defaultValue: T
 ): Storage<T> {
   return {
     async load() {
-      return (await loadFromStorage<T>(key)) || defaultValue;
+      return (await loadFromStorage<T>(chromeApi, key)) || defaultValue;
     },
     save(value: T | null) {
-      return saveToStorage<T>(key, value);
+      return saveToStorage<T>(chromeApi, key, value);
     }
   };
 }
 
-function loadFromStorage<T>(key: string): Promise<T | null> {
+function loadFromStorage<T>(
+  chromeApi: ChromeApi,
+  key: string
+): Promise<T | null> {
   return new Promise<T | null>(resolve => {
     chromeApi.storage.local.get([key], dict => {
       let result;
@@ -58,7 +65,11 @@ function loadFromStorage<T>(key: string): Promise<T | null> {
   });
 }
 
-function saveToStorage<T>(key: string, value: T | null): Promise<void> {
+function saveToStorage<T>(
+  chromeApi: ChromeApi,
+  key: string,
+  value: T | null
+): Promise<void> {
   return new Promise<void>(resolve => {
     chromeApi.storage.local.set(
       {

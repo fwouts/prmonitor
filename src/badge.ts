@@ -1,4 +1,4 @@
-import { chromeApi } from "./chrome";
+import { ChromeApi } from "./chrome";
 
 export type BadgeState =
   | {
@@ -16,7 +16,7 @@ export type BadgeState =
       kind: "error";
     };
 
-export function updateBadge(state: BadgeState) {
+export function updateBadge(chromeApi: ChromeApi, state: BadgeState) {
   chromeApi.browserAction.setBadgeText({
     text: badgeLabel(state)
   });

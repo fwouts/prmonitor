@@ -94,6 +94,7 @@ export class Core {
       );
       await this.saveNotifiedPullRequests(unreviewedPullRequests);
       this.updateBadge();
+      this.saveError(null);
     } catch (e) {
       this.saveError(e.message);
       throw e;

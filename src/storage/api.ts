@@ -1,5 +1,5 @@
-import { MuteConfiguration } from "../state/storage/mute";
 import { LoadedState } from "../storage/loaded-state";
+import { MuteConfiguration } from "./mute-configuration";
 
 export interface Store {
   lastError: ValueStorage<string | null>;

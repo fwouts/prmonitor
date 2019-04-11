@@ -1,5 +1,5 @@
 import { PullRequest } from "../../storage/loaded-state";
-import { MuteConfiguration } from "../storage/mute";
+import { MuteConfiguration } from "../../storage/mute-configuration";
 import { isReviewNeeded } from "./review-needed";
 
 const DUMMY_PR: PullRequest = {

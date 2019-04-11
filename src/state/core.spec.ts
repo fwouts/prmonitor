@@ -3,8 +3,8 @@ import { ChromeApi, ChromeStorageItems } from "../chrome";
 import { Notifier } from "../notifications/api";
 import { Store, ValueStorage } from "../storage/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
+import { MuteConfiguration } from "../storage/mute-configuration";
 import { Core } from "./core";
-import { MuteConfiguration } from "./storage/mute";
 
 describe("Core", () => {
   it("does something", async () => {

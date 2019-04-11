@@ -1,7 +1,7 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
 import { Badger, BadgeState } from "../badge/api";
-import { ChromeApi } from "../chrome";
+import { CrossScriptMessenger } from "../messaging/api";
 import { Notifier } from "../notifications/api";
 import { Store } from "../storage/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
@@ -24,13 +24,13 @@ export class Core {
   @observable lastError: string | null = null;
 
   constructor(
-    private readonly chromeApi: ChromeApi,
     private readonly store: Store,
     private readonly githubLoader: GitHubLoader,
     private readonly notifier: Notifier,
-    private readonly badger: Badger
+    private readonly badger: Badger,
+    private readonly messenger: CrossScriptMessenger
   ) {
-    chromeApi.runtime.onMessage.addListener(message => {
+    messenger.listen(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
         this.load();
@@ -182,13 +182,13 @@ export class Core {
   }
 
   private triggerBackgroundRefresh() {
-    this.chromeApi.runtime.sendMessage({
+    this.messenger.send({
       kind: "refresh"
     });
   }
 
   private triggerReload() {
-    this.chromeApi.runtime.sendMessage({
+    this.messenger.send({
       kind: "reload"
     });
   }

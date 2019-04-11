@@ -10,6 +10,7 @@ import { buildNotifier } from "./notifications/implementation";
 import { Core } from "./state/core";
 import { githubLoaderSingleton } from "./state/github-loader";
 import { buildStore } from "./storage/implementation";
+import { buildMessenger } from "./messaging/implementation";
 
 library.add(faBellSlash);
 
@@ -38,11 +39,11 @@ ReactDOM.render(
     <Popup
       core={
         new Core(
-          chromeApiSingleton,
           buildStore(chromeApiSingleton),
           githubLoaderSingleton,
           buildNotifier(chromeApiSingleton),
-          buildBadger(chromeApiSingleton)
+          buildBadger(chromeApiSingleton),
+          buildMessenger(chromeApiSingleton),
         )
       }
     />

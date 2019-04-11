@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react";
 import React, { Component, FormEvent, RefObject } from "react";
-import { GitHubState } from "../state/github";
+import { Core } from "../state/core";
 import { LargeButton } from "./design/Button";
 import { Center } from "./design/Center";
 import { Header } from "./design/Header";
@@ -10,7 +10,7 @@ import { Paragraph } from "./design/Paragraph";
 import { Row } from "./design/Row";
 
 export interface SettingsProps {
-  github: GitHubState;
+  core: Core;
 }
 
 const UserLogin = styled.span`
@@ -58,30 +58,30 @@ export class Settings extends Component<SettingsProps> {
     // - editing is explicitly set to true (user opened the form).
     const editing =
       this.state.editing === "default"
-        ? !this.props.github.token
+        ? !this.props.core.token
         : this.state.editing;
     if (!editing) {
-      return this.props.github.lastCheck ? (
+      return this.props.core.lastCheck ? (
         <Paragraph>
           <Row>
             <span>
               Signed in as{" "}
               <UserLogin>
-                {this.props.github.lastCheck.userLogin || "unknown"}
+                {this.props.core.lastCheck.userLogin || "unknown"}
               </UserLogin>
               .
             </span>
             <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Row>
         </Paragraph>
-      ) : this.props.github.lastError ? (
+      ) : this.props.core.lastError ? (
         <Paragraph>
           <Row>
             Is your token valid?
             <LargeButton onClick={this.openForm}>Update token</LargeButton>
           </Row>
         </Paragraph>
-      ) : this.props.github.token ? (
+      ) : this.props.core.token ? (
         <Paragraph>
           <Row>
             We're loading your pull requests. This could take a while...
@@ -103,7 +103,7 @@ export class Settings extends Component<SettingsProps> {
     } else {
       return (
         <form onSubmit={this.saveForm}>
-          {!this.props.github.token && (
+          {!this.props.core.token && (
             <Paragraph>
               Welcome to PR Monitor! In order to use this Chrome extension, you
               need to provide a GitHub API token. This will be used to load your
@@ -142,7 +142,7 @@ export class Settings extends Component<SettingsProps> {
       return;
     }
     const token = this.inputRef.current.value;
-    this.props.github
+    this.props.core
       .setNewToken(token)
       .then(() => console.log("GitHub API token updated."));
     this.setState({

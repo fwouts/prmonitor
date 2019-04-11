@@ -9,7 +9,7 @@ import { LastCheck, PullRequest } from "./storage/last-check";
 import { MuteConfiguration, NOTHING_MUTED } from "./storage/mute";
 import { Store } from "./storage/store";
 
-export class GitHubState {
+export class Core {
   private readonly chromeApi: ChromeApi;
   private readonly store: Store;
   private readonly githubLoader: GitHubLoader;

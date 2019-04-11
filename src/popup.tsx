@@ -5,7 +5,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { chromeApiSingleton } from "./chrome";
 import { Popup } from "./components/Popup";
-import { GitHubState } from "./state/github";
+import { Core } from "./state/core";
 import { githubLoaderSingleton } from "./state/github-loader";
 import { getStore } from "./state/storage/store";
 
@@ -34,8 +34,8 @@ ReactDOM.render(
       `}
     />
     <Popup
-      github={
-        new GitHubState(
+      core={
+        new Core(
           chromeApiSingleton,
           getStore(chromeApiSingleton),
           githubLoaderSingleton

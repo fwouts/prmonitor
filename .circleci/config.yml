@@ -31,7 +31,7 @@ jobs:
           paths:
             - node_modules
           key: v3-dependencies-{{ checksum "package.json" }}
-      - run: yarn test
+      - run: yarn test --passWithNoTests
 workflows:
   build_and_test:
     jobs:

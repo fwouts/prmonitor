@@ -1,26 +1,21 @@
 import { Badger } from "../badge/api";
-import { ChromeApi } from "../chrome";
+import { CrossScriptMessenger } from "../messaging/api";
 import { Notifier } from "../notifications/api";
 import { Core } from "../state/core";
 import { GitHubLoader } from "../state/github-loader";
-import { buildStore } from "../storage/implementation";
+import { Store } from "../storage/api";
 
 /**
  * Checks if there are any new pull requests and notifies the user when required.
  */
 export async function checkPullRequests(
-  chromeApi: ChromeApi,
+  store: Store,
   githubLoader: GitHubLoader,
   notifier: Notifier,
-  badger: Badger
+  badger: Badger,
+  messenger: CrossScriptMessenger
 ) {
-  const core = new Core(
-    chromeApi,
-    buildStore(chromeApi),
-    githubLoader,
-    notifier,
-    badger
-  );
+  const core = new Core(store, githubLoader, notifier, badger, messenger);
   await core.load();
   if (!core.token) {
     return;

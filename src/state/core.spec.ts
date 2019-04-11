@@ -1,5 +1,5 @@
 import { Badger, BadgeState } from "../badge/api";
-import { ChromeApi, ChromeStorageItems } from "../chrome";
+import { CrossScriptMessenger, Message } from "../messaging/api";
 import { Notifier } from "../notifications/api";
 import { Store, ValueStorage } from "../storage/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
@@ -8,18 +8,12 @@ import { Core } from "./core";
 
 describe("Core", () => {
   it("does something", async () => {
-    const chrome = fakeChrome();
     const store = mockStore();
     const githubLoader = jest.fn();
     const notifier = fakeNotifier();
     const badger = fakeBadger();
-    const core = new Core(
-      chrome.chromeApi,
-      store,
-      githubLoader,
-      notifier,
-      badger
-    );
+    const messenger = fakeMessenger();
+    const core = new Core(store, githubLoader, notifier, badger, messenger);
     await core.load();
   });
 });
@@ -74,59 +68,24 @@ function fakeBadger() {
   };
 }
 
-function fakeChrome() {
-  const badge = {
-    text: "",
-    color: <string | chrome.browserAction.ColorArray>"default"
+function fakeMessenger() {
+  const sent: Message[] = [];
+  const listeners: Array<(message: Message) => void> = [];
+  const messenger: CrossScriptMessenger = {
+    listen(listener) {
+      listeners.push(listener);
+    },
+    send(message) {
+      sent.push(message);
+    }
   };
-  const fakeLocalStorage: ChromeStorageItems = {};
-  const messageListeners: any[] = [];
-  const sentMessages: any[] = [];
-  const chromeApi = (<Partial<ChromeApi>>{
-    browserAction: {
-      setBadgeText(details: chrome.browserAction.BadgeTextDetails) {
-        badge.text = details.text;
-      },
-      setBadgeBackgroundColor(
-        details: chrome.browserAction.BadgeBackgroundColorDetails
-      ) {
-        badge.color = details.color;
-      }
-    },
-    runtime: {
-      sendMessage(message: any) {
-        sentMessages.push(message);
-      },
-      onMessage: {
-        addListener(listener: any) {
-          messageListeners.push(listener);
-        }
-      }
-    },
-    storage: {
-      local: {
-        set(items: ChromeStorageItems, callback) {
-          for (const [key, value] of Object.entries(items)) {
-            fakeLocalStorage[key] = value;
-          }
-          if (callback) {
-            callback();
-          }
-        },
-        get(keys: string[], callback: (items: ChromeStorageItems) => void) {
-          callback(
-            keys.reduce<ChromeStorageItems>((acc, key) => {
-              acc[key] = fakeLocalStorage[key];
-              return acc;
-            }, {})
-          );
-        }
+  return {
+    ...messenger,
+    sent,
+    trigger(message: Message) {
+      for (const listener of listeners) {
+        listener(message);
       }
     }
-  }) as ChromeApi;
-  return {
-    chromeApi,
-    fakeLocalStorage,
-    sentMessages
   };
 }

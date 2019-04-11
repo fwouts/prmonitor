@@ -1,6 +1,9 @@
 import { PullRequest } from "../state/storage/last-check";
 
-export type Notifier = (
-  unreviewedPullRequests: PullRequest[],
-  notifiedPullRequestUrls: Set<string>
-) => void;
+export interface Notifier {
+  notify(
+    unreviewedPullRequests: PullRequest[],
+    notifiedPullRequestUrls: Set<string>
+  ): void;
+  registerClickListener(): void;
+}

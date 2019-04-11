@@ -1,7 +1,8 @@
 import { ChromeApi, ChromeStorageItems } from "../chrome";
+import { Notifier } from "../notifications/api";
 import { Core } from "./core";
 import { Storage } from "./storage/helper";
-import { LoadedState } from "./storage/last-check";
+import { LoadedState, PullRequest } from "./storage/last-check";
 import { MuteConfiguration } from "./storage/mute";
 import { Store } from "./storage/store";
 
@@ -10,7 +11,7 @@ describe("Core", () => {
     const chrome = fakeChrome();
     const store = mockStore();
     const githubLoader = jest.fn();
-    const notifier = jest.fn();
+    const notifier = fakeNotifier();
     const core = new Core(chrome.chromeApi, store, githubLoader, notifier);
     await core.load();
   });
@@ -30,6 +31,26 @@ function mockStorage<T>(): Storage<T> {
   return {
     load: jest.fn(),
     save: jest.fn()
+  };
+}
+
+function fakeNotifier() {
+  const notified: Array<{
+    unreviewedPullRequests: PullRequest[];
+    notifiedPullRequestUrls: Set<string>;
+  }> = [];
+  const notifier: Notifier = {
+    notify(unreviewedPullRequests, notifiedPullRequestUrls) {
+      notified.push({
+        unreviewedPullRequests,
+        notifiedPullRequestUrls
+      });
+    },
+    registerClickListener: jest.fn()
+  };
+  return {
+    ...notifier,
+    notified
   };
 }
 

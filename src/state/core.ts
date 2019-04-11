@@ -104,7 +104,10 @@ export class Core {
         await this.githubLoader(octokit, this.loadedState)
       );
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
-      await this.notifier(unreviewedPullRequests, this.notifiedPullRequestUrls);
+      await this.notifier.notify(
+        unreviewedPullRequests,
+        this.notifiedPullRequestUrls
+      );
       await this.setNotifiedPullRequests(unreviewedPullRequests);
       this.updateBadge();
     } finally {

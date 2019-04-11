@@ -3,12 +3,20 @@ import { PullRequest } from "../state/storage/last-check";
 import { Notifier } from "./api";
 
 export function buildNotifier(chromeApi: ChromeApi): Notifier {
-  return (unreviewedPullRequests, notifiedPullRequestUrls) =>
-    showNotificationForNewPullRequests(
-      chromeApi,
-      unreviewedPullRequests,
-      notifiedPullRequestUrls
-    );
+  return {
+    notify(unreviewedPullRequests, notifiedPullRequestUrls) {
+      showNotificationForNewPullRequests(
+        chromeApi,
+        unreviewedPullRequests,
+        notifiedPullRequestUrls
+      );
+    },
+    registerClickListener() {
+      chromeApi.notifications.onClicked.addListener(notificationId =>
+        onNotificationClicked(chromeApi, notificationId)
+      );
+    }
+  };
 }
 
 /**
@@ -54,10 +62,7 @@ function showNotification(chromeApi: ChromeApi, pullRequest: PullRequest) {
   });
 }
 
-export function onNotificationClicked(
-  chromeApi: ChromeApi,
-  notificationId: string
-) {
+function onNotificationClicked(chromeApi: ChromeApi, notificationId: string) {
   // Notification IDs are always pull request URLs (see above).
   window.open(notificationId);
   chromeApi.notifications.clear(notificationId);

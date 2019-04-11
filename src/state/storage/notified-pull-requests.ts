@@ -1,5 +1,5 @@
 import { ChromeApi } from "../../chrome";
-import { storageWithDefault } from "../../storage/internal/chrome-value-storage";
+import { chromeValueStorageWithDefault } from "../../storage/internal/chrome-value-storage";
 
 /**
  * Storage of the URLs of pull requests that we have already notified the user about.
@@ -8,4 +8,8 @@ import { storageWithDefault } from "../../storage/internal/chrome-value-storage"
  * longer in a reviewable state, and then becomes reviewable again).
  */
 export const notifiedPullRequestsStorage = (chromeApi: ChromeApi) =>
-  storageWithDefault<string[]>(chromeApi, "lastSeenPullRequests", []);
+  chromeValueStorageWithDefault<string[]>(
+    chromeApi,
+    "lastSeenPullRequests",
+    []
+  );

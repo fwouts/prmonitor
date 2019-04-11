@@ -5,7 +5,7 @@ import { ValueStorage } from "../api";
  *
  * This doesn't have a default value. When the key is not set, `null` will be returned.
  */
-export function storage<T>(
+export function chromeValueStorage<T>(
   chromeApi: ChromeApi,
   key: string
 ): ValueStorage<T | null> {
@@ -24,7 +24,7 @@ export function storage<T>(
  *
  * Unlike {@link storage}, this has a default value which it will return when the key is not set.
  */
-export function storageWithDefault<T>(
+export function chromeValueStorageWithDefault<T>(
   chromeApi: ChromeApi,
   key: string,
   defaultValue: T

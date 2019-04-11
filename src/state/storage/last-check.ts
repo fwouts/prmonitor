@@ -9,13 +9,13 @@ import {
   PullsListReviewsResponse,
   ReviewState
 } from "../../github/api/reviews";
-import { storage } from "../../storage/internal/chrome-value-storage";
+import { chromeValueStorage } from "../../storage/internal/chrome-value-storage";
 
 /**
  * Storage of the last information we loaded about pull requests.
  */
 export const lastCheckStorage = (chromeApi: ChromeApi) =>
-  storage<LoadedState>(chromeApi, "lastCheck");
+  chromeValueStorage<LoadedState>(chromeApi, "lastCheck");
 
 export interface LoadedState {
   // TODO: Make it required once the field has been populated for long enough.

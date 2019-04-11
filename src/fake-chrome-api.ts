@@ -22,6 +22,14 @@ export const fakeChromeApi = (<Partial<ChromeApi>>{
       }
     }
   },
+  notifications: {
+    create(
+      notificationId: string,
+      options: chrome.notifications.NotificationOptions
+    ) {
+      console.log("chrome.notifications.create", notificationId, options);
+    }
+  },
   storage: {
     // To simulate chrome.storage.local, we simply fall back to the localStorage API.
     local: {

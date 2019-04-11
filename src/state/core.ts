@@ -39,53 +39,35 @@ export class Core {
     this.token = await this.store.token.load();
     this.lastError = await this.store.lastError.load();
     this.overallStatus = "loading";
-    try {
-      if (this.token !== null) {
-        this.octokit = new Octokit({
-          auth: `token ${this.token}`
-        });
-        this.loadedState = await this.store.lastCheck.load();
-        this.notifiedPullRequestUrls = new Set(
-          await this.store.notifiedPullRequests.load()
-        );
-        this.muteConfiguration = await this.store.muteConfiguration.load();
-      } else {
-        this.token = null;
-        this.octokit = null;
-        this.loadedState = null;
-        this.notifiedPullRequestUrls = new Set();
-        this.muteConfiguration = NOTHING_MUTED;
-      }
-    } catch (e) {
-      console.error(e);
-      this.setError(e.message);
+    if (this.token !== null) {
+      this.octokit = new Octokit({
+        auth: `token ${this.token}`
+      });
+      this.loadedState = await this.store.lastCheck.load();
+      this.notifiedPullRequestUrls = new Set(
+        await this.store.notifiedPullRequests.load()
+      );
+      this.muteConfiguration = await this.store.muteConfiguration.load();
+    } else {
+      this.token = null;
+      this.octokit = null;
+      this.loadedState = null;
+      this.notifiedPullRequestUrls = new Set();
+      this.muteConfiguration = NOTHING_MUTED;
     }
     this.overallStatus = "loaded";
-    this.updateBadge();
-  }
-
-  async setError(error: string | null) {
-    this.lastError = error;
-    await this.store.lastError.save(error);
     this.updateBadge();
   }
 
   async setNewToken(token: string) {
     this.token = token;
     await this.store.token.save(token);
-    await this.setError(null);
-    await this.setNotifiedPullRequests([]);
-    await this.setLastCheck(null);
-    await this.setMuteConfiguration(NOTHING_MUTED);
+    await this.saveError(null);
+    await this.saveNotifiedPullRequests([]);
+    await this.saveLoadedState(null);
+    await this.saveMuteConfiguration(NOTHING_MUTED);
     await this.load();
     this.triggerBackgroundRefresh();
-  }
-
-  async setNotifiedPullRequests(pullRequests: PullRequest[]) {
-    this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
-    await this.store.notifiedPullRequests.save(
-      Array.from(this.notifiedPullRequestUrls)
-    );
   }
 
   async refreshPullRequests() {
@@ -101,7 +83,7 @@ export class Core {
     this.refreshing = true;
     this.updateBadge();
     try {
-      await this.setLastCheck(
+      await this.saveLoadedState(
         await this.githubLoader(octokit, this.loadedState)
       );
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
@@ -110,8 +92,12 @@ export class Core {
         unreviewedPullRequests,
         this.notifiedPullRequestUrls
       );
-      await this.setNotifiedPullRequests(unreviewedPullRequests);
+      await this.saveNotifiedPullRequests(unreviewedPullRequests);
       this.updateBadge();
+      this.saveError(null);
+    } catch (e) {
+      this.saveError(e.message);
+      throw e;
     } finally {
       this.refreshing = false;
       this.triggerReload();
@@ -130,7 +116,7 @@ export class Core {
         mutedAtTimestamp: Date.now()
       }
     });
-    await this.setMuteConfiguration(this.muteConfiguration);
+    await this.saveMuteConfiguration(this.muteConfiguration);
     this.updateBadge();
   }
 
@@ -145,12 +131,25 @@ export class Core {
     );
   }
 
-  private async setLastCheck(lastCheck: LoadedState | null) {
+  private async saveNotifiedPullRequests(pullRequests: PullRequest[]) {
+    this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
+    await this.store.notifiedPullRequests.save(
+      Array.from(this.notifiedPullRequestUrls)
+    );
+  }
+
+  private async saveError(error: string | null) {
+    this.lastError = error;
+    await this.store.lastError.save(error);
+    this.updateBadge();
+  }
+
+  private async saveLoadedState(lastCheck: LoadedState | null) {
     this.loadedState = lastCheck;
     await this.store.lastCheck.save(lastCheck);
   }
 
-  private async setMuteConfiguration(muteConfiguration: MuteConfiguration) {
+  private async saveMuteConfiguration(muteConfiguration: MuteConfiguration) {
     this.muteConfiguration = muteConfiguration;
     await this.store.muteConfiguration.save(muteConfiguration);
   }

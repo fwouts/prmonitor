@@ -1,6 +1,10 @@
-import { ChromeApi, ChromeStorageItems } from "./chrome";
+import { ChromeApi, ChromeStorageItems } from "./api";
 
-export const fakeChromeApi = (<Partial<ChromeApi>>{
+/**
+ * A fake implementation of the Chrome extension API to allow development
+ * outside of a Chrome extension.
+ */
+export const fakeChrome = (<Partial<ChromeApi>>{
   browserAction: {
     setBadgeText(details: chrome.browserAction.BadgeTextDetails) {
       console.log("chrome.browserAction.setBadgeText", details);

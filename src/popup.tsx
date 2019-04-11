@@ -4,7 +4,7 @@ import { faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import ReactDOM from "react-dom";
 import { buildBadger } from "./badge/implementation";
-import { chromeApiSingleton } from "./chrome";
+import { chromeApiSingleton } from "./chrome/implementation";
 import { Popup } from "./components/Popup";
 import { buildMessenger } from "./messaging/implementation";
 import { buildNotifier } from "./notifications/implementation";
@@ -13,6 +13,13 @@ import { githubLoaderSingleton } from "./state/github-loader";
 import { buildStore } from "./storage/implementation";
 
 library.add(faBellSlash);
+
+const chromeApi = chromeApiSingleton;
+const githubLoader = githubLoaderSingleton;
+const store = buildStore(chromeApi);
+const notifier = buildNotifier(chromeApi);
+const badger = buildBadger(chromeApi);
+const messenger = buildMessenger(chromeApi);
 
 ReactDOM.render(
   <>
@@ -36,17 +43,7 @@ ReactDOM.render(
         }
       `}
     />
-    <Popup
-      core={
-        new Core(
-          buildStore(chromeApiSingleton),
-          githubLoaderSingleton,
-          buildNotifier(chromeApiSingleton),
-          buildBadger(chromeApiSingleton),
-          buildMessenger(chromeApiSingleton)
-        )
-      }
-    />
+    <Popup core={new Core(store, githubLoader, notifier, badger, messenger)} />
   </>,
   document.getElementById("root")
 );

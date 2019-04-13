@@ -106,18 +106,32 @@ export class Core {
     }
   }
 
-  async mutePullRequest(pullRequest: PullRequest) {
-    this.muteConfiguration.mutedPullRequests.push({
-      repo: {
-        owner: pullRequest.repoOwner,
-        name: pullRequest.repoName
-      },
-      number: pullRequest.pullRequestNumber,
-      until: {
-        kind: "next-update",
-        mutedAtTimestamp: Date.now()
+  async mutePullRequest(pullRequest: {
+    repoOwner: string;
+    repoName: string;
+    pullRequestNumber: number;
+  }) {
+    this.muteConfiguration.mutedPullRequests = [
+      // Remove any previous mute of this PR.
+      ...this.muteConfiguration.mutedPullRequests.filter(
+        pr =>
+          pr.repo.owner !== pullRequest.repoOwner ||
+          pr.repo.name !== pullRequest.repoName ||
+          pr.number !== pullRequest.pullRequestNumber
+      ),
+      // Add the new mute.
+      {
+        repo: {
+          owner: pullRequest.repoOwner,
+          name: pullRequest.repoName
+        },
+        number: pullRequest.pullRequestNumber,
+        until: {
+          kind: "next-update",
+          mutedAtTimestamp: Date.now()
+        }
       }
-    });
+    ];
     await this.saveMuteConfiguration(this.muteConfiguration);
     this.updateBadge();
   }

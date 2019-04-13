@@ -3,6 +3,13 @@ export const NOTHING_MUTED: MuteConfiguration = {
 };
 
 export interface MuteConfiguration {
+  // Note: it's expected that a specific pull request only occurs once in the
+  // list.
+  //
+  // We could have used a dictionary keyed by owner/name/number instead, but
+  // hey, this was hacked up too quickly and now it's persisted in people's
+  // local storage so let's leave it for now until there's a pressing need for a
+  // breaking change (we could do a smooth transition with a bit of effort).
   mutedPullRequests: MutedPullRequest[];
 }
 

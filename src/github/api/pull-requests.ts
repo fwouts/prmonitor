@@ -25,12 +25,12 @@ export async function loadPullRequest(
   octokit: Octokit,
   owner: string,
   repo: string,
-  number: number
+  pull_number: number
 ): Promise<PullsGetResponse> {
   const response = await octokit.pulls.get({
     owner,
     repo,
-    number
+    pull_number
   });
   return response.data;
 }

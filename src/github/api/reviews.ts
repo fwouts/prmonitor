@@ -15,7 +15,7 @@ export async function loadReviews(
     octokit.pulls.listReviews.endpoint.merge({
       owner,
       repo,
-      number: pullRequestNumber
+      pull_number: pullRequestNumber
     })
   );
 }

@@ -46,9 +46,6 @@ function isNewReviewNeeded(pr: PullRequest, currentUserLogin: string): boolean {
     currentUserLogin
   );
   const lastCommentFromAuthor = getLastAuthorCommentTimestamp(pr);
-  if (pr.repoName === "test-repo-for-prmonitor") {
-    console.log(lastReviewOrCommentFromCurrentUser, lastCommentFromAuthor);
-  }
   return (
     lastReviewOrCommentFromCurrentUser === 0 ||
     lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor

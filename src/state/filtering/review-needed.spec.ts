@@ -11,8 +11,7 @@ const DUMMY_PR: PullRequest = {
   htmlUrl: "https://github.com/zenclabs/prmonitor/pull/1",
   nodeId: "fake",
   requestedReviewers: [],
-  reviews: [],
-  updatedAt: "2019-03-15T17:00:11Z"
+  reviews: []
 };
 
 const NO_MUTING: MuteConfiguration = {
@@ -59,7 +58,7 @@ describe("isReviewNeeded", () => {
       )
     ).toBe(true);
   });
-  it("is true when the user is not a reviewer but had reviewed, and new changes are made", () => {
+  it("is true when the user is not a reviewer but had reviewed, and the author responds", () => {
     expect(
       isReviewNeeded(
         {
@@ -73,14 +72,19 @@ describe("isReviewNeeded", () => {
               submittedAt: "2019-02-15T17:00:11Z"
             }
           ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          comments: [
+            {
+              authorLogin: "fwouts",
+              createdAt: "2019-02-16T17:00:11Z"
+            }
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("is true when the user is not a reviewer but had commented, and new changes are made", () => {
+  it("is true when the user is not a reviewer but had commented, and the author responds", () => {
     expect(
       isReviewNeeded(
         {
@@ -91,16 +95,19 @@ describe("isReviewNeeded", () => {
             {
               authorLogin: "kevin",
               createdAt: "2019-02-15T17:00:11Z"
+            },
+            {
+              authorLogin: "fwouts",
+              createdAt: "2019-02-16T17:00:11Z"
             }
-          ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("is false when the user has reviewed after the last changes", () => {
+  it("is false when the user has reviewed and the author hasn't responded", () => {
     expect(
       isReviewNeeded(
         {
@@ -113,15 +120,14 @@ describe("isReviewNeeded", () => {
               state: "COMMENTED",
               submittedAt: "2019-04-15T17:00:11Z"
             }
-          ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(false);
   });
-  it("is false when the user has commented after the last changes", () => {
+  it("is false when the user has commented and the author hasn't responded", () => {
     expect(
       isReviewNeeded(
         {
@@ -134,14 +140,21 @@ describe("isReviewNeeded", () => {
               createdAt: "2019-04-15T17:00:11Z"
             }
           ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          // Another user posted a review after we muted.
+          reviews: [
+            {
+              authorLogin: "dries",
+              state: "CHANGES_REQUESTED",
+              submittedAt: "2019-03-18T17:00:11Z"
+            }
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(false);
   });
-  it("is true when the PR was not updated but a review was explicitly requested from the user", () => {
+  it("is true when the author did not respond but a review was explicitly requested from the user", () => {
     expect(
       isReviewNeeded(
         {
@@ -153,15 +166,14 @@ describe("isReviewNeeded", () => {
               authorLogin: "kevin",
               createdAt: "2019-04-15T17:00:11Z"
             }
-          ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("is true when the author wrote a new comment without updating the PR", () => {
+  it("is true when the author responded with a comment", () => {
     expect(
       isReviewNeeded(
         {
@@ -177,15 +189,14 @@ describe("isReviewNeeded", () => {
               authorLogin: "fwouts",
               createdAt: "2019-04-16T17:00:11Z"
             }
-          ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("is true when the author wrote a new review without updating the PR", () => {
+  it("is true when the author responded with a review", () => {
     expect(
       isReviewNeeded(
         {
@@ -204,15 +215,14 @@ describe("isReviewNeeded", () => {
               state: "COMMENTED",
               submittedAt: "2019-04-16T17:00:11Z"
             }
-          ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("is true when the PR was reviewed but has been updated", () => {
+  it("is true when the PR was reviewed but the author responded", () => {
     expect(
       isReviewNeeded(
         {
@@ -226,14 +236,19 @@ describe("isReviewNeeded", () => {
               submittedAt: "2019-02-15T17:00:11Z"
             }
           ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          comments: [
+            {
+              authorLogin: "fwouts",
+              createdAt: "2019-02-16T17:00:11Z"
+            }
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("is true when the PR was approved and has been updated", () => {
+  it("is true when the PR was approved but the author responded", () => {
     expect(
       isReviewNeeded(
         {
@@ -247,7 +262,12 @@ describe("isReviewNeeded", () => {
               submittedAt: "2019-02-15T17:00:11Z"
             }
           ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          comments: [
+            {
+              authorLogin: "fwouts",
+              createdAt: "2019-02-16T17:00:11Z"
+            }
+          ]
         },
         "kevin",
         NO_MUTING
@@ -260,29 +280,27 @@ describe("isReviewNeeded", () => {
         {
           ...DUMMY_PR,
           authorLogin: "fwouts",
-          requestedReviewers: [],
+          requestedReviewers: ["kevin"],
           reviews: [
             {
               authorLogin: "kevin",
               state: "PENDING",
               submittedAt: "2019-04-15T17:00:11Z"
             }
-          ],
-          updatedAt: "2019-03-15T17:00:11Z"
+          ]
         },
         "kevin",
         NO_MUTING
       )
     ).toBe(true);
   });
-  it("ignores muted PRs that have not been updated since muting", () => {
+  it("ignores muted PRs that the author did not add new comments or reviews to", () => {
     expect(
       isReviewNeeded(
         {
           ...DUMMY_PR,
           authorLogin: "fwouts",
           requestedReviewers: ["kevin"],
-          updatedAt: "2019-03-15T17:00:11Z",
           reviews: [
             // Another user posted a review after we muted.
             {
@@ -311,42 +329,13 @@ describe("isReviewNeeded", () => {
       )
     ).toBe(false);
   });
-  it("does not mute PRs that have been updated since muting", () => {
+  it("does not mute PRs that the author added comments to since muting", () => {
     expect(
       isReviewNeeded(
         {
           ...DUMMY_PR,
           authorLogin: "fwouts",
           requestedReviewers: ["kevin"],
-          updatedAt: "2019-03-20T17:00:11Z"
-        },
-        "kevin",
-        {
-          mutedPullRequests: [
-            {
-              repo: {
-                owner: "zenclabs",
-                name: "prmonitor"
-              },
-              number: 1,
-              until: {
-                kind: "next-update",
-                mutedAtTimestamp: new Date("2019-03-16T17:00:11Z").getTime()
-              }
-            }
-          ]
-        }
-      )
-    ).toBe(true);
-  });
-  it("does not mute PRs that have been commented on by author since muting", () => {
-    expect(
-      isReviewNeeded(
-        {
-          ...DUMMY_PR,
-          authorLogin: "fwouts",
-          requestedReviewers: ["kevin"],
-          updatedAt: "2019-03-15T17:00:11Z",
           comments: [
             {
               authorLogin: "fwouts",

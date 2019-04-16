@@ -73,7 +73,6 @@ function pullRequestFromResponse(
       login: response.user.login,
       avatarUrl: response.user.avatar_url
     },
-    updatedAt: response.updated_at,
     title: response.title,
     requestedReviewers: response.requested_reviewers.map(r => r.login),
     reviews: reviews.map(r => ({

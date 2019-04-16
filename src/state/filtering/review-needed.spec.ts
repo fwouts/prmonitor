@@ -127,13 +127,13 @@ describe("isReviewNeeded", () => {
       )
     ).toBe(false);
   });
-  it("is false when the user has commented and the author hasn't responded", () => {
+  it("is false when the user is a reviewer, has commented and the author hasn't responded", () => {
     expect(
       isReviewNeeded(
         {
           ...DUMMY_PR,
           authorLogin: "fwouts",
-          requestedReviewers: [],
+          requestedReviewers: ["kevin"],
           comments: [
             {
               authorLogin: "kevin",
@@ -153,25 +153,6 @@ describe("isReviewNeeded", () => {
         NO_MUTING
       )
     ).toBe(false);
-  });
-  it("is true when the author did not respond but a review was explicitly requested from the user", () => {
-    expect(
-      isReviewNeeded(
-        {
-          ...DUMMY_PR,
-          authorLogin: "fwouts",
-          requestedReviewers: ["kevin"],
-          comments: [
-            {
-              authorLogin: "kevin",
-              createdAt: "2019-04-15T17:00:11Z"
-            }
-          ]
-        },
-        "kevin",
-        NO_MUTING
-      )
-    ).toBe(true);
   });
   it("is true when the author responded with a comment", () => {
     expect(

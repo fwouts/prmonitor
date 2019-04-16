@@ -15,8 +15,8 @@ export function isReviewNeeded(
     pr.authorLogin !== currentUserLogin &&
     !isMuted(pr, muteConfiguration) &&
     (reviewRequested(pr, currentUserLogin) ||
-      (userDidReview(pr, currentUserLogin) &&
-        isNewReviewNeeded(pr, currentUserLogin)))
+      userDidReview(pr, currentUserLogin)) &&
+    isNewReviewNeeded(pr, currentUserLogin)
   );
 }
 
@@ -41,12 +41,18 @@ function userDidReview(pr: PullRequest, currentUserLogin: string): boolean {
  * Returns whether the user, who previously wrote a review, needs to take another look.
  */
 function isNewReviewNeeded(pr: PullRequest, currentUserLogin: string): boolean {
-  const lastReviewFromCurrentUser = getLastReviewTimestamp(
+  const lastReviewOrCommentFromCurrentUser = getLastReviewOrCommentTimestamp(
     pr,
     currentUserLogin
   );
   const lastCommentFromAuthor = getLastAuthorCommentTimestamp(pr);
-  return lastReviewFromCurrentUser < lastCommentFromAuthor;
+  if (pr.repoName === "test-repo-for-prmonitor") {
+    console.log(lastReviewOrCommentFromCurrentUser, lastCommentFromAuthor);
+  }
+  return (
+    lastReviewOrCommentFromCurrentUser === 0 ||
+    lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor
+  );
 }
 
 /**
@@ -72,10 +78,13 @@ function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
 }
 
 function getLastAuthorCommentTimestamp(pr: PullRequest): number {
-  return getLastReviewTimestamp(pr, pr.authorLogin);
+  return getLastReviewOrCommentTimestamp(pr, pr.authorLogin);
 }
 
-function getLastReviewTimestamp(pr: PullRequest, login: string): number {
+function getLastReviewOrCommentTimestamp(
+  pr: PullRequest,
+  login: string
+): number {
   let lastCommentedTime = 0;
   for (const review of pr.reviews) {
     if (review.state === "PENDING") {

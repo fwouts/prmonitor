@@ -44,8 +44,6 @@ export interface PullRequest {
     login: string;
     avatarUrl: string;
   };
-  // TODO: Make required in May 2019.
-  updatedAt?: string;
   title: string;
   requestedReviewers: string[];
   reviews: Review[];

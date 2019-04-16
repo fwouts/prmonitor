@@ -15,8 +15,8 @@ export function isReviewNeeded(
     pr.authorLogin !== currentUserLogin &&
     !isMuted(pr, muteConfiguration) &&
     (reviewRequested(pr, currentUserLogin) ||
-      (userDidReview(pr, currentUserLogin) &&
-        isNewReviewNeeded(pr, currentUserLogin)))
+      userDidReview(pr, currentUserLogin)) &&
+    isNewReviewNeeded(pr, currentUserLogin)
   );
 }
 
@@ -41,9 +41,15 @@ function userDidReview(pr: PullRequest, currentUserLogin: string): boolean {
  * Returns whether the user, who previously wrote a review, needs to take another look.
  */
 function isNewReviewNeeded(pr: PullRequest, currentUserLogin: string): boolean {
-  let lastReviewFromCurrentUser = getLastReviewTimestamp(pr, currentUserLogin);
-  let lastChangeFromAuthor = getLastAuthorUpdateTimestamp(pr);
-  return lastReviewFromCurrentUser < lastChangeFromAuthor;
+  const lastReviewOrCommentFromCurrentUser = getLastReviewOrCommentTimestamp(
+    pr,
+    currentUserLogin
+  );
+  const lastCommentFromAuthor = getLastAuthorCommentTimestamp(pr);
+  return (
+    lastReviewOrCommentFromCurrentUser === 0 ||
+    lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor
+  );
 }
 
 /**
@@ -60,7 +66,7 @@ function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
       switch (muted.until.kind) {
         case "next-update":
           const updatedSince =
-            getLastAuthorUpdateTimestamp(pr) > muted.until.mutedAtTimestamp;
+            getLastAuthorCommentTimestamp(pr) > muted.until.mutedAtTimestamp;
           return !updatedSince;
       }
     }
@@ -68,15 +74,15 @@ function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
   return false;
 }
 
-function getLastAuthorUpdateTimestamp(pr: PullRequest): number {
-  return Math.max(
-    getLastReviewTimestamp(pr, pr.authorLogin),
-    pr.updatedAt ? new Date(pr.updatedAt).getTime() : 0
-  );
+function getLastAuthorCommentTimestamp(pr: PullRequest): number {
+  return getLastReviewOrCommentTimestamp(pr, pr.authorLogin);
 }
 
-function getLastReviewTimestamp(pr: PullRequest, login: string): number {
-  let lastChange = 0;
+function getLastReviewOrCommentTimestamp(
+  pr: PullRequest,
+  login: string
+): number {
+  let lastCommentedTime = 0;
   for (const review of pr.reviews) {
     if (review.state === "PENDING") {
       // Ignore pending reviews (we don't want a user to think that they've submitted their
@@ -85,14 +91,14 @@ function getLastReviewTimestamp(pr: PullRequest, login: string): number {
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (review.authorLogin === login) {
-      lastChange = Math.max(lastChange, submittedAt);
+      lastCommentedTime = Math.max(lastCommentedTime, submittedAt);
     }
   }
   for (const comment of pr.comments || []) {
     const createdAt = new Date(comment.createdAt).getTime();
     if (comment.authorLogin === login) {
-      lastChange = Math.max(lastChange, createdAt);
+      lastCommentedTime = Math.max(lastCommentedTime, createdAt);
     }
   }
-  return lastChange;
+  return lastCommentedTime;
 }

@@ -13,7 +13,7 @@ export async function loadComments(
     octokit.issues.listComments.endpoint.merge({
       owner,
       repo,
-      number: pullRequestNumber
+      issue_number: pullRequestNumber
     })
   );
 }

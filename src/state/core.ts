@@ -1,4 +1,3 @@
-import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
@@ -10,8 +9,6 @@ import {
 import { isReviewNeeded } from "./filtering/review-needed";
 
 export class Core {
-  private octokit: Octokit | null = null;
-
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
   @observable token: string | null = null;
@@ -34,9 +31,6 @@ export class Core {
     this.lastError = await this.env.store.lastError.load();
     this.overallStatus = "loading";
     if (this.token !== null) {
-      this.octokit = new Octokit({
-        auth: `token ${this.token}`
-      });
       this.loadedState = await this.env.store.lastCheck.load();
       this.notifiedPullRequestUrls = new Set(
         await this.env.store.notifiedPullRequests.load()
@@ -44,7 +38,6 @@ export class Core {
       this.muteConfiguration = await this.env.store.muteConfiguration.load();
     } else {
       this.token = null;
-      this.octokit = null;
       this.loadedState = null;
       this.notifiedPullRequestUrls = new Set();
       this.muteConfiguration = NOTHING_MUTED;
@@ -65,8 +58,7 @@ export class Core {
   }
 
   async refreshPullRequests() {
-    const octokit = this.octokit;
-    if (!octokit) {
+    if (!this.token) {
       console.debug("Not authenticated, skipping refresh.");
       return;
     }
@@ -78,7 +70,7 @@ export class Core {
     this.updateBadge();
     try {
       await this.saveLoadedState(
-        await this.env.githubLoader(octokit, this.loadedState)
+        await this.env.githubLoader(this.token, this.loadedState)
       );
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
       await this.env.notifier.notify(

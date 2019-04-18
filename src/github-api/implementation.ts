@@ -49,7 +49,7 @@ export function buildGitHubApi(token: string): GitHubApi {
         octokit.issues.listComments.endpoint.merge({
           owner: pr.repo.owner,
           repo: pr.repo.name,
-          pull_number: pr.number
+          issue_number: pr.number
         })
       );
     }

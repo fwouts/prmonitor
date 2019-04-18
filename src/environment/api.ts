@@ -10,4 +10,5 @@ export interface Environment {
   notifier: Notifier;
   badger: Badger;
   messenger: CrossScriptMessenger;
+  isOnline(): boolean;
 }

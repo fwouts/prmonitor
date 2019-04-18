@@ -12,6 +12,7 @@ export function buildEnvironment(chromeApi: ChromeApi): Environment {
     githubLoader: buildGitHubLoader(),
     notifier: buildNotifier(chromeApi),
     badger: buildBadger(chromeApi),
-    messenger: buildMessenger(chromeApi)
+    messenger: buildMessenger(chromeApi),
+    isOnline: () => navigator.onLine
   };
 }

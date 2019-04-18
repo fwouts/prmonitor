@@ -62,7 +62,7 @@ export class Core {
       console.debug("Not authenticated, skipping refresh.");
       return;
     }
-    if (!navigator.onLine) {
+    if (!this.env.isOnline()) {
       console.debug("Not online, skipping refresh.");
       return;
     }

@@ -16,10 +16,9 @@ function setUpBackgroundScript(chromeApi: ChromeApi, env: Environment) {
   refreshOnUpdate(chromeApi, triggerRefresh);
   refreshRegulary(chromeApi, triggerRefresh);
   refreshOnDemand(env.messenger, triggerRefresh);
-  env.notifier.registerClickListener();
+  const core = new Core(env);
 
   async function triggerRefresh() {
-    const core = new Core(env);
     await core.load();
     if (!core.token) {
       return;

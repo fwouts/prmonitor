@@ -5,5 +5,7 @@ export interface Notifier {
     unreviewedPullRequests: PullRequest[],
     alreadyNotifiedPullRequestUrls: Set<string>
   ): void;
-  registerClickListener(): void;
+  registerClickListener(clickListener: NotifierClickListener): void;
 }
+
+export type NotifierClickListener = (pullRequestUrl: string) => void;

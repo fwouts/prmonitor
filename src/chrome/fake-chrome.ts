@@ -32,6 +32,11 @@ export const fakeChrome = (<Partial<ChromeApi>>{
       options: chrome.notifications.NotificationOptions
     ) {
       console.log("chrome.notifications.create", notificationId, options);
+    },
+    onClicked: {
+      addListener(listener: any) {
+        console.log("chrome.notifications.onClicked.addListener", listener);
+      }
     }
   },
   storage: {
@@ -53,6 +58,11 @@ export const fakeChrome = (<Partial<ChromeApi>>{
           }, {})
         );
       }
+    }
+  },
+  tabs: {
+    query(_queryInfo, callback) {
+      callback([]);
     }
   }
 }) as ChromeApi;

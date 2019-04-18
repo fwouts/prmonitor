@@ -24,6 +24,7 @@ export class Core {
         this.load();
       }
     });
+    this.env.notifier.registerClickListener(url => this.openPullRequest(url));
   }
 
   async load() {
@@ -88,6 +89,10 @@ export class Core {
       this.updateBadge();
       this.triggerReload();
     }
+  }
+
+  openPullRequest(pullRequestUrl: string) {
+    this.env.tabOpener.openPullRequest(pullRequestUrl);
   }
 
   async mutePullRequest(pullRequest: {

@@ -7,6 +7,7 @@ import { SmallButton } from "./design/Button";
 
 export interface PullRequestItemProps {
   pullRequest: PullRequest;
+  onOpen(pullRequestUrl: string): void;
   onMute(pullRequest: PullRequest): void;
 }
 
@@ -16,6 +17,7 @@ const PullRequestBox = styled.a`
   justify-content: space-between;
   text-decoration: none;
   border-bottom: 1px solid #eee;
+  cursor: pointer;
 
   &:last-child {
     border-bottom: none;
@@ -78,11 +80,7 @@ const AuthorLogin = styled.div`
 export class PullRequestItem extends Component<PullRequestItemProps> {
   render() {
     return (
-      <PullRequestBox
-        key={this.props.pullRequest.nodeId}
-        target="_blank"
-        href={this.props.pullRequest.htmlUrl}
-      >
+      <PullRequestBox key={this.props.pullRequest.nodeId} onClick={this.open}>
         <Info>
           <Title>
             {this.props.pullRequest.title}
@@ -106,8 +104,14 @@ export class PullRequestItem extends Component<PullRequestItemProps> {
     );
   }
 
+  private open = (e: React.MouseEvent) => {
+    this.props.onOpen(this.props.pullRequest.htmlUrl);
+    e.preventDefault();
+  };
+
   private mute = (e: React.MouseEvent) => {
     this.props.onMute(this.props.pullRequest);
     e.preventDefault();
+    e.stopPropagation();
   };
 }

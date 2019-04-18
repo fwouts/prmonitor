@@ -11,10 +11,12 @@ export function buildNotifier(chromeApi: ChromeApi): Notifier {
         notifiedPullRequestUrls
       );
     },
-    registerClickListener() {
-      chromeApi.notifications.onClicked.addListener(notificationId =>
-        onNotificationClicked(chromeApi, notificationId)
-      );
+    registerClickListener(clickListener: (pullRequestUrl: string) => void) {
+      // Notification IDs are always pull request URLs (see below).
+      chromeApi.notifications.onClicked.addListener(notificationId => {
+        clickListener(notificationId);
+        chromeApi.notifications.clear(notificationId);
+      });
     }
   };
 }
@@ -60,10 +62,4 @@ function showNotification(chromeApi: ChromeApi, pullRequest: PullRequest) {
     message: pullRequest.title,
     ...(supportsRequireInteraction ? { requireInteraction: true } : {})
   });
-}
-
-function onNotificationClicked(chromeApi: ChromeApi, notificationId: string) {
-  // Notification IDs are always pull request URLs (see above).
-  window.open(notificationId);
-  chromeApi.notifications.clear(notificationId);
 }

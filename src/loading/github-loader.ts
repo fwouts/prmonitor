@@ -7,18 +7,23 @@ import Octokit, {
 import { loadRepos } from "../github/api/repos";
 import { PullsListReviewsResponse } from "../github/api/reviews";
 import { loadAuthenticatedUser } from "../github/api/user";
+import { loadAllComments } from "../state/loading/comments";
+import { refreshOpenPullRequests } from "../state/loading/pull-requests";
+import { loadAllReviews } from "../state/loading/reviews";
 import { LoadedState, PullRequest, Repo } from "../storage/loaded-state";
-import { loadAllComments } from "./loading/comments";
-import { refreshOpenPullRequests } from "./loading/pull-requests";
-import { loadAllReviews } from "./loading/reviews";
+import { GitHubLoader } from "./api";
 
-/**
- * Loads the latest data from GitHub, using the previous known state as a reference.
- */
-export const githubLoaderSingleton: GitHubLoader = async function load(
-  octokit: Octokit,
+export function buildGitHubLoader(): GitHubLoader {
+  return load;
+}
+
+async function load(
+  token: string,
   lastCheck: LoadedState | null
 ): Promise<LoadedState> {
+  const octokit = new Octokit({
+    auth: `token ${token}`
+  });
   const user = await loadAuthenticatedUser(octokit);
   const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
   const openPullRequests = await refreshOpenPullRequests(
@@ -42,12 +47,7 @@ export const githubLoaderSingleton: GitHubLoader = async function load(
     ),
     repos
   };
-};
-
-export type GitHubLoader = (
-  octokit: Octokit,
-  lastCheck: LoadedState | null
-) => Promise<LoadedState>;
+}
 
 function repoFromResponse(response: ReposGetResponse): Repo {
   return {

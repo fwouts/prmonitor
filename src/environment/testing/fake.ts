@@ -16,12 +16,15 @@ export function buildTestingEnvironment() {
   const notifier = fakeNotifier();
   const badger = fakeBadger();
   const messenger = fakeMessenger();
+  let online = false;
   return {
     store,
     githubLoader,
     notifier,
     badger,
-    messenger
+    messenger,
+    isOnline: () => online,
+    online
   };
 }
 

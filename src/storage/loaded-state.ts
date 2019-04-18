@@ -36,6 +36,8 @@ export interface PullRequest {
   repoOwner: string;
   repoName: string;
   pullRequestNumber: number;
+  // TODO: Make required in May 2019.
+  updatedAt?: string;
   // TODO: Remove in May 2019 (deprecated in favour of author object).
   authorLogin: string;
   // TODO: Make required in May 2019.

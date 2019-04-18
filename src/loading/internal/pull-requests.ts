@@ -1,8 +1,6 @@
-import Octokit, {
-  PullsGetResponse,
-  PullsListResponseItem
-} from "@octokit/rest";
+import { PullsGetResponse, PullsListResponseItem } from "@octokit/rest";
 import { repoWasPushedAfter } from "../../filtering/repos-pushed-after";
+import { GitHubApi, PullRequestReference } from "../../github-api/api";
 import {
   Comment,
   LoadedState,
@@ -11,7 +9,6 @@ import {
   Review
 } from "../../storage/loaded-state";
 import { loadAllComments } from "./comments";
-import { loadPullRequest, loadPullRequests } from "./github-api/pull-requests";
 import { loadAllReviews } from "./reviews";
 
 /**
@@ -22,7 +19,7 @@ import { loadAllReviews } from "./reviews";
  * hundred repositories or many pull requests opened.
  */
 export async function refreshOpenPullRequests(
-  octokit: Octokit,
+  githubApi: GitHubApi,
   freshlyLoadedRepos: Repo[],
   lastCheck: LoadedState | null
 ): Promise<PullRequest[]> {
@@ -41,7 +38,7 @@ export async function refreshOpenPullRequests(
     PullsListResponseItem | PullsGetResponse
   > = (await Promise.all(
     reposWithPotentiallyNewPullRequests.map(repo =>
-      loadPullRequests(octokit, repo.owner, repo.name, "open")
+      githubApi.loadPullRequests(repo, "open")
     )
   )).flat();
 
@@ -56,12 +53,13 @@ export async function refreshOpenPullRequests(
       lastCheck.openPullRequests
         .filter(pr => !alreadyLoadedPullRequestNodeIds.has(pr.nodeId))
         .map(pr =>
-          loadPullRequest(
-            octokit,
-            pr.repoOwner,
-            pr.repoName,
-            pr.pullRequestNumber
-          )
+          githubApi.loadSinglePullRequest({
+            repo: {
+              owner: pr.repoOwner,
+              name: pr.repoName
+            },
+            number: pr.pullRequestNumber
+          })
         )
     );
     openRawPullRequests.push(
@@ -75,7 +73,7 @@ export async function refreshOpenPullRequests(
   }
   return Promise.all(
     openRawPullRequests.map(pr =>
-      updateCommentsAndReviews(octokit, pr, mapping)
+      updateCommentsAndReviews(githubApi, pr, mapping)
     )
   );
 }
@@ -85,7 +83,7 @@ interface KnownPullRequestMapping {
 }
 
 async function updateCommentsAndReviews(
-  octokit: Octokit,
+  githubApi: GitHubApi,
   rawPullRequest: PullsListResponseItem | PullsGetResponse,
   mapping: KnownPullRequestMapping
 ): Promise<PullRequest> {
@@ -103,14 +101,16 @@ async function updateCommentsAndReviews(
       knownPullRequest.comments
     );
   }
-  const pullRequestSummary = {
-    repoOwner: rawPullRequest.base.repo.owner.login,
-    repoName: rawPullRequest.base.repo.name,
-    pullRequestNumber: rawPullRequest.number
+  const pr: PullRequestReference = {
+    repo: {
+      owner: rawPullRequest.base.repo.owner.login,
+      name: rawPullRequest.base.repo.name
+    },
+    number: rawPullRequest.number
   };
   const [freshReviews, freshComments] = await Promise.all([
-    loadAllReviews(octokit, pullRequestSummary),
-    loadAllComments(octokit, pullRequestSummary)
+    loadAllReviews(githubApi, pr),
+    loadAllComments(githubApi, pr)
   ]);
   return pullRequestFromResponse(rawPullRequest, freshReviews, freshComments);
 }

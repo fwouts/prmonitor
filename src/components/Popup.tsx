@@ -31,6 +31,7 @@ export class Popup extends Component<PopupProps> {
             ) : (
               <PullRequestList
                 pullRequests={this.props.core.unreviewedPullRequests}
+                onOpen={this.onOpen}
                 onMute={this.onMute}
               />
             )}
@@ -42,6 +43,10 @@ export class Popup extends Component<PopupProps> {
       </>
     );
   }
+
+  private onOpen = (pullRequestUrl: string) => {
+    this.props.core.openPullRequest(pullRequestUrl);
+  };
 
   private onMute = (pullRequest: PullRequest) => {
     if (

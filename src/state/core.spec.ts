@@ -124,6 +124,27 @@ describe("Core", () => {
     expect(env.store.token.loadCount).toBe(0);
   });
 
+  it("opens the pull request when notification is clicked", () => {
+    const env = buildTestingEnvironment();
+
+    // Initialize the core.
+    // TODO: Consider adding the listener in a separate init() method.
+    new Core(env);
+
+    env.notifier.simulateClick("http://some-pr");
+    expect(env.tabOpener.openedUrls).toEqual(["http://some-pr"]);
+  });
+
+  it("opens the pull request when openPullRequest() is called", () => {
+    const env = buildTestingEnvironment();
+
+    // Initialize the core.
+    const core = new Core(env);
+
+    core.openPullRequest("http://some-pr");
+    expect(env.tabOpener.openedUrls).toEqual(["http://some-pr"]);
+  });
+
   it("resets state and triggers a refresh when a new token is set", async () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);

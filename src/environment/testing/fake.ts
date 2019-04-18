@@ -1,6 +1,6 @@
 import { Badger, BadgeState } from "../../badge/api";
 import { CrossScriptMessenger, Message } from "../../messaging/api";
-import { Notifier } from "../../notifications/api";
+import { Notifier, NotifierClickListener } from "../../notifications/api";
 import { LoadedState } from "../../storage/loaded-state";
 import {
   MuteConfiguration,
@@ -19,12 +19,14 @@ export function buildTestingEnvironment() {
   const notifier = fakeNotifier();
   const badger = fakeBadger();
   const messenger = fakeMessenger();
+  const tabOpener = fakeTabOpener();
   const self = {
     store,
     githubLoader,
     notifier,
     badger,
     messenger,
+    tabOpener,
     isOnline: () => self.online,
     online: true
   };
@@ -60,15 +62,23 @@ function fakeStorage<T>(defaultValue: T) {
 
 function fakeNotifier() {
   const notified: Array<string[]> = [];
+  const listeners: NotifierClickListener[] = [];
   const notifier: Notifier = {
     notify(unreviewedPullRequests) {
       notified.push(unreviewedPullRequests.map(pr => pr.htmlUrl));
     },
-    registerClickListener: jest.fn<void, []>()
+    registerClickListener(clickListener) {
+      listeners.push(clickListener);
+    }
   };
   return {
     ...notifier,
-    notified
+    notified,
+    simulateClick(notificationId: string) {
+      for (const listener of listeners) {
+        listener(notificationId);
+      }
+    }
   };
 }
 
@@ -103,6 +113,16 @@ function fakeMessenger() {
       for (const listener of listeners) {
         listener(message);
       }
+    }
+  };
+}
+
+function fakeTabOpener() {
+  const openedUrls: string[] = [];
+  return {
+    openedUrls,
+    openPullRequest(pullRequestUrl: string) {
+      openedUrls.push(pullRequestUrl);
     }
   };
 }

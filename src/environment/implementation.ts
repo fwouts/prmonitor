@@ -4,6 +4,7 @@ import { buildGitHubLoader } from "../loading/github-loader";
 import { buildMessenger } from "../messaging/implementation";
 import { buildNotifier } from "../notifications/implementation";
 import { buildStore } from "../storage/implementation";
+import { buildTabOpener } from "../tabs/implementation";
 import { Environment } from "./api";
 
 export function buildEnvironment(chromeApi: ChromeApi): Environment {
@@ -13,6 +14,7 @@ export function buildEnvironment(chromeApi: ChromeApi): Environment {
     notifier: buildNotifier(chromeApi),
     badger: buildBadger(chromeApi),
     messenger: buildMessenger(chromeApi),
+    tabOpener: buildTabOpener(chromeApi),
     isOnline: () => navigator.onLine
   };
 }

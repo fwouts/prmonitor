@@ -37,8 +37,7 @@
   },
   "scripts": {
     "start": "webpack-dev-server --open",
-    "watch:dev": "rm -rf dist; webpack --mode development --watch",
-    "watch:prod": "rm -rf dist; webpack --mode production --watch",
+    "watch": "tsc --noEmit --watch",
     "build": "rm -rf dist; webpack --mode production && cd dist && zip extension.zip -r *",
     "test": "jest",
     "prettier:fix": "prettier --write \"**/*.js\" \"**/*.jsx\" \"**/*.ts\" \"**/*.tsx\""

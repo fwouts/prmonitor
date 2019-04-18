@@ -2,10 +2,7 @@ import Octokit, {
   PullsGetResponse,
   PullsListResponseItem
 } from "@octokit/rest";
-import {
-  loadReviews,
-  PullsListReviewsResponse
-} from "../../github/api/reviews";
+import { loadReviews, PullsListReviewsResponse } from "./github-api/reviews";
 
 /**
  * Loads all reviews for a set of pull requests.

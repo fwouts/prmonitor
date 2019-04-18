@@ -1,5 +1,3 @@
-import { ReviewState } from "../github/api/reviews";
-
 export interface LoadedState {
   // TODO: Make it required once the field has been populated for long enough.
   userLogin?: string;
@@ -31,6 +29,7 @@ export interface Repo {
   /** Date when the last commit was pushed (across any branch). */
   pushedAt: string;
 }
+
 export interface PullRequest {
   nodeId: string;
   htmlUrl: string;
@@ -61,3 +60,9 @@ export interface Review {
   state: ReviewState;
   submittedAt: string;
 }
+
+export type ReviewState =
+  | "PENDING"
+  | "COMMENTED"
+  | "CHANGES_REQUESTED"
+  | "APPROVED";

@@ -1,6 +1,7 @@
 import Octokit, {
   PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem
 } from "@octokit/rest";
+import { ReviewState } from "../../../storage/loaded-state";
 
 /**
  * Loads all reviews for a given pull request.
@@ -29,9 +30,3 @@ export interface PullsListReviewsResponseItem
   state: ReviewState;
   submitted_at: string;
 }
-
-export type ReviewState =
-  | "PENDING"
-  | "COMMENTED"
-  | "CHANGES_REQUESTED"
-  | "APPROVED";

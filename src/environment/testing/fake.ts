@@ -8,7 +8,7 @@ import {
 } from "../../storage/mute-configuration";
 
 export function buildTestingEnvironment() {
-  const store = mockStore();
+  const store = fakeStore();
   const githubLoader = jest.fn<
     Promise<LoadedState>,
     [string, LoadedState | null]
@@ -25,23 +25,31 @@ export function buildTestingEnvironment() {
   };
 }
 
-function mockStore() {
+function fakeStore() {
   return {
-    lastError: mockStorage<string | null>(null),
-    lastCheck: mockStorage<LoadedState | null>(null),
-    muteConfiguration: mockStorage<MuteConfiguration>(NOTHING_MUTED),
-    notifiedPullRequests: mockStorage<string[]>([]),
-    token: mockStorage<string | null>(null)
+    lastError: fakeStorage<string | null>(null),
+    lastCheck: fakeStorage<LoadedState | null>(null),
+    muteConfiguration: fakeStorage<MuteConfiguration>(NOTHING_MUTED),
+    notifiedPullRequests: fakeStorage<string[]>([]),
+    token: fakeStorage<string | null>(null)
   };
 }
 
-function mockStorage<T>(defaultValue: T) {
-  return {
-    load: jest
-      .fn<Promise<T>, []>()
-      .mockReturnValue(Promise.resolve(defaultValue)),
-    save: jest.fn<Promise<void>, []>()
+function fakeStorage<T>(defaultValue: T) {
+  const self = {
+    currentValue: defaultValue,
+    loadCount: 0,
+    saveCount: 0,
+    load: async () => {
+      self.loadCount++;
+      return self.currentValue;
+    },
+    save: async (value: T) => {
+      self.saveCount++;
+      self.currentValue = value;
+    }
   };
+  return self;
 }
 
 function fakeNotifier() {

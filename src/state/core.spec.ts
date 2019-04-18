@@ -11,37 +11,31 @@ describe("Core", () => {
     const core = new Core(env);
 
     // No token stored.
-    env.store.token.load.mockReturnValue(Promise.resolve(null));
+    env.store.token.currentValue = null;
 
     // Other things are stored, they should be ignored.
-    env.store.lastError.load.mockReturnValue(Promise.resolve("error"));
-    env.store.lastCheck.load.mockReturnValue(
-      Promise.resolve({
-        userLogin: "fwouts",
-        repos: [],
-        openPullRequests: []
-      })
-    );
-    env.store.notifiedPullRequests.load.mockReturnValue(
-      Promise.resolve(["a", "b", "c"])
-    );
-    env.store.muteConfiguration.load.mockReturnValue(
-      Promise.resolve({
-        mutedPullRequests: [
-          {
-            repo: {
-              owner: "zenclabs",
-              name: "prmonitor"
-            },
-            number: 1,
-            until: {
-              kind: "next-update",
-              mutedAtTimestamp: 123
-            }
+    env.store.lastError.currentValue = "error";
+    env.store.lastCheck.currentValue = {
+      userLogin: "fwouts",
+      repos: [],
+      openPullRequests: []
+    };
+    env.store.notifiedPullRequests.currentValue = ["a", "b", "c"];
+    env.store.muteConfiguration.currentValue = {
+      mutedPullRequests: [
+        {
+          repo: {
+            owner: "zenclabs",
+            name: "prmonitor"
+          },
+          number: 1,
+          until: {
+            kind: "next-update",
+            mutedAtTimestamp: 123
           }
-        ]
-      })
-    );
+        }
+      ]
+    };
 
     // Initialise.
     await core.load();
@@ -59,7 +53,7 @@ describe("Core", () => {
     const core = new Core(env);
 
     // A valid token is stored.
-    env.store.token.load.mockReturnValue(Promise.resolve("valid-token"));
+    env.store.token.currentValue = "valid-token";
 
     // Other things are stored, they should be restored.
     const state = {
@@ -83,14 +77,10 @@ describe("Core", () => {
         }
       ]
     };
-    env.store.lastError.load.mockReturnValue(Promise.resolve("error"));
-    env.store.lastCheck.load.mockReturnValue(Promise.resolve(state));
-    env.store.notifiedPullRequests.load.mockReturnValue(
-      Promise.resolve(notifiedPullRequestUrls)
-    );
-    env.store.muteConfiguration.load.mockReturnValue(
-      Promise.resolve(muteConfiguration)
-    );
+    env.store.lastError.currentValue = "error";
+    env.store.lastCheck.currentValue = state;
+    env.store.notifiedPullRequests.currentValue = notifiedPullRequestUrls;
+    env.store.muteConfiguration.currentValue = muteConfiguration;
 
     // Initialise.
     await core.load();
@@ -111,10 +101,12 @@ describe("Core", () => {
     // Initialize the core.
     // TODO: Consider adding the listener in a separate init() method.
     new Core(env);
+    expect(env.store.token.loadCount).toBe(0);
+
     env.messenger.trigger({
       kind: "reload"
     });
-    expect(env.store.token.load).toHaveBeenCalled();
+    expect(env.store.token.loadCount).toBe(1);
   });
 
   it("doesn't reload on non-reload message", () => {
@@ -123,10 +115,12 @@ describe("Core", () => {
     // Initialize the core.
     // TODO: Consider adding the listener in a separate init() method.
     new Core(env);
+    expect(env.store.token.loadCount).toBe(0);
+
     env.messenger.trigger({
       kind: "refresh"
     });
-    expect(env.store.token.load).not.toHaveBeenCalled();
+    expect(env.store.token.loadCount).toBe(0);
   });
 
   it("resets state and triggers a refresh when a new token is set", async () => {
@@ -134,24 +128,25 @@ describe("Core", () => {
     const core = new Core(env);
 
     // A valid token is stored.
-    env.store.token.load.mockReturnValue(Promise.resolve("token-fwouts"));
+    env.store.token.currentValue = "token-fwouts";
     const state = {
       userLogin: "fwouts",
       repos: [],
       openPullRequests: []
     };
-    env.store.lastCheck.load.mockReturnValue(Promise.resolve(state));
+    env.store.lastCheck.currentValue = state;
 
     // Initialise.
     await core.load();
     expect(core.loadedState && core.loadedState.userLogin).toBe("fwouts");
 
     await core.setNewToken("token-kevin");
-    expect(env.store.token.save).toBeCalledWith("token-kevin");
-    expect(env.store.lastError.save).toBeCalledWith(null);
-    expect(env.store.notifiedPullRequests.save).toBeCalledWith([]);
-    expect(env.store.lastCheck.save).toBeCalledWith(null);
-    expect(env.store.muteConfiguration.save).toBeCalledWith(NOTHING_MUTED);
+    expect(core.loadedState).toBeNull();
+    expect(env.store.token.currentValue).toEqual("token-kevin");
+    expect(env.store.lastError.currentValue).toEqual(null);
+    expect(env.store.notifiedPullRequests.currentValue).toEqual([]);
+    expect(env.store.lastCheck.currentValue).toEqual(null);
+    expect(env.store.muteConfiguration.currentValue).toEqual(NOTHING_MUTED);
     expect(env.messenger.sent).toEqual([{ kind: "refresh" }]);
   });
 

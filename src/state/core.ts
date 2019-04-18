@@ -28,15 +28,16 @@ export class Core {
 
   async load() {
     this.token = await this.env.store.token.load();
-    this.lastError = await this.env.store.lastError.load();
     this.overallStatus = "loading";
     if (this.token !== null) {
+      this.lastError = await this.env.store.lastError.load();
       this.loadedState = await this.env.store.lastCheck.load();
       this.notifiedPullRequestUrls = new Set(
         await this.env.store.notifiedPullRequests.load()
       );
       this.muteConfiguration = await this.env.store.muteConfiguration.load();
     } else {
+      this.lastError = null;
       this.token = null;
       this.loadedState = null;
       this.notifiedPullRequestUrls = new Set();

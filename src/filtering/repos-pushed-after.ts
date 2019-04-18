@@ -1,4 +1,4 @@
-import { Repo } from "../../storage/loaded-state";
+import { Repo } from "../storage/loaded-state";
 
 /**
  * Returns a predicate that will return true if the repo was pushed after the given timestamp.

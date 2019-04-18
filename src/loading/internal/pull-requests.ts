@@ -2,12 +2,9 @@ import Octokit, {
   PullsGetResponse,
   PullsListResponseItem
 } from "@octokit/rest";
-import {
-  loadPullRequest,
-  loadPullRequests
-} from "../../github/api/pull-requests";
+import { repoWasPushedAfter } from "../../filtering/repos-pushed-after";
 import { LoadedState, Repo } from "../../storage/loaded-state";
-import { repoWasPushedAfter } from "../filtering/repos-pushed-after";
+import { loadPullRequest, loadPullRequests } from "./github-api/pull-requests";
 
 /**
  * Refreshes the list of pull requests for a list of repositories.

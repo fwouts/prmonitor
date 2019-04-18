@@ -3,7 +3,7 @@ import Octokit, {
   PullsGetResponse,
   PullsListResponseItem
 } from "@octokit/rest";
-import { loadComments } from "../../github/api/comments";
+import { loadComments } from "./github-api/comments";
 
 /**
  * Loads all comments for a set of pull requests.

@@ -4,14 +4,14 @@ import Octokit, {
   PullsListResponseItem,
   ReposGetResponse
 } from "@octokit/rest";
-import { loadRepos } from "../github/api/repos";
-import { PullsListReviewsResponse } from "../github/api/reviews";
-import { loadAuthenticatedUser } from "../github/api/user";
-import { loadAllComments } from "../state/loading/comments";
-import { refreshOpenPullRequests } from "../state/loading/pull-requests";
-import { loadAllReviews } from "../state/loading/reviews";
 import { LoadedState, PullRequest, Repo } from "../storage/loaded-state";
 import { GitHubLoader } from "./api";
+import { loadAllComments } from "./internal/comments";
+import { loadRepos } from "./internal/github-api/repos";
+import { PullsListReviewsResponse } from "./internal/github-api/reviews";
+import { loadAuthenticatedUser } from "./internal/github-api/user";
+import { refreshOpenPullRequests } from "./internal/pull-requests";
+import { loadAllReviews } from "./internal/reviews";
 
 export function buildGitHubLoader(): GitHubLoader {
   return load;

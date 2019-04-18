@@ -1,12 +1,12 @@
 import { computed, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
+import { isReviewNeeded } from "../filtering/review-needed";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
 } from "../storage/mute-configuration";
-import { isReviewNeeded } from "./filtering/review-needed";
 
 export class Core {
   @observable overallStatus: "loading" | "loaded" = "loading";

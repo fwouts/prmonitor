@@ -1,6 +1,6 @@
 import { buildBadger } from "../badge/implementation";
 import { ChromeApi } from "../chrome/api";
-import { buildGitHubLoader } from "../loading/github-loader";
+import { buildGitHubLoader } from "../loading/implementation";
 import { buildMessenger } from "../messaging/implementation";
 import { buildNotifier } from "../notifications/implementation";
 import { buildStore } from "../storage/implementation";

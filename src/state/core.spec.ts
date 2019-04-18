@@ -1,6 +1,9 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
 import { LoadedState } from "../storage/loaded-state";
-import { MuteConfiguration, NOTHING_MUTED } from "../storage/mute-configuration";
+import {
+  MuteConfiguration,
+  NOTHING_MUTED
+} from "../storage/mute-configuration";
 import { Core } from "./core";
 
 describe("Core", () => {

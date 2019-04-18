@@ -1,8 +1,7 @@
-import Octokit, { ReposGetResponse } from "@octokit/rest";
+import { ReposGetResponse } from "@octokit/rest";
+import { buildGitHubApi } from "../github-api/implementation";
 import { LoadedState, Repo } from "../storage/loaded-state";
 import { GitHubLoader } from "./api";
-import { loadRepos } from "./internal/github-api/repos";
-import { loadAuthenticatedUser } from "./internal/github-api/user";
 import { refreshOpenPullRequests } from "./internal/pull-requests";
 
 export function buildGitHubLoader(): GitHubLoader {
@@ -13,13 +12,11 @@ async function load(
   token: string,
   lastCheck: LoadedState | null
 ): Promise<LoadedState> {
-  const octokit = new Octokit({
-    auth: `token ${token}`
-  });
-  const user = await loadAuthenticatedUser(octokit);
-  const repos = await loadRepos(octokit).then(r => r.map(repoFromResponse));
+  const githubApi = buildGitHubApi(token);
+  const user = await githubApi.loadAuthenticatedUser();
+  const repos = await githubApi.loadRepos().then(r => r.map(repoFromResponse));
   const openPullRequests = await refreshOpenPullRequests(
-    octokit,
+    githubApi,
     repos,
     lastCheck
   );

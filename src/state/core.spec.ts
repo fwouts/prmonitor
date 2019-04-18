@@ -129,7 +129,32 @@ describe("Core", () => {
     expect(env.store.token.load).not.toHaveBeenCalled();
   });
 
-  it.todo("resets state and triggers a refresh when a new token is set");
+  it("resets state and triggers a refresh when a new token is set", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+
+    // A valid token is stored.
+    env.store.token.load.mockReturnValue(Promise.resolve("token-fwouts"));
+    const state = {
+      userLogin: "fwouts",
+      repos: [],
+      openPullRequests: []
+    };
+    env.store.lastCheck.load.mockReturnValue(Promise.resolve(state));
+
+    // Initialise.
+    await core.load();
+    expect(core.loadedState && core.loadedState.userLogin).toBe("fwouts");
+
+    await core.setNewToken("token-kevin");
+    expect(env.store.token.save).toBeCalledWith("token-kevin");
+    expect(env.store.lastError.save).toBeCalledWith(null);
+    expect(env.store.notifiedPullRequests.save).toBeCalledWith([]);
+    expect(env.store.lastCheck.save).toBeCalledWith(null);
+    expect(env.store.muteConfiguration.save).toBeCalledWith(NOTHING_MUTED);
+    expect(env.messenger.sent).toEqual([{ kind: "refresh" }]);
+  });
+
   it.todo("doesn't refresh when not authenticated");
   it.todo("doesn't refresh when offline");
   it.todo("updates badge when it starts refreshing");

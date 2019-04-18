@@ -1,16 +1,13 @@
 import Octokit from "@octokit/rest";
 import { computed, observable } from "mobx";
-import { Badger, BadgeState } from "../badge/api";
-import { CrossScriptMessenger } from "../messaging/api";
-import { Notifier } from "../notifications/api";
-import { Store } from "../storage/api";
+import { BadgeState } from "../badge/api";
+import { Environment } from "../environment/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
 } from "../storage/mute-configuration";
 import { isReviewNeeded } from "./filtering/review-needed";
-import { GitHubLoader } from "./github-loader";
 
 export class Core {
   private octokit: Octokit | null = null;
@@ -23,14 +20,8 @@ export class Core {
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
-  constructor(
-    private readonly store: Store,
-    private readonly githubLoader: GitHubLoader,
-    private readonly notifier: Notifier,
-    private readonly badger: Badger,
-    private readonly messenger: CrossScriptMessenger
-  ) {
-    messenger.listen(message => {
+  constructor(private readonly env: Environment) {
+    this.env.messenger.listen(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
         this.load();
@@ -39,18 +30,18 @@ export class Core {
   }
 
   async load() {
-    this.token = await this.store.token.load();
-    this.lastError = await this.store.lastError.load();
+    this.token = await this.env.store.token.load();
+    this.lastError = await this.env.store.lastError.load();
     this.overallStatus = "loading";
     if (this.token !== null) {
       this.octokit = new Octokit({
         auth: `token ${this.token}`
       });
-      this.loadedState = await this.store.lastCheck.load();
+      this.loadedState = await this.env.store.lastCheck.load();
       this.notifiedPullRequestUrls = new Set(
-        await this.store.notifiedPullRequests.load()
+        await this.env.store.notifiedPullRequests.load()
       );
-      this.muteConfiguration = await this.store.muteConfiguration.load();
+      this.muteConfiguration = await this.env.store.muteConfiguration.load();
     } else {
       this.token = null;
       this.octokit = null;
@@ -64,7 +55,7 @@ export class Core {
 
   async setNewToken(token: string) {
     this.token = token;
-    await this.store.token.save(token);
+    await this.env.store.token.save(token);
     await this.saveError(null);
     await this.saveNotifiedPullRequests([]);
     await this.saveLoadedState(null);
@@ -87,10 +78,10 @@ export class Core {
     this.updateBadge();
     try {
       await this.saveLoadedState(
-        await this.githubLoader(octokit, this.loadedState)
+        await this.env.githubLoader(octokit, this.loadedState)
       );
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
-      await this.notifier.notify(
+      await this.env.notifier.notify(
         unreviewedPullRequests,
         this.notifiedPullRequestUrls
       );
@@ -149,25 +140,25 @@ export class Core {
 
   private async saveNotifiedPullRequests(pullRequests: PullRequest[]) {
     this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
-    await this.store.notifiedPullRequests.save(
+    await this.env.store.notifiedPullRequests.save(
       Array.from(this.notifiedPullRequestUrls)
     );
   }
 
   private async saveError(error: string | null) {
     this.lastError = error;
-    await this.store.lastError.save(error);
+    await this.env.store.lastError.save(error);
     this.updateBadge();
   }
 
   private async saveLoadedState(lastCheck: LoadedState | null) {
     this.loadedState = lastCheck;
-    await this.store.lastCheck.save(lastCheck);
+    await this.env.store.lastCheck.save(lastCheck);
   }
 
   private async saveMuteConfiguration(muteConfiguration: MuteConfiguration) {
     this.muteConfiguration = muteConfiguration;
-    await this.store.muteConfiguration.save(muteConfiguration);
+    await this.env.store.muteConfiguration.save(muteConfiguration);
   }
 
   private updateBadge() {
@@ -192,17 +183,17 @@ export class Core {
         unreviewedPullRequestCount: unreviewedPullRequests.length
       };
     }
-    this.badger.update(badgeState);
+    this.env.badger.update(badgeState);
   }
 
   private triggerBackgroundRefresh() {
-    this.messenger.send({
+    this.env.messenger.send({
       kind: "refresh"
     });
   }
 
   private triggerReload() {
-    this.messenger.send({
+    this.env.messenger.send({
       kind: "reload"
     });
   }

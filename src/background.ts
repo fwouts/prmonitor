@@ -1,49 +1,25 @@
-import { Badger } from "./badge/api";
-import { buildBadger } from "./badge/implementation";
 import { ChromeApi } from "./chrome/api";
 import { chromeApiSingleton } from "./chrome/implementation";
+import { Environment } from "./environment/api";
+import { buildEnvironment } from "./environment/implementation";
 import { CrossScriptMessenger } from "./messaging/api";
-import { buildMessenger } from "./messaging/implementation";
-import { Notifier } from "./notifications/api";
-import { buildNotifier } from "./notifications/implementation";
 import { Core } from "./state/core";
-import { GitHubLoader, githubLoaderSingleton } from "./state/github-loader";
-import { Store } from "./storage/api";
-import { buildStore } from "./storage/implementation";
 
 // This is the entry point of the background script of the Chrome extension.
 console.debug("Background entry point running...");
 const chromeApi = chromeApiSingleton;
-const githubLoader = githubLoaderSingleton;
-const store = buildStore(chromeApi);
-const notifier = buildNotifier(chromeApi);
-const badger = buildBadger(chromeApi);
-const messenger = buildMessenger(chromeApi);
-setUpBackgroundScript(
-  chromeApi,
-  store,
-  githubLoader,
-  notifier,
-  badger,
-  messenger
-);
+const env = buildEnvironment(chromeApiSingleton);
+setUpBackgroundScript(chromeApi, env);
 
-function setUpBackgroundScript(
-  chromeApi: ChromeApi,
-  store: Store,
-  githubLoader: GitHubLoader,
-  notifier: Notifier,
-  badger: Badger,
-  messenger: CrossScriptMessenger
-) {
+function setUpBackgroundScript(chromeApi: ChromeApi, env: Environment) {
   selfUpdateAsap(chromeApi);
   refreshOnUpdate(chromeApi, triggerRefresh);
   refreshRegulary(chromeApi, triggerRefresh);
-  refreshOnDemand(messenger, triggerRefresh);
-  notifier.registerClickListener();
+  refreshOnDemand(env.messenger, triggerRefresh);
+  env.notifier.registerClickListener();
 
   async function triggerRefresh() {
-    const core = new Core(store, githubLoader, notifier, badger, messenger);
+    const core = new Core(env);
     await core.load();
     if (!core.token) {
       return;

@@ -150,9 +150,40 @@ describe("Core", () => {
     expect(env.messenger.sent).toEqual([{ kind: "refresh" }]);
   });
 
-  it.todo("doesn't refresh when not authenticated");
+  it("doesn't refresh when not authenticated", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.token.currentValue = null;
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+
+    // Refresh.
+    await core.refreshPullRequests();
+
+    expect(core.refreshing).toBe(false);
+    expect(core.lastError).toBeNull();
+  });
+
   it.todo("doesn't refresh when offline");
-  it.todo("updates badge when it starts refreshing");
+
+  it("updates badge when it starts refreshing", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.token.currentValue = "valid-token";
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+    expect(env.badger.updated).toEqual([]);
+
+    // Refresh.
+    await core.refreshPullRequests();
+    expect(core.refreshing).toBe(true);
+    expect(env.badger.updated).toEqual([]);
+  });
+
   it.todo("updates badge and error when it finishes refreshing successfully");
   it.todo("updates badge and error when it fails to refresh");
   it.todo("notifies of new pull requests and saves notified state");

@@ -1,4 +1,4 @@
-import Octokit, { PullsListCommentsResponse } from "@octokit/rest";
+import Octokit, { IssuesListCommentsResponse } from "@octokit/rest";
 
 /**
  * Loads all comments for a given pull request.
@@ -8,7 +8,7 @@ export async function loadComments(
   owner: string,
   repo: string,
   pullRequestNumber: number
-): Promise<PullsListCommentsResponse> {
+): Promise<IssuesListCommentsResponse> {
   return octokit.paginate(
     octokit.issues.listComments.endpoint.merge({
       owner,

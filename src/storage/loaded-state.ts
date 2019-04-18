@@ -36,6 +36,12 @@ export interface PullRequest {
   repoOwner: string;
   repoName: string;
   pullRequestNumber: number;
+  /**
+   * The last time the PR has been updated. This changes every time a new review
+   * or comment is added, so when it doesn't change, we know not to reload them.
+   */
+  // TODO: Make required in May 2019.
+  updatedAt?: string;
   // TODO: Remove in May 2019 (deprecated in favour of author object).
   authorLogin: string;
   // TODO: Make required in May 2019.

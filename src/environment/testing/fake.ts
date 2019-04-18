@@ -9,7 +9,10 @@ import {
 
 export function buildTestingEnvironment() {
   const store = mockStore();
-  const githubLoader = jest.fn();
+  const githubLoader = jest.fn<
+    Promise<LoadedState>,
+    [string, LoadedState | null]
+  >();
   const notifier = fakeNotifier();
   const badger = fakeBadger();
   const messenger = fakeMessenger();
@@ -34,8 +37,10 @@ function mockStore() {
 
 function mockStorage<T>(defaultValue: T) {
   return {
-    load: jest.fn().mockReturnValue(defaultValue),
-    save: jest.fn()
+    load: jest
+      .fn<Promise<T>, []>()
+      .mockReturnValue(Promise.resolve(defaultValue)),
+    save: jest.fn<Promise<void>, []>()
   };
 }
 
@@ -51,7 +56,7 @@ function fakeNotifier() {
         notifiedPullRequestUrls
       });
     },
-    registerClickListener: jest.fn()
+    registerClickListener: jest.fn<void, []>()
   };
   return {
     ...notifier,

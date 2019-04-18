@@ -5,14 +5,14 @@ describe("Core", () => {
   it("loads without token", async () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
-    env.store.token.load.mockReturnValue(null);
+    env.store.token.load.mockReturnValue(Promise.resolve(null));
     await core.load();
   });
 
   it("loads with token", async () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
-    env.store.token.load.mockReturnValue("abc");
+    env.store.token.load.mockReturnValue(Promise.resolve("abc"));
     await core.load();
   });
 

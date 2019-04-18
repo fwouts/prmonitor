@@ -79,13 +79,13 @@ export class Core {
         this.notifiedPullRequestUrls
       );
       await this.saveNotifiedPullRequests(unreviewedPullRequests);
-      this.updateBadge();
       this.saveError(null);
     } catch (e) {
       this.saveError(e.message);
       throw e;
     } finally {
       this.refreshing = false;
+      this.updateBadge();
       this.triggerReload();
     }
   }
@@ -141,7 +141,6 @@ export class Core {
   private async saveError(error: string | null) {
     this.lastError = error;
     await this.env.store.lastError.save(error);
-    this.updateBadge();
   }
 
   private async saveLoadedState(lastCheck: LoadedState | null) {

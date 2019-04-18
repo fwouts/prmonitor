@@ -1,4 +1,5 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
+import { LoadedState } from "../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
@@ -162,11 +163,28 @@ describe("Core", () => {
     // Refresh.
     await core.refreshPullRequests();
 
+    expect(env.githubLoader).not.toHaveBeenCalled();
     expect(core.refreshing).toBe(false);
     expect(core.lastError).toBeNull();
   });
 
-  it.todo("doesn't refresh when offline");
+  it("doesn't refresh when offline", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.token.currentValue = "valid-token";
+    env.online = false;
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+
+    // Refresh.
+    await core.refreshPullRequests();
+
+    expect(env.githubLoader).not.toHaveBeenCalled();
+    expect(core.refreshing).toBe(false);
+    expect(core.lastError).toBeNull();
+  });
 
   it("updates badge when it starts refreshing", async () => {
     const env = buildTestingEnvironment();
@@ -176,18 +194,322 @@ describe("Core", () => {
     // Initialise.
     await core.load();
     expect(core.refreshing).toBe(false);
-    expect(env.badger.updated).toEqual([]);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "initializing"
+      }
+    ]);
 
-    // Refresh.
-    await core.refreshPullRequests();
+    // Refresh with a pending promise.
+    const githubLoaderPromise = new Promise<LoadedState>(() => {});
+    env.githubLoader.mockReturnValue(githubLoaderPromise);
+
+    // Note: we don't use await, as it would block the thread.
+    core.refreshPullRequests();
+
+    expect(env.githubLoader).toHaveBeenCalled();
     expect(core.refreshing).toBe(true);
-    expect(env.badger.updated).toEqual([]);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "initializing"
+      },
+      {
+        kind: "initializing"
+      }
+    ]);
   });
 
-  it.todo("updates badge and error when it finishes refreshing successfully");
-  it.todo("updates badge and error when it fails to refresh");
-  it.todo("notifies of new pull requests and saves notified state");
-  it.todo("updates badge after muting a PR");
+  test("successful refresh after no stored state updates badge", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.token.currentValue = "valid-token";
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "initializing"
+      }
+    ]);
+
+    // Refresh.
+    env.githubLoader.mockReturnValue(
+      Promise.resolve<LoadedState>({
+        userLogin: "fwouts",
+        repos: [],
+        openPullRequests: []
+      })
+    );
+    await core.refreshPullRequests();
+
+    expect(env.githubLoader).toHaveBeenCalled();
+    expect(core.refreshing).toBe(false);
+    expect(env.store.lastError.currentValue).toBeNull();
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "initializing"
+      },
+      {
+        kind: "initializing"
+      },
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      }
+    ]);
+    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+  });
+
+  test("successful refresh after a previous state updates badge", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.lastCheck.currentValue = {
+      userLogin: "fwouts",
+      repos: [],
+      openPullRequests: []
+    };
+    env.store.token.currentValue = "valid-token";
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      }
+    ]);
+
+    // Refresh.
+    env.githubLoader.mockReturnValue(
+      Promise.resolve<LoadedState>({
+        userLogin: "fwouts",
+        repos: [],
+        openPullRequests: []
+      })
+    );
+    await core.refreshPullRequests();
+
+    expect(env.githubLoader).toHaveBeenCalled();
+    expect(core.refreshing).toBe(false);
+    expect(env.store.lastError.currentValue).toBeNull();
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      },
+      {
+        kind: "reloading",
+        unreviewedPullRequestCount: 0
+      },
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      }
+    ]);
+    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+  });
+
+  test("successful refresh after a previous error updates badge and clears error", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.lastError.currentValue = "old error";
+    env.store.token.currentValue = "valid-token";
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "error"
+      }
+    ]);
+
+    // Refresh.
+    env.githubLoader.mockReturnValue(
+      Promise.resolve<LoadedState>({
+        userLogin: "fwouts",
+        repos: [],
+        openPullRequests: []
+      })
+    );
+    await core.refreshPullRequests();
+
+    expect(env.githubLoader).toHaveBeenCalled();
+    expect(core.refreshing).toBe(false);
+    expect(env.store.lastError.currentValue).toBeNull();
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "error"
+      },
+      {
+        kind: "error"
+      },
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      }
+    ]);
+    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+  });
+
+  test("failed refresh updates badge and error", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.lastCheck.currentValue = {
+      userLogin: "fwouts",
+      repos: [],
+      openPullRequests: []
+    };
+    env.store.token.currentValue = "valid-token";
+
+    // Initialise.
+    await core.load();
+    expect(core.refreshing).toBe(false);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      }
+    ]);
+
+    // Refresh.
+    env.githubLoader.mockReturnValue(Promise.reject(new Error("Oh noes!")));
+    await expect(core.refreshPullRequests()).rejects.toEqual(
+      new Error("Oh noes!")
+    );
+
+    expect(env.githubLoader).toHaveBeenCalled();
+    expect(core.refreshing).toBe(false);
+    expect(env.store.lastError.currentValue).toEqual("Oh noes!");
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 0
+      },
+      {
+        kind: "reloading",
+        unreviewedPullRequestCount: 0
+      },
+      {
+        kind: "error"
+      }
+    ]);
+    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+  });
+
+  it("notifies of new pull requests and saves notified state", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.token.currentValue = "valid-token";
+
+    // Initialise.
+    await core.load();
+    expect(env.store.lastCheck.currentValue).toBeNull();
+
+    // Refresh.
+    env.githubLoader.mockReturnValue(
+      Promise.resolve<LoadedState>({
+        userLogin: "fwouts",
+        repos: [
+          {
+            owner: "zenclabs",
+            name: "prmonitor",
+            pushedAt: "2019-04-18"
+          }
+        ],
+        openPullRequests: [
+          {
+            repoOwner: "zenclabs",
+            repoName: "prmonitor",
+            pullRequestNumber: 1,
+            nodeId: "a-pr",
+            title: "A PR",
+            authorLogin: "kevin",
+            htmlUrl: "http://a-pr",
+            requestedReviewers: ["fwouts"],
+            reviews: [],
+            comments: []
+          }
+        ]
+      })
+    );
+    await core.refreshPullRequests();
+
+    expect(
+      env.store.lastCheck.currentValue &&
+        env.store.lastCheck.currentValue.openPullRequests
+    ).toHaveLength(1);
+    expect(core.unreviewedPullRequests).toHaveLength(1);
+    expect(env.notifier.notified).toEqual([["http://a-pr"]]);
+    expect(env.store.notifiedPullRequests.currentValue).toEqual([
+      "http://a-pr"
+    ]);
+  });
+
+  it("updates badge after muting a PR", async () => {
+    const env = buildTestingEnvironment();
+    const core = new Core(env);
+    env.store.token.currentValue = "valid-token";
+    const pr1 = {
+      repoOwner: "zenclabs",
+      repoName: "prmonitor",
+      pullRequestNumber: 1,
+      nodeId: "pr-1",
+      title: "A PR",
+      authorLogin: "kevin",
+      htmlUrl: "http://pr-1",
+      requestedReviewers: ["fwouts"],
+      reviews: [],
+      comments: []
+    };
+    const pr2 = {
+      repoOwner: "zenclabs",
+      repoName: "prmonitor",
+      pullRequestNumber: 2,
+      nodeId: "pr-2",
+      title: "A PR",
+      authorLogin: "kevin",
+      htmlUrl: "http://pr-2",
+      requestedReviewers: ["fwouts"],
+      reviews: [],
+      comments: []
+    };
+    env.store.lastCheck.currentValue = {
+      userLogin: "fwouts",
+      repos: [
+        {
+          owner: "zenclabs",
+          name: "prmonitor",
+          pushedAt: "2019-04-18"
+        }
+      ],
+      openPullRequests: [pr1, pr2]
+    };
+
+    // Initialise.
+    await core.load();
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 2
+      }
+    ]);
+
+    // Mute the PR.
+    await core.mutePullRequest(pr1);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 2
+      },
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 1
+      }
+    ]);
+  });
 
   it("doesn't duplicate muted pull requests", async () => {
     const env = buildTestingEnvironment();

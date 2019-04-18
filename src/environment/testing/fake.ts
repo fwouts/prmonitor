@@ -1,7 +1,7 @@
 import { Badger, BadgeState } from "../../badge/api";
 import { CrossScriptMessenger, Message } from "../../messaging/api";
 import { Notifier } from "../../notifications/api";
-import { LoadedState, PullRequest } from "../../storage/loaded-state";
+import { LoadedState } from "../../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
@@ -13,19 +13,22 @@ export function buildTestingEnvironment() {
     Promise<LoadedState>,
     [string, LoadedState | null]
   >();
+  githubLoader.mockRejectedValue(
+    new Error("GitHub loader called without specifying mock behaviour")
+  );
   const notifier = fakeNotifier();
   const badger = fakeBadger();
   const messenger = fakeMessenger();
-  let online = false;
-  return {
+  const self = {
     store,
     githubLoader,
     notifier,
     badger,
     messenger,
-    isOnline: () => online,
-    online
+    isOnline: () => self.online,
+    online: true
   };
+  return self;
 }
 
 function fakeStore() {
@@ -56,16 +59,10 @@ function fakeStorage<T>(defaultValue: T) {
 }
 
 function fakeNotifier() {
-  const notified: Array<{
-    unreviewedPullRequests: PullRequest[];
-    notifiedPullRequestUrls: Set<string>;
-  }> = [];
+  const notified: Array<string[]> = [];
   const notifier: Notifier = {
-    notify(unreviewedPullRequests, notifiedPullRequestUrls) {
-      notified.push({
-        unreviewedPullRequests,
-        notifiedPullRequestUrls
-      });
+    notify(unreviewedPullRequests) {
+      notified.push(unreviewedPullRequests.map(pr => pr.htmlUrl));
     },
     registerClickListener: jest.fn<void, []>()
   };

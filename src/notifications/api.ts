@@ -3,7 +3,7 @@ import { PullRequest } from "../storage/loaded-state";
 export interface Notifier {
   notify(
     unreviewedPullRequests: PullRequest[],
-    notifiedPullRequestUrls: Set<string>
+    alreadyNotifiedPullRequestUrls: Set<string>
   ): void;
   registerClickListener(): void;
 }

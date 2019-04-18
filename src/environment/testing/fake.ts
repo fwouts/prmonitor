@@ -1,60 +1,70 @@
 import { Badger, BadgeState } from "../../badge/api";
 import { CrossScriptMessenger, Message } from "../../messaging/api";
 import { Notifier } from "../../notifications/api";
-import { LoadedState, PullRequest } from "../../storage/loaded-state";
+import { LoadedState } from "../../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
 } from "../../storage/mute-configuration";
 
 export function buildTestingEnvironment() {
-  const store = mockStore();
-  const githubLoader = jest.fn();
+  const store = fakeStore();
+  const githubLoader = jest.fn<
+    Promise<LoadedState>,
+    [string, LoadedState | null]
+  >();
+  githubLoader.mockRejectedValue(
+    new Error("GitHub loader called without specifying mock behaviour")
+  );
   const notifier = fakeNotifier();
   const badger = fakeBadger();
   const messenger = fakeMessenger();
-  let online = false;
-  return {
+  const self = {
     store,
     githubLoader,
     notifier,
     badger,
     messenger,
-    isOnline: () => online,
-    online
+    isOnline: () => self.online,
+    online: true
+  };
+  return self;
+}
+
+function fakeStore() {
+  return {
+    lastError: fakeStorage<string | null>(null),
+    lastCheck: fakeStorage<LoadedState | null>(null),
+    muteConfiguration: fakeStorage<MuteConfiguration>(NOTHING_MUTED),
+    notifiedPullRequests: fakeStorage<string[]>([]),
+    token: fakeStorage<string | null>(null)
   };
 }
 
-function mockStore() {
-  return {
-    lastError: mockStorage<string | null>(null),
-    lastCheck: mockStorage<LoadedState | null>(null),
-    muteConfiguration: mockStorage<MuteConfiguration>(NOTHING_MUTED),
-    notifiedPullRequests: mockStorage<string[]>([]),
-    token: mockStorage<string | null>(null)
+function fakeStorage<T>(defaultValue: T) {
+  const self = {
+    currentValue: defaultValue,
+    loadCount: 0,
+    saveCount: 0,
+    load: async () => {
+      self.loadCount++;
+      return self.currentValue;
+    },
+    save: async (value: T) => {
+      self.saveCount++;
+      self.currentValue = value;
+    }
   };
-}
-
-function mockStorage<T>(defaultValue: T) {
-  return {
-    load: jest.fn().mockReturnValue(defaultValue),
-    save: jest.fn()
-  };
+  return self;
 }
 
 function fakeNotifier() {
-  const notified: Array<{
-    unreviewedPullRequests: PullRequest[];
-    notifiedPullRequestUrls: Set<string>;
-  }> = [];
+  const notified: Array<string[]> = [];
   const notifier: Notifier = {
-    notify(unreviewedPullRequests, notifiedPullRequestUrls) {
-      notified.push({
-        unreviewedPullRequests,
-        notifiedPullRequestUrls
-      });
+    notify(unreviewedPullRequests) {
+      notified.push(unreviewedPullRequests.map(pr => pr.htmlUrl));
     },
-    registerClickListener: jest.fn()
+    registerClickListener: jest.fn<void, []>()
   };
   return {
     ...notifier,

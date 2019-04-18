@@ -58,7 +58,7 @@ describe("Core", () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
 
-    // No token stored.
+    // A valid token is stored.
     env.store.token.load.mockReturnValue(Promise.resolve("valid-token"));
 
     // Other things are stored, they should be restored.

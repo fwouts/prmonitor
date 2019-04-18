@@ -8,8 +8,6 @@ import {
   Repo,
   Review
 } from "../../storage/loaded-state";
-import { loadAllComments } from "./comments";
-import { loadAllReviews } from "./reviews";
 
 /**
  * Refreshes the list of pull requests for a list of repositories.
@@ -109,8 +107,19 @@ async function updateCommentsAndReviews(
     number: rawPullRequest.number
   };
   const [freshReviews, freshComments] = await Promise.all([
-    loadAllReviews(githubApi, pr),
-    loadAllComments(githubApi, pr)
+    githubApi.loadReviews(pr).then(reviews =>
+      reviews.map(review => ({
+        authorLogin: review.user.login,
+        state: review.state,
+        submittedAt: review.submitted_at
+      }))
+    ),
+    githubApi.loadComments(pr).then(comments =>
+      comments.map(comment => ({
+        authorLogin: comment.user.login,
+        createdAt: comment.created_at
+      }))
+    )
   ]);
   return pullRequestFromResponse(rawPullRequest, freshReviews, freshComments);
 }

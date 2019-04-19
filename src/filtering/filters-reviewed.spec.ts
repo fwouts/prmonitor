@@ -1,5 +1,5 @@
 import { PullRequest } from "../storage/loaded-state";
-import { MuteConfiguration } from "../storage/mute-configuration";
+import { NOTHING_MUTED } from "../storage/mute-configuration";
 import { Filter, filterPredicate } from "./filters";
 
 const DUMMY_PR: PullRequest = {
@@ -14,14 +14,10 @@ const DUMMY_PR: PullRequest = {
   reviews: []
 };
 
-const NO_MUTING: MuteConfiguration = {
-  mutedPullRequests: []
-};
-
 describe("filters (reviewed)", () => {
   it("is false for the user's own PRs", () => {
     expect(
-      filterPredicate("fwouts", NO_MUTING, Filter.REVIEWED)({
+      filterPredicate("fwouts", NOTHING_MUTED, Filter.REVIEWED)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: ["fwouts"]
@@ -30,7 +26,7 @@ describe("filters (reviewed)", () => {
   });
   it("is false when the user is not a reviewer and hasn't commented", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.REVIEWED)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.REVIEWED)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: []
@@ -39,7 +35,7 @@ describe("filters (reviewed)", () => {
   });
   it("is false when the user needs to review the PR", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.REVIEWED)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.REVIEWED)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: ["kevin"]
@@ -48,7 +44,7 @@ describe("filters (reviewed)", () => {
   });
   it("is true when the user is a reviewer and has already reviewed", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.REVIEWED)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.REVIEWED)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],

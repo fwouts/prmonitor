@@ -1,5 +1,5 @@
 import { PullRequest } from "../storage/loaded-state";
-import { MuteConfiguration } from "../storage/mute-configuration";
+import { NOTHING_MUTED } from "../storage/mute-configuration";
 import { Filter, filterPredicate } from "./filters";
 
 const DUMMY_PR: PullRequest = {
@@ -14,14 +14,10 @@ const DUMMY_PR: PullRequest = {
   reviews: []
 };
 
-const NO_MUTING: MuteConfiguration = {
-  mutedPullRequests: []
-};
-
 describe("filters (incoming)", () => {
   it("is false for the user's own PRs", () => {
     expect(
-      filterPredicate("fwouts", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("fwouts", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: ["fwouts"]
@@ -30,7 +26,7 @@ describe("filters (incoming)", () => {
   });
   it("is false when the user is not a reviewer and hasn't commented", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: []
@@ -39,7 +35,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the user is a reviewer and hasn't reviewed or commented", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: ["kevin"]
@@ -48,7 +44,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the user is not a reviewer but had reviewed, and the author responds", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -70,7 +66,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the user is not a reviewer but had commented, and the author responds", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -89,7 +85,7 @@ describe("filters (incoming)", () => {
   });
   it("is false when the user has reviewed and the author hasn't responded", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -105,7 +101,7 @@ describe("filters (incoming)", () => {
   });
   it("is false when the user is a reviewer, has commented and the author hasn't responded", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: ["kevin"],
@@ -128,7 +124,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the author responded with a comment", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -147,7 +143,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the author responded with a review", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -169,7 +165,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the PR was previously reviewed but the author responded", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -191,7 +187,7 @@ describe("filters (incoming)", () => {
   });
   it("is true when the PR was approved but the author responded", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: [],
@@ -213,7 +209,7 @@ describe("filters (incoming)", () => {
   });
   it("ignores pending review comments", () => {
     expect(
-      filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
+      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
         authorLogin: "fwouts",
         requestedReviewers: ["kevin"],

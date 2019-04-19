@@ -5,12 +5,6 @@ import React, { Component } from "react";
 import { PullRequest } from "../storage/loaded-state";
 import { SmallButton } from "./design/Button";
 
-export interface PullRequestItemProps {
-  pullRequest: PullRequest;
-  onOpen(pullRequestUrl: string): void;
-  onMute(pullRequest: PullRequest): void;
-}
-
 const PullRequestBox = styled.a`
   display: flex;
   flex-direction: row;
@@ -76,6 +70,13 @@ const AuthorLogin = styled.div`
   max-width: ${AuthorWidth};
 `;
 
+export interface PullRequestItemProps {
+  pullRequest: PullRequest;
+  allowMuting: boolean;
+  onOpen(pullRequestUrl: string): void;
+  onMute(pullRequest: PullRequest): void;
+}
+
 @observer
 export class PullRequestItem extends Component<PullRequestItemProps> {
   render() {
@@ -84,9 +85,11 @@ export class PullRequestItem extends Component<PullRequestItemProps> {
         <Info>
           <Title>
             {this.props.pullRequest.title}
-            <SmallButton title="Mute until next update" onClick={this.mute}>
-              <FontAwesomeIcon icon="bell-slash" />
-            </SmallButton>
+            {this.props.allowMuting && (
+              <SmallButton title="Mute until next update" onClick={this.mute}>
+                <FontAwesomeIcon icon="bell-slash" />
+              </SmallButton>
+            )}
           </Title>
           <Repo>
             {this.props.pullRequest.repoOwner}/{this.props.pullRequest.repoName}{" "}

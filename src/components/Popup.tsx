@@ -1,10 +1,10 @@
 import { observer } from "mobx-react";
 import React, { Component } from "react";
+import { Tab, Tabs } from "react-bootstrap";
+import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
 import { PullRequest } from "../storage/loaded-state";
-import { Header } from "./design/Header";
 import { Error } from "./Error";
-import { Loader } from "./Loader";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 
@@ -25,16 +25,30 @@ export class Popup extends Component<PopupProps> {
         <Error lastError={this.props.core.lastError} />
         {this.props.core.token && !this.props.core.lastError && (
           <>
-            <Header>Pull requests</Header>
-            {this.props.core.unreviewedPullRequests === null ? (
-              <Loader />
-            ) : (
-              <PullRequestList
-                pullRequests={this.props.core.unreviewedPullRequests}
-                onOpen={this.onOpen}
-                onMute={this.onMute}
-              />
-            )}
+            <Tabs
+              id="popup-tabs"
+              activeKey={this.props.core.currentFilter}
+              onSelect={(key: Filter) => (this.props.core.currentFilter = key)}
+            >
+              <Tab title="Incoming PRs" eventKey={Filter.INCOMING} />
+              <Tab title="Muted" eventKey={Filter.MUTED} />
+              <Tab title="Already reviewed" eventKey={Filter.REVIEWED} />
+              <Tab title="My pull requests" eventKey={Filter.MINE} />
+            </Tabs>
+            <PullRequestList
+              pullRequests={this.props.core.filteredPullRequests}
+              emptyMessage={
+                this.props.core.currentFilter === Filter.INCOMING
+                  ? `Nothing to review, yay!`
+                  : `There's nothing to see here.`
+              }
+              allowMuting={
+                this.props.core.currentFilter === Filter.INCOMING ||
+                this.props.core.currentFilter === Filter.MUTED
+              }
+              onOpen={this.onOpen}
+              onMute={this.onMute}
+            />
           </>
         )}
         {this.props.core.overallStatus !== "loading" && (
@@ -49,14 +63,15 @@ export class Popup extends Component<PopupProps> {
   };
 
   private onMute = (pullRequest: PullRequest) => {
-    if (
-      confirm(
-        `Are you sure you want to mute the following pull request?\n\n${
-          pullRequest.title
-        }\n\nThe pull request will re-appear when the author updates it.`
-      )
-    ) {
-      this.props.core.mutePullRequest(pullRequest);
+    switch (this.props.core.currentFilter) {
+      case Filter.INCOMING:
+        this.props.core.mutePullRequest(pullRequest);
+        break;
+      case Filter.MUTED:
+        this.props.core.unmutePullRequest(pullRequest);
+        break;
+      default:
+      // Do nothing.
     }
   };
 }

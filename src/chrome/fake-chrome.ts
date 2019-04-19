@@ -44,6 +44,9 @@ export const fakeChrome = (<Partial<ChromeApi>>{
       if (callback) {
         callback(true);
       }
+    },
+    getAll(callback) {
+      callback({});
     }
   },
   storage: {

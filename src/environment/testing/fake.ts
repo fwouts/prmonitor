@@ -39,7 +39,8 @@ function fakeStore() {
     lastCheck: fakeStorage<LoadedState | null>(null),
     muteConfiguration: fakeStorage<MuteConfiguration>(NOTHING_MUTED),
     notifiedPullRequests: fakeStorage<string[]>([]),
-    token: fakeStorage<string | null>(null)
+    token: fakeStorage<string | null>(null),
+    lastRequestForTabsPermission: fakeStorage<number | null>(null)
   };
 }
 
@@ -121,7 +122,7 @@ function fakeTabOpener() {
   const openedUrls: string[] = [];
   return {
     openedUrls,
-    openPullRequest(pullRequestUrl: string) {
+    async openPullRequest(pullRequestUrl: string) {
       openedUrls.push(pullRequestUrl);
     }
   };

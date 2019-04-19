@@ -1,8 +1,9 @@
 import { observer } from "mobx-react";
 import React, { Component } from "react";
+import { Tab, Tabs } from "react-bootstrap";
+import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
 import { PullRequest } from "../storage/loaded-state";
-import { Header } from "./design/Header";
 import { Error } from "./Error";
 import { Loader } from "./Loader";
 import { PullRequestList } from "./PullRequestList";
@@ -25,12 +26,21 @@ export class Popup extends Component<PopupProps> {
         <Error lastError={this.props.core.lastError} />
         {this.props.core.token && !this.props.core.lastError && (
           <>
-            <Header>Pull requests</Header>
-            {this.props.core.unreviewedPullRequests === null ? (
+            <Tabs
+              id="popup-tabs"
+              activeKey={this.props.core.filter}
+              onSelect={(key: Filter) => (this.props.core.filter = key)}
+            >
+              <Tab title="Incoming PRs" eventKey={Filter.INCOMING} />
+              <Tab title="Muted" eventKey={Filter.MUTED} />
+              <Tab title="Already reviewed" eventKey={Filter.REVIEWED} />
+              <Tab title="My pull requests" eventKey={Filter.MINE} />
+            </Tabs>
+            {this.props.core.filteredPullRequests === null ? (
               <Loader />
             ) : (
               <PullRequestList
-                pullRequests={this.props.core.unreviewedPullRequests}
+                pullRequests={this.props.core.filteredPullRequests}
                 onOpen={this.onOpen}
                 onMute={this.onMute}
               />

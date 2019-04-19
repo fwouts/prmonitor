@@ -1,7 +1,7 @@
 import { computed, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
-import { isReviewNeeded } from "../filtering/review-needed";
+import { filter, Filter } from "../filtering/filters";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   MuteConfiguration,
@@ -9,6 +9,7 @@ import {
 } from "../storage/mute-configuration";
 
 export class Core {
+  @observable filter: Filter = Filter.INCOMING;
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
   @observable token: string | null = null;
@@ -126,13 +127,41 @@ export class Core {
   }
 
   @computed
+  get filteredPullRequests(): PullRequest[] | null {
+    const lastCheck = this.loadedState;
+    if (!lastCheck || !lastCheck.userLogin) {
+      return null;
+    }
+    return filter(
+      lastCheck.userLogin,
+      lastCheck.openPullRequests,
+      this.muteConfiguration,
+      this.filter
+    );
+  }
+
+  @computed
   get unreviewedPullRequests(): PullRequest[] | null {
     const lastCheck = this.loadedState;
     if (!lastCheck || !lastCheck.userLogin) {
       return null;
     }
-    return lastCheck.openPullRequests.filter(pr =>
-      isReviewNeeded(pr, lastCheck.userLogin!, this.muteConfiguration)
+    return filter(
+      lastCheck.userLogin,
+      lastCheck.openPullRequests,
+      this.muteConfiguration,
+      Filter.INCOMING
+    );
+  }
+
+  @computed
+  get myPullRequests(): PullRequest[] | null {
+    const lastCheck = this.loadedState;
+    if (!lastCheck || !lastCheck.userLogin) {
+      return null;
+    }
+    return lastCheck.openPullRequests.filter(
+      pr => pr.authorLogin === lastCheck.userLogin
     );
   }
 

@@ -1,6 +1,7 @@
 import { css, Global } from "@emotion/core";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faBellSlash } from "@fortawesome/free-solid-svg-icons";
+import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import { chromeApiSingleton } from "./chrome/implementation";
@@ -23,7 +24,6 @@ ReactDOM.render(
           color: #444;
           margin: 0;
           padding: 8px;
-          overflow: hidden;
           width: 600px;
           font-family: Roboto, sans-serif;
           font-size: 14px;
@@ -31,6 +31,10 @@ ReactDOM.render(
 
         a {
           color: #000;
+        }
+
+        .nav-tabs {
+          border-bottom: none;
         }
       `}
     />

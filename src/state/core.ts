@@ -3,13 +3,10 @@ import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
 import { filter, Filter } from "../filtering/filters";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
-import {
-  MuteConfiguration,
-  NOTHING_MUTED
-} from "../storage/mute-configuration";
+import { MuteConfiguration, NOTHING_MUTED } from "../storage/mute-configuration";
 
 export class Core {
-  @observable filter: Filter = Filter.INCOMING;
+  @observable currentFilter: Filter = Filter.INCOMING;
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
   @observable token: string | null = null;
@@ -152,7 +149,7 @@ export class Core {
       lastCheck.userLogin,
       lastCheck.openPullRequests,
       this.muteConfiguration,
-      this.filter
+      this.currentFilter
     );
   }
 

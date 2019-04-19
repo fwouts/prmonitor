@@ -27,8 +27,8 @@ export class Popup extends Component<PopupProps> {
           <>
             <Tabs
               id="popup-tabs"
-              activeKey={this.props.core.filter}
-              onSelect={(key: Filter) => (this.props.core.filter = key)}
+              activeKey={this.props.core.currentFilter}
+              onSelect={(key: Filter) => (this.props.core.currentFilter = key)}
             >
               <Tab title="Incoming PRs" eventKey={Filter.INCOMING} />
               <Tab title="Muted" eventKey={Filter.MUTED} />
@@ -38,13 +38,13 @@ export class Popup extends Component<PopupProps> {
             <PullRequestList
               pullRequests={this.props.core.filteredPullRequests}
               emptyMessage={
-                this.props.core.filter === Filter.INCOMING
+                this.props.core.currentFilter === Filter.INCOMING
                   ? `Nothing to review, yay!`
                   : `There's nothing to see here.`
               }
               allowMuting={
-                this.props.core.filter === Filter.INCOMING ||
-                this.props.core.filter === Filter.MUTED
+                this.props.core.currentFilter === Filter.INCOMING ||
+                this.props.core.currentFilter === Filter.MUTED
               }
               onOpen={this.onOpen}
               onMute={this.onMute}
@@ -63,7 +63,7 @@ export class Popup extends Component<PopupProps> {
   };
 
   private onMute = (pullRequest: PullRequest) => {
-    switch (this.props.core.filter) {
+    switch (this.props.core.currentFilter) {
       case Filter.INCOMING:
         this.props.core.mutePullRequest(pullRequest);
         break;

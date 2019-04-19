@@ -41,6 +41,10 @@ export class Popup extends Component<PopupProps> {
             ) : (
               <PullRequestList
                 pullRequests={this.props.core.filteredPullRequests}
+                allowMuting={
+                  this.props.core.filter === Filter.INCOMING ||
+                  this.props.core.filter === Filter.MUTED
+                }
                 onOpen={this.onOpen}
                 onMute={this.onMute}
               />
@@ -59,14 +63,15 @@ export class Popup extends Component<PopupProps> {
   };
 
   private onMute = (pullRequest: PullRequest) => {
-    if (
-      confirm(
-        `Are you sure you want to mute the following pull request?\n\n${
-          pullRequest.title
-        }\n\nThe pull request will re-appear when the author updates it.`
-      )
-    ) {
-      this.props.core.mutePullRequest(pullRequest);
+    switch (this.props.core.filter) {
+      case Filter.INCOMING:
+        this.props.core.mutePullRequest(pullRequest);
+        break;
+      case Filter.MUTED:
+        this.props.core.unmutePullRequest(pullRequest);
+        break;
+      default:
+      // Do nothing.
     }
   };
 }

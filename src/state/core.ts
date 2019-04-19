@@ -126,6 +126,22 @@ export class Core {
     this.updateBadge();
   }
 
+  async unmutePullRequest(pullRequest: {
+    repoOwner: string;
+    repoName: string;
+    pullRequestNumber: number;
+  }) {
+    // Remove any previous mute of this PR.
+    this.muteConfiguration.mutedPullRequests = this.muteConfiguration.mutedPullRequests.filter(
+      pr =>
+        pr.repo.owner !== pullRequest.repoOwner ||
+        pr.repo.name !== pullRequest.repoName ||
+        pr.number !== pullRequest.pullRequestNumber
+    );
+    await this.saveMuteConfiguration(this.muteConfiguration);
+    this.updateBadge();
+  }
+
   @computed
   get filteredPullRequests(): PullRequest[] | null {
     const lastCheck = this.loadedState;

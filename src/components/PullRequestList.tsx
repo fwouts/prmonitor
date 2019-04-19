@@ -7,6 +7,7 @@ import { PullRequestItem } from "./PullRequestItem";
 
 export interface PullRequestListProps {
   pullRequests: PullRequest[];
+  allowMuting: boolean;
   onOpen(pullRequestUrl: string): void;
   onMute(pullRequest: PullRequest): void;
 }
@@ -22,6 +23,7 @@ export class PullRequestList extends Component<PullRequestListProps> {
           <PullRequestItem
             key={pullRequest.nodeId}
             pullRequest={pullRequest}
+            allowMuting={this.props.allowMuting}
             onOpen={this.props.onOpen}
             onMute={this.props.onMute}
           />

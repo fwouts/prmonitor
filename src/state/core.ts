@@ -170,17 +170,6 @@ export class Core {
     );
   }
 
-  @computed
-  get myPullRequests(): PullRequest[] | null {
-    const lastCheck = this.loadedState;
-    if (!lastCheck || !lastCheck.userLogin) {
-      return null;
-    }
-    return lastCheck.openPullRequests.filter(
-      pr => pr.authorLogin === lastCheck.userLogin
-    );
-  }
-
   private async saveNotifiedPullRequests(pullRequests: PullRequest[]) {
     this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
     await this.env.store.notifiedPullRequests.save(

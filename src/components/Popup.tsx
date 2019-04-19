@@ -41,6 +41,11 @@ export class Popup extends Component<PopupProps> {
             ) : (
               <PullRequestList
                 pullRequests={this.props.core.filteredPullRequests}
+                emptyMessage={
+                  this.props.core.filter === Filter.INCOMING
+                    ? `Nothing to review, yay!`
+                    : `There's nothing to see here.`
+                }
                 allowMuting={
                   this.props.core.filter === Filter.INCOMING ||
                   this.props.core.filter === Filter.MUTED

@@ -7,6 +7,7 @@ import { PullRequestItem } from "./PullRequestItem";
 
 export interface PullRequestListProps {
   pullRequests: PullRequest[];
+  emptyMessage: string;
   allowMuting: boolean;
   onOpen(pullRequestUrl: string): void;
   onMute(pullRequest: PullRequest): void;
@@ -16,7 +17,7 @@ export interface PullRequestListProps {
 export class PullRequestList extends Component<PullRequestListProps> {
   render() {
     return this.props.pullRequests.length === 0 ? (
-      <Paragraph>Nothing to review, yay!</Paragraph>
+      <Paragraph>{this.props.emptyMessage}</Paragraph>
     ) : (
       <List>
         {this.props.pullRequests.map(pullRequest => (

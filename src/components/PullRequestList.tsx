@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
-import React, { Component } from "react";
+import React from "react";
 import { PullRequest } from "../storage/loaded-state";
 import { Paragraph } from "./design/Paragraph";
 import { Loader } from "./Loader";
@@ -21,27 +21,22 @@ export interface PullRequestListProps {
   onMute(pullRequest: PullRequest): void;
 }
 
-@observer
-export class PullRequestList extends Component<PullRequestListProps> {
-  render() {
-    return (
-      <List>
-        {this.props.pullRequests === null ? (
-          <Loader />
-        ) : this.props.pullRequests.length === 0 ? (
-          <Paragraph>{this.props.emptyMessage}</Paragraph>
-        ) : (
-          this.props.pullRequests.map(pullRequest => (
-            <PullRequestItem
-              key={pullRequest.nodeId}
-              pullRequest={pullRequest}
-              allowMuting={this.props.allowMuting}
-              onOpen={this.props.onOpen}
-              onMute={this.props.onMute}
-            />
-          ))
-        )}
-      </List>
-    );
-  }
-}
+export const PullRequestList = observer((props: PullRequestListProps) => (
+  <List>
+    {props.pullRequests === null ? (
+      <Loader />
+    ) : props.pullRequests.length === 0 ? (
+      <Paragraph>{props.emptyMessage}</Paragraph>
+    ) : (
+      props.pullRequests.map(pullRequest => (
+        <PullRequestItem
+          key={pullRequest.nodeId}
+          pullRequest={pullRequest}
+          allowMuting={props.allowMuting}
+          onOpen={props.onOpen}
+          onMute={props.onMute}
+        />
+      ))
+    )}
+  </List>
+));

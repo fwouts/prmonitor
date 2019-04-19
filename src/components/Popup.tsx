@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
 import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
@@ -16,131 +16,125 @@ export interface PopupState {
   currentFilter: Filter;
 }
 
-@observer
-export class Popup extends Component<PopupProps, PopupState> {
-  state = {
+export const Popup = observer((props: PopupProps) => {
+  const [state, setState] = useState<PopupState>({
     currentFilter: Filter.INCOMING
+  });
+
+  useEffect(() => {
+    props.core
+      .load()
+      .then(() => props.core.refreshPullRequests())
+      .catch(console.error);
+  });
+
+  const onOpen = (pullRequestUrl: string) => {
+    props.core.openPullRequest(pullRequestUrl).catch(console.error);
   };
 
-  async componentDidMount() {
-    await this.props.core.load();
-    await this.props.core.refreshPullRequests();
-  }
-
-  render() {
-    return (
-      <>
-        <Error lastError={this.props.core.lastError} />
-        {this.props.core.token && !this.props.core.lastError && (
-          <>
-            <Tabs
-              id="popup-tabs"
-              activeKey={this.state.currentFilter}
-              onSelect={(key: Filter) => this.setState({ currentFilter: key })}
-            >
-              <Tab
-                title={
-                  <>
-                    Incoming PRs{" "}
-                    {this.props.core.filteredPullRequests && (
-                      <Badge
-                        variant={
-                          this.props.core.filteredPullRequests.incoming.length >
-                          0
-                            ? "danger"
-                            : "secondary"
-                        }
-                      >
-                        {this.props.core.filteredPullRequests.incoming.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.INCOMING}
-              />
-              <Tab
-                title={
-                  <>
-                    Muted{" "}
-                    {this.props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
-                        {this.props.core.filteredPullRequests.muted.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.MUTED}
-              />
-              <Tab
-                title={
-                  <>
-                    Already reviewed{" "}
-                    {this.props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
-                        {this.props.core.filteredPullRequests.reviewed.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.REVIEWED}
-              />
-              <Tab
-                title={
-                  <>
-                    My PRs{" "}
-                    {this.props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
-                        {this.props.core.filteredPullRequests.mine.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.MINE}
-              />
-            </Tabs>
-            <PullRequestList
-              pullRequests={
-                this.props.core.filteredPullRequests
-                  ? this.props.core.filteredPullRequests[
-                      this.state.currentFilter
-                    ]
-                  : null
-              }
-              emptyMessage={
-                this.state.currentFilter === Filter.INCOMING
-                  ? `Nothing to review, yay!`
-                  : `There's nothing to see here.`
-              }
-              allowMuting={
-                this.state.currentFilter === Filter.INCOMING ||
-                this.state.currentFilter === Filter.MUTED
-              }
-              onOpen={this.onOpen}
-              onMute={this.onMute}
-            />
-          </>
-        )}
-        {this.props.core.overallStatus !== "loading" && (
-          <Settings core={this.props.core} />
-        )}
-      </>
-    );
-  }
-
-  private onOpen = (pullRequestUrl: string) => {
-    this.props.core.openPullRequest(pullRequestUrl).catch(console.error);
-  };
-
-  private onMute = (pullRequest: PullRequest) => {
-    switch (this.state.currentFilter) {
+  const onMute = (pullRequest: PullRequest) => {
+    switch (state.currentFilter) {
       case Filter.INCOMING:
-        this.props.core.mutePullRequest(pullRequest);
+        props.core.mutePullRequest(pullRequest);
         break;
       case Filter.MUTED:
-        this.props.core.unmutePullRequest(pullRequest);
+        props.core.unmutePullRequest(pullRequest);
         break;
       default:
       // Do nothing.
     }
   };
-}
+
+  return (
+    <>
+      <Error lastError={props.core.lastError} />
+      {props.core.token && !props.core.lastError && (
+        <>
+          <Tabs
+            id="popup-tabs"
+            activeKey={state.currentFilter}
+            onSelect={(key: Filter) => setState({ currentFilter: key })}
+          >
+            <Tab
+              title={
+                <>
+                  Incoming PRs{" "}
+                  {props.core.filteredPullRequests && (
+                    <Badge
+                      variant={
+                        props.core.filteredPullRequests.incoming.length > 0
+                          ? "danger"
+                          : "secondary"
+                      }
+                    >
+                      {props.core.filteredPullRequests.incoming.length}
+                    </Badge>
+                  )}
+                </>
+              }
+              eventKey={Filter.INCOMING}
+            />
+            <Tab
+              title={
+                <>
+                  Muted{" "}
+                  {props.core.filteredPullRequests && (
+                    <Badge variant="secondary">
+                      {props.core.filteredPullRequests.muted.length}
+                    </Badge>
+                  )}
+                </>
+              }
+              eventKey={Filter.MUTED}
+            />
+            <Tab
+              title={
+                <>
+                  Already reviewed{" "}
+                  {props.core.filteredPullRequests && (
+                    <Badge variant="secondary">
+                      {props.core.filteredPullRequests.reviewed.length}
+                    </Badge>
+                  )}
+                </>
+              }
+              eventKey={Filter.REVIEWED}
+            />
+            <Tab
+              title={
+                <>
+                  My PRs{" "}
+                  {props.core.filteredPullRequests && (
+                    <Badge variant="secondary">
+                      {props.core.filteredPullRequests.mine.length}
+                    </Badge>
+                  )}
+                </>
+              }
+              eventKey={Filter.MINE}
+            />
+          </Tabs>
+          <PullRequestList
+            pullRequests={
+              props.core.filteredPullRequests
+                ? props.core.filteredPullRequests[state.currentFilter]
+                : null
+            }
+            emptyMessage={
+              state.currentFilter === Filter.INCOMING
+                ? `Nothing to review, yay!`
+                : `There's nothing to see here.`
+            }
+            allowMuting={
+              state.currentFilter === Filter.INCOMING ||
+              state.currentFilter === Filter.MUTED
+            }
+            onOpen={onOpen}
+            onMute={onMute}
+          />
+        </>
+      )}
+      {props.core.overallStatus !== "loading" && <Settings core={props.core} />}
+    </>
+  );
+});

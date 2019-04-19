@@ -8,13 +8,14 @@ import { buildTabOpener } from "../tabs/implementation";
 import { Environment } from "./api";
 
 export function buildEnvironment(chromeApi: ChromeApi): Environment {
+  const store = buildStore(chromeApi);
   return {
-    store: buildStore(chromeApi),
+    store,
     githubLoader: buildGitHubLoader(),
     notifier: buildNotifier(chromeApi),
     badger: buildBadger(chromeApi),
     messenger: buildMessenger(chromeApi),
-    tabOpener: buildTabOpener(chromeApi),
+    tabOpener: buildTabOpener(chromeApi, store),
     isOnline: () => navigator.onLine
   };
 }

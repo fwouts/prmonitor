@@ -16,6 +16,7 @@ describe("Core", () => {
 
     // Other things are stored, they should be ignored.
     env.store.lastError.currentValue = "error";
+    env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
       repos: [],
@@ -79,6 +80,7 @@ describe("Core", () => {
       ]
     };
     env.store.lastError.currentValue = "error";
+    env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = state;
     env.store.notifiedPullRequests.currentValue = notifiedPullRequestUrls;
     env.store.muteConfiguration.currentValue = muteConfiguration;
@@ -88,7 +90,7 @@ describe("Core", () => {
 
     expect(core.token).toEqual("valid-token");
     expect(core.lastError).toEqual("error");
-    expect(core.refreshing).toBe(false);
+    expect(core.refreshing).toBe(true);
     expect(core.loadedState).toEqual(state);
     expect(core.muteConfiguration).toEqual(muteConfiguration);
     expect(Array.from(core.notifiedPullRequestUrls)).toEqual(
@@ -156,6 +158,7 @@ describe("Core", () => {
       repos: [],
       openPullRequests: []
     };
+    env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = state;
 
     // Initialise.
@@ -166,6 +169,7 @@ describe("Core", () => {
     expect(core.loadedState).toBeNull();
     expect(env.store.token.currentValue).toEqual("token-kevin");
     expect(env.store.lastError.currentValue).toEqual(null);
+    expect(env.store.currentlyRefreshing.currentValue).toBe(false);
     expect(env.store.notifiedPullRequests.currentValue).toEqual([]);
     expect(env.store.lastCheck.currentValue).toEqual(null);
     expect(env.store.muteConfiguration.currentValue).toEqual(NOTHING_MUTED);

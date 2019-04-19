@@ -1,6 +1,7 @@
+import assertNever from "assert-never";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { Tab, Tabs } from "react-bootstrap";
+import { Badge, Tab, Tabs } from "react-bootstrap";
 import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
 import { PullRequest } from "../storage/loaded-state";
@@ -28,6 +29,27 @@ export class Popup extends Component<PopupProps, PopupState> {
   }
 
   render() {
+    const incoming = this.props.core.filteredPullRequests(Filter.INCOMING);
+    const muted = this.props.core.filteredPullRequests(Filter.MUTED);
+    const reviewed = this.props.core.filteredPullRequests(Filter.REVIEWED);
+    const mine = this.props.core.filteredPullRequests(Filter.MINE);
+    let currentPullRequests;
+    switch (this.state.currentFilter) {
+      case Filter.INCOMING:
+        currentPullRequests = incoming;
+        break;
+      case Filter.MUTED:
+        currentPullRequests = muted;
+        break;
+      case Filter.REVIEWED:
+        currentPullRequests = reviewed;
+        break;
+      case Filter.MINE:
+        currentPullRequests = mine;
+        break;
+      default:
+        throw assertNever(this.state.currentFilter);
+    }
     return (
       <>
         <Error lastError={this.props.core.lastError} />
@@ -38,15 +60,53 @@ export class Popup extends Component<PopupProps, PopupState> {
               activeKey={this.state.currentFilter}
               onSelect={(key: Filter) => this.setState({ currentFilter: key })}
             >
-              <Tab title="Incoming PRs" eventKey={Filter.INCOMING} />
-              <Tab title="Muted" eventKey={Filter.MUTED} />
-              <Tab title="Already reviewed" eventKey={Filter.REVIEWED} />
-              <Tab title="My pull requests" eventKey={Filter.MINE} />
+              <Tab
+                title={
+                  <>
+                    Incoming PRs{" "}
+                    {incoming && (
+                      <Badge
+                        variant={incoming.length > 0 ? "danger" : "secondary"}
+                      >
+                        {incoming.length}
+                      </Badge>
+                    )}
+                  </>
+                }
+                eventKey={Filter.INCOMING}
+              />
+              <Tab
+                title={
+                  <>
+                    Muted{" "}
+                    {muted && <Badge variant="secondary">{muted.length}</Badge>}
+                  </>
+                }
+                eventKey={Filter.MUTED}
+              />
+              <Tab
+                title={
+                  <>
+                    Already reviewed{" "}
+                    {reviewed && (
+                      <Badge variant="secondary">{reviewed.length}</Badge>
+                    )}
+                  </>
+                }
+                eventKey={Filter.REVIEWED}
+              />
+              <Tab
+                title={
+                  <>
+                    My PRs{" "}
+                    {mine && <Badge variant="secondary">{mine.length}</Badge>}
+                  </>
+                }
+                eventKey={Filter.MINE}
+              />
             </Tabs>
             <PullRequestList
-              pullRequests={this.props.core.filteredPullRequests(
-                this.state.currentFilter
-              )}
+              pullRequests={currentPullRequests}
               emptyMessage={
                 this.state.currentFilter === Filter.INCOMING
                   ? `Nothing to review, yay!`

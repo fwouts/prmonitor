@@ -279,7 +279,10 @@ describe("Core", () => {
         unreviewedPullRequestCount: 0
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   test("successful refresh after a previous state updates badge", async () => {
@@ -329,7 +332,10 @@ describe("Core", () => {
         unreviewedPullRequestCount: 0
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   test("successful refresh after a previous error updates badge and clears error", async () => {
@@ -372,7 +378,10 @@ describe("Core", () => {
         unreviewedPullRequestCount: 0
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   test("failed refresh updates badge and error", async () => {
@@ -417,7 +426,10 @@ describe("Core", () => {
         kind: "error"
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   it("notifies of new pull requests and saves notified state", async () => {

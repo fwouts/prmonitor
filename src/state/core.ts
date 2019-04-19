@@ -1,7 +1,11 @@
 import { computed, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
-import { Filter, filterPullRequests } from "../filtering/filters";
+import {
+  Filter,
+  FilteredPullRequests,
+  filterPullRequests
+} from "../filtering/filters";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   MuteConfiguration,
@@ -141,7 +145,8 @@ export class Core {
     this.updateBadge();
   }
 
-  filteredPullRequests(filter: Filter): PullRequest[] | null {
+  @computed
+  get filteredPullRequests(): FilteredPullRequests | null {
     const lastCheck = this.loadedState;
     if (!lastCheck || !lastCheck.userLogin) {
       return null;
@@ -149,23 +154,15 @@ export class Core {
     return filterPullRequests(
       lastCheck.userLogin,
       lastCheck.openPullRequests,
-      this.muteConfiguration,
-      filter
+      this.muteConfiguration
     );
   }
 
   @computed
   get unreviewedPullRequests(): PullRequest[] | null {
-    const lastCheck = this.loadedState;
-    if (!lastCheck || !lastCheck.userLogin) {
-      return null;
-    }
-    return filterPullRequests(
-      lastCheck.userLogin,
-      lastCheck.openPullRequests,
-      this.muteConfiguration,
-      Filter.INCOMING
-    );
+    return this.filteredPullRequests
+      ? this.filteredPullRequests[Filter.INCOMING]
+      : null;
   }
 
   private async saveNotifiedPullRequests(pullRequests: PullRequest[]) {

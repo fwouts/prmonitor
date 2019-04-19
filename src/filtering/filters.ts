@@ -29,15 +29,27 @@ export enum Filter {
   MINE = "mine"
 }
 
+export type FilteredPullRequests = { [filter in Filter]: PullRequest[] };
+
 export function filterPullRequests(
   userLogin: string,
   openPullRequests: PullRequest[],
-  muteConfiguration: MuteConfiguration,
-  filter: Filter
-) {
-  return openPullRequests.filter(
-    filterPredicate(userLogin, muteConfiguration, filter)
-  );
+  muteConfiguration: MuteConfiguration
+): FilteredPullRequests {
+  return {
+    incoming: openPullRequests.filter(
+      filterPredicate(userLogin, muteConfiguration, Filter.INCOMING)
+    ),
+    muted: openPullRequests.filter(
+      filterPredicate(userLogin, muteConfiguration, Filter.MUTED)
+    ),
+    reviewed: openPullRequests.filter(
+      filterPredicate(userLogin, muteConfiguration, Filter.REVIEWED)
+    ),
+    mine: openPullRequests.filter(
+      filterPredicate(userLogin, muteConfiguration, Filter.MINE)
+    )
+  };
 }
 
 export function filterPredicate(

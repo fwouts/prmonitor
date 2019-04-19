@@ -1,4 +1,3 @@
-import assertNever from "assert-never";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
@@ -29,27 +28,6 @@ export class Popup extends Component<PopupProps, PopupState> {
   }
 
   render() {
-    const incoming = this.props.core.filteredPullRequests(Filter.INCOMING);
-    const muted = this.props.core.filteredPullRequests(Filter.MUTED);
-    const reviewed = this.props.core.filteredPullRequests(Filter.REVIEWED);
-    const mine = this.props.core.filteredPullRequests(Filter.MINE);
-    let currentPullRequests;
-    switch (this.state.currentFilter) {
-      case Filter.INCOMING:
-        currentPullRequests = incoming;
-        break;
-      case Filter.MUTED:
-        currentPullRequests = muted;
-        break;
-      case Filter.REVIEWED:
-        currentPullRequests = reviewed;
-        break;
-      case Filter.MINE:
-        currentPullRequests = mine;
-        break;
-      default:
-        throw assertNever(this.state.currentFilter);
-    }
     return (
       <>
         <Error lastError={this.props.core.lastError} />
@@ -64,11 +42,16 @@ export class Popup extends Component<PopupProps, PopupState> {
                 title={
                   <>
                     Incoming PRs{" "}
-                    {incoming && (
+                    {this.props.core.filteredPullRequests && (
                       <Badge
-                        variant={incoming.length > 0 ? "danger" : "secondary"}
+                        variant={
+                          this.props.core.filteredPullRequests.incoming.length >
+                          0
+                            ? "danger"
+                            : "secondary"
+                        }
                       >
-                        {incoming.length}
+                        {this.props.core.filteredPullRequests.incoming.length}
                       </Badge>
                     )}
                   </>
@@ -79,7 +62,11 @@ export class Popup extends Component<PopupProps, PopupState> {
                 title={
                   <>
                     Muted{" "}
-                    {muted && <Badge variant="secondary">{muted.length}</Badge>}
+                    {this.props.core.filteredPullRequests && (
+                      <Badge variant="secondary">
+                        {this.props.core.filteredPullRequests.muted.length}
+                      </Badge>
+                    )}
                   </>
                 }
                 eventKey={Filter.MUTED}
@@ -88,8 +75,10 @@ export class Popup extends Component<PopupProps, PopupState> {
                 title={
                   <>
                     Already reviewed{" "}
-                    {reviewed && (
-                      <Badge variant="secondary">{reviewed.length}</Badge>
+                    {this.props.core.filteredPullRequests && (
+                      <Badge variant="secondary">
+                        {this.props.core.filteredPullRequests.reviewed.length}
+                      </Badge>
                     )}
                   </>
                 }
@@ -99,14 +88,24 @@ export class Popup extends Component<PopupProps, PopupState> {
                 title={
                   <>
                     My PRs{" "}
-                    {mine && <Badge variant="secondary">{mine.length}</Badge>}
+                    {this.props.core.filteredPullRequests && (
+                      <Badge variant="secondary">
+                        {this.props.core.filteredPullRequests.mine.length}
+                      </Badge>
+                    )}
                   </>
                 }
                 eventKey={Filter.MINE}
               />
             </Tabs>
             <PullRequestList
-              pullRequests={currentPullRequests}
+              pullRequests={
+                this.props.core.filteredPullRequests
+                  ? this.props.core.filteredPullRequests[
+                      this.state.currentFilter
+                    ]
+                  : null
+              }
               emptyMessage={
                 this.state.currentFilter === Filter.INCOMING
                   ? `Nothing to review, yay!`

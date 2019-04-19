@@ -1,12 +1,14 @@
 import { computed, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
-import { filter, Filter } from "../filtering/filters";
+import { Filter, filterPullRequests } from "../filtering/filters";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
-import { MuteConfiguration, NOTHING_MUTED } from "../storage/mute-configuration";
+import {
+  MuteConfiguration,
+  NOTHING_MUTED
+} from "../storage/mute-configuration";
 
 export class Core {
-  @observable currentFilter: Filter = Filter.INCOMING;
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
   @observable token: string | null = null;
@@ -139,17 +141,16 @@ export class Core {
     this.updateBadge();
   }
 
-  @computed
-  get filteredPullRequests(): PullRequest[] | null {
+  filteredPullRequests(filter: Filter): PullRequest[] | null {
     const lastCheck = this.loadedState;
     if (!lastCheck || !lastCheck.userLogin) {
       return null;
     }
-    return filter(
+    return filterPullRequests(
       lastCheck.userLogin,
       lastCheck.openPullRequests,
       this.muteConfiguration,
-      this.currentFilter
+      filter
     );
   }
 
@@ -159,7 +160,7 @@ export class Core {
     if (!lastCheck || !lastCheck.userLogin) {
       return null;
     }
-    return filter(
+    return filterPullRequests(
       lastCheck.userLogin,
       lastCheck.openPullRequests,
       this.muteConfiguration,

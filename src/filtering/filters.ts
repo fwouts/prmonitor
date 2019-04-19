@@ -29,7 +29,7 @@ export enum Filter {
   MINE = "mine"
 }
 
-export function filter(
+export function filterPullRequests(
   userLogin: string,
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration,

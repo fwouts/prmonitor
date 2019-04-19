@@ -41,7 +41,7 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "watch": "tsc --noEmit --watch",
-    "build": "rm -rf dist; webpack --mode production && cd dist && zip extension.zip -r *",
+    "build": "rm -rf dist; webpack --mode production",
     "test": "jest",
     "prettier:fix": "prettier --write \"**/*.js\" \"**/*.jsx\" \"**/*.ts\" \"**/*.tsx\""
   }

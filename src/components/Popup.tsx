@@ -26,7 +26,7 @@ export const Popup = observer((props: PopupProps) => {
       .load()
       .then(() => props.core.refreshPullRequests())
       .catch(console.error);
-  });
+  }, []);
 
   const onOpen = (pullRequestUrl: string) => {
     props.core.openPullRequest(pullRequestUrl).catch(console.error);

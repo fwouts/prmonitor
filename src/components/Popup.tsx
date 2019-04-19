@@ -5,7 +5,6 @@ import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
 import { PullRequest } from "../storage/loaded-state";
 import { Error } from "./Error";
-import { Loader } from "./Loader";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 
@@ -36,24 +35,20 @@ export class Popup extends Component<PopupProps> {
               <Tab title="Already reviewed" eventKey={Filter.REVIEWED} />
               <Tab title="My pull requests" eventKey={Filter.MINE} />
             </Tabs>
-            {this.props.core.filteredPullRequests === null ? (
-              <Loader />
-            ) : (
-              <PullRequestList
-                pullRequests={this.props.core.filteredPullRequests}
-                emptyMessage={
-                  this.props.core.filter === Filter.INCOMING
-                    ? `Nothing to review, yay!`
-                    : `There's nothing to see here.`
-                }
-                allowMuting={
-                  this.props.core.filter === Filter.INCOMING ||
-                  this.props.core.filter === Filter.MUTED
-                }
-                onOpen={this.onOpen}
-                onMute={this.onMute}
-              />
-            )}
+            <PullRequestList
+              pullRequests={this.props.core.filteredPullRequests}
+              emptyMessage={
+                this.props.core.filter === Filter.INCOMING
+                  ? `Nothing to review, yay!`
+                  : `There's nothing to see here.`
+              }
+              allowMuting={
+                this.props.core.filter === Filter.INCOMING ||
+                this.props.core.filter === Filter.MUTED
+              }
+              onOpen={this.onOpen}
+              onMute={this.onMute}
+            />
           </>
         )}
         {this.props.core.overallStatus !== "loading" && (

@@ -3,6 +3,7 @@ import { observer } from "mobx-react";
 import React, { Component } from "react";
 import { PullRequest } from "../storage/loaded-state";
 import { Paragraph } from "./design/Paragraph";
+import { Loader } from "./Loader";
 import { PullRequestItem } from "./PullRequestItem";
 
 export const List = styled.div`
@@ -13,7 +14,7 @@ export const List = styled.div`
 `;
 
 export interface PullRequestListProps {
-  pullRequests: PullRequest[];
+  pullRequests: PullRequest[] | null;
   emptyMessage: string;
   allowMuting: boolean;
   onOpen(pullRequestUrl: string): void;
@@ -25,7 +26,9 @@ export class PullRequestList extends Component<PullRequestListProps> {
   render() {
     return (
       <List>
-        {this.props.pullRequests.length === 0 ? (
+        {this.props.pullRequests === null ? (
+          <Loader />
+        ) : this.props.pullRequests.length === 0 ? (
           <Paragraph>{this.props.emptyMessage}</Paragraph>
         ) : (
           this.props.pullRequests.map(pullRequest => (

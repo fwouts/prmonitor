@@ -67,6 +67,7 @@ jobs:
             - node_modules
           key: v3-dependencies-{{ checksum "package.json" }}
       - run: yarn build
+      - run: sed -e "s/0\.0\.0/$(echo $CIRCLE_TAG | tail -c +2)/" manifest.json > dist/manifest.json
       - run: cd dist && zip extension.zip -r *
       - store_artifacts:
           path: dist/extension.zip

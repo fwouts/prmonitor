@@ -39,6 +39,13 @@ export const fakeChrome = (<Partial<ChromeApi>>{
       }
     }
   },
+  permissions: {
+    request(_permissions, callback) {
+      if (callback) {
+        callback(true);
+      }
+    }
+  },
   storage: {
     // To simulate chrome.storage.local, we simply fall back to the localStorage API.
     local: {

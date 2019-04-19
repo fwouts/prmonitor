@@ -4,18 +4,33 @@ import { TabOpener } from "./api";
 export function buildTabOpener(chromeApi: ChromeApi): TabOpener {
   return {
     openPullRequest(pullRequestUrl: string) {
-      chromeApi.tabs.query({}, tabs => {
-        const existingTab = tabs.find(tab =>
-          tab.url ? tab.url.startsWith(pullRequestUrl) : false
-        );
-        if (existingTab) {
-          chromeApi.tabs.highlight({
-            tabs: existingTab.index
-          });
-        } else {
-          window.open(pullRequestUrl);
+      chromeApi.permissions.request(
+        {
+          permissions: ["tabs"]
+        },
+        granted => {
+          if (granted) {
+            chromeApi.tabs.query({}, tabs => {
+              const existingTab = tabs.find(tab =>
+                tab.url ? tab.url.startsWith(pullRequestUrl) : false
+              );
+              if (existingTab) {
+                chromeApi.tabs.highlight({
+                  tabs: existingTab.index
+                });
+              } else {
+                chrome.tabs.create({
+                  url: pullRequestUrl
+                });
+              }
+            });
+          } else {
+            chrome.tabs.create({
+              url: pullRequestUrl
+            });
+          }
         }
-      });
+      );
     }
   };
 }

@@ -167,7 +167,7 @@ describe("filters (incoming)", () => {
       })
     ).toBe(true);
   });
-  it("is true when the PR was reviewed but the author responded", () => {
+  it("is true when the PR was previously reviewed but the author responded", () => {
     expect(
       filterPredicate("kevin", NO_MUTING, Filter.INCOMING)({
         ...DUMMY_PR,

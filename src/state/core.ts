@@ -236,7 +236,7 @@ export class Core {
     // Note: this is a hack in place because outside of a Chrome extension (ie
     // when developing with webpack dev server), we don't have a background
     // script that will refresh.
-    if (!chrome.extension && process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development") {
       this.refreshPullRequests().catch(console.error);
     }
   }

@@ -12,8 +12,16 @@ export interface PopupProps {
   core: Core;
 }
 
+export interface PopupState {
+  currentFilter: Filter;
+}
+
 @observer
-export class Popup extends Component<PopupProps> {
+export class Popup extends Component<PopupProps, PopupState> {
+  state = {
+    currentFilter: Filter.INCOMING
+  };
+
   async componentDidMount() {
     await this.props.core.load();
     await this.props.core.refreshPullRequests();
@@ -27,8 +35,8 @@ export class Popup extends Component<PopupProps> {
           <>
             <Tabs
               id="popup-tabs"
-              activeKey={this.props.core.currentFilter}
-              onSelect={(key: Filter) => (this.props.core.currentFilter = key)}
+              activeKey={this.state.currentFilter}
+              onSelect={(key: Filter) => this.setState({ currentFilter: key })}
             >
               <Tab title="Incoming PRs" eventKey={Filter.INCOMING} />
               <Tab title="Muted" eventKey={Filter.MUTED} />
@@ -36,15 +44,17 @@ export class Popup extends Component<PopupProps> {
               <Tab title="My pull requests" eventKey={Filter.MINE} />
             </Tabs>
             <PullRequestList
-              pullRequests={this.props.core.filteredPullRequests}
+              pullRequests={this.props.core.filteredPullRequests(
+                this.state.currentFilter
+              )}
               emptyMessage={
-                this.props.core.currentFilter === Filter.INCOMING
+                this.state.currentFilter === Filter.INCOMING
                   ? `Nothing to review, yay!`
                   : `There's nothing to see here.`
               }
               allowMuting={
-                this.props.core.currentFilter === Filter.INCOMING ||
-                this.props.core.currentFilter === Filter.MUTED
+                this.state.currentFilter === Filter.INCOMING ||
+                this.state.currentFilter === Filter.MUTED
               }
               onOpen={this.onOpen}
               onMute={this.onMute}
@@ -63,7 +73,7 @@ export class Popup extends Component<PopupProps> {
   };
 
   private onMute = (pullRequest: PullRequest) => {
-    switch (this.props.core.currentFilter) {
+    switch (this.state.currentFilter) {
       case Filter.INCOMING:
         this.props.core.mutePullRequest(pullRequest);
         break;

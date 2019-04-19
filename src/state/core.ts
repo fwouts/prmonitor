@@ -80,11 +80,11 @@ export class Core {
     if (this.refreshing) {
       return;
     }
-    const startRefreshTimestamp = Date.now();
     await this.saveRefreshing(true);
     await this.triggerReload();
     this.updateBadge();
     try {
+      const startRefreshTimestamp = Date.now();
       await this.saveLoadedState({
         startRefreshTimestamp,
         ...(await this.env.githubLoader(this.token, this.loadedState))

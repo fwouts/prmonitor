@@ -13,6 +13,11 @@ export interface Store {
   lastCheck: ValueStorage<LoadedState | null>;
 
   /**
+   * Storage of whether a refresh is happening in the background.
+   */
+  currentlyRefreshing: ValueStorage<boolean>;
+
+  /**
    * Storage of the currently muted pull requests.
    */
   muteConfiguration: ValueStorage<MuteConfiguration>;

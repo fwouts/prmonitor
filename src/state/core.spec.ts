@@ -16,6 +16,7 @@ describe("Core", () => {
 
     // Other things are stored, they should be ignored.
     env.store.lastError.currentValue = "error";
+    env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
       repos: [],
@@ -79,6 +80,7 @@ describe("Core", () => {
       ]
     };
     env.store.lastError.currentValue = "error";
+    env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = state;
     env.store.notifiedPullRequests.currentValue = notifiedPullRequestUrls;
     env.store.muteConfiguration.currentValue = muteConfiguration;
@@ -88,7 +90,7 @@ describe("Core", () => {
 
     expect(core.token).toEqual("valid-token");
     expect(core.lastError).toEqual("error");
-    expect(core.refreshing).toBe(false);
+    expect(core.refreshing).toBe(true);
     expect(core.loadedState).toEqual(state);
     expect(core.muteConfiguration).toEqual(muteConfiguration);
     expect(Array.from(core.notifiedPullRequestUrls)).toEqual(
@@ -156,6 +158,7 @@ describe("Core", () => {
       repos: [],
       openPullRequests: []
     };
+    env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = state;
 
     // Initialise.
@@ -166,6 +169,7 @@ describe("Core", () => {
     expect(core.loadedState).toBeNull();
     expect(env.store.token.currentValue).toEqual("token-kevin");
     expect(env.store.lastError.currentValue).toEqual(null);
+    expect(env.store.currentlyRefreshing.currentValue).toBe(false);
     expect(env.store.notifiedPullRequests.currentValue).toEqual([]);
     expect(env.store.lastCheck.currentValue).toEqual(null);
     expect(env.store.muteConfiguration.currentValue).toEqual(NOTHING_MUTED);
@@ -207,39 +211,6 @@ describe("Core", () => {
     expect(core.lastError).toBeNull();
   });
 
-  it("updates badge when it starts refreshing", async () => {
-    const env = buildTestingEnvironment();
-    const core = new Core(env);
-    env.store.token.currentValue = "valid-token";
-
-    // Initialise.
-    await core.load();
-    expect(core.refreshing).toBe(false);
-    expect(env.badger.updated).toEqual([
-      {
-        kind: "initializing"
-      }
-    ]);
-
-    // Refresh with a pending promise.
-    const githubLoaderPromise = new Promise<LoadedState>(() => {});
-    env.githubLoader.mockReturnValue(githubLoaderPromise);
-
-    // Note: we don't use await, as it would block the thread.
-    core.refreshPullRequests();
-
-    expect(env.githubLoader).toHaveBeenCalled();
-    expect(core.refreshing).toBe(true);
-    expect(env.badger.updated).toEqual([
-      {
-        kind: "initializing"
-      },
-      {
-        kind: "initializing"
-      }
-    ]);
-  });
-
   test("successful refresh after no stored state updates badge", async () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
@@ -279,7 +250,10 @@ describe("Core", () => {
         unreviewedPullRequestCount: 0
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   test("successful refresh after a previous state updates badge", async () => {
@@ -329,7 +303,10 @@ describe("Core", () => {
         unreviewedPullRequestCount: 0
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   test("successful refresh after a previous error updates badge and clears error", async () => {
@@ -372,7 +349,10 @@ describe("Core", () => {
         unreviewedPullRequestCount: 0
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   test("failed refresh updates badge and error", async () => {
@@ -417,7 +397,10 @@ describe("Core", () => {
         kind: "error"
       }
     ]);
-    expect(env.messenger.sent).toEqual([{ kind: "reload" }]);
+    expect(env.messenger.sent).toEqual([
+      { kind: "reload" },
+      { kind: "reload" }
+    ]);
   });
 
   it("notifies of new pull requests and saves notified state", async () => {

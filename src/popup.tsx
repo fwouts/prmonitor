@@ -12,6 +12,8 @@ import { Core } from "./state/core";
 library.add(faBellSlash);
 
 const env = buildEnvironment(chromeApiSingleton);
+const core = new Core(env);
+core.load().catch(console.error);
 
 ReactDOM.render(
   <>
@@ -38,7 +40,7 @@ ReactDOM.render(
         }
       `}
     />
-    <Popup core={new Core(env)} />
+    <Popup core={core} />
   </>,
   document.getElementById("root")
 );

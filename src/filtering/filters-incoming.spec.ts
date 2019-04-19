@@ -295,7 +295,7 @@ describe("filters (incoming)", () => {
       })
     ).toBe(true);
   });
-  it("does not ignore unrelated muted PRs", () => {
+  it("is true for a PR that needs review when an unrelated PR is muted", () => {
     expect(
       filterPredicate(
         "kevin",

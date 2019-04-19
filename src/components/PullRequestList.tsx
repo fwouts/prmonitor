@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { observer } from "mobx-react";
+import { observer } from "mobx-react-lite";
 import React, { Component } from "react";
 import { PullRequest } from "../storage/loaded-state";
 import { Paragraph } from "./design/Paragraph";

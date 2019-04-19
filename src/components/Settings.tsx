@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { observer } from "mobx-react";
+import { observer } from "mobx-react-lite";
 import React, { Component, FormEvent, RefObject } from "react";
 import { Core } from "../state/core";
 import { LargeButton } from "./design/Button";

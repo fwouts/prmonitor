@@ -51,9 +51,37 @@ jobs:
           name: Prettier
           command: |
             yarn prettier --list-different "**/*.js" "**/*.jsx" "**/*.ts" "**/*.tsx"
+  build-release:
+    docker:
+      - image: circleci/node
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v3-dependencies-{{ checksum "package.json" }}
+            - v3-dependencies-
+      - run: yarn install --frozen-lockfile
+      - save_cache:
+          paths:
+            - node_modules
+          key: v3-dependencies-{{ checksum "package.json" }}
+      - run: yarn build
+      - run: sed -e "s/0\.0\.0/$(echo $CIRCLE_TAG | tail -c +2)/" manifest.json > dist/manifest.json
+      - run: cd dist && zip extension.zip -r *
+      - store_artifacts:
+          path: dist/extension.zip
 workflows:
   build_and_test:
     jobs:
       - build
       - test
       - prettier
+  release:
+    jobs:
+      - build-release:
+        filters:
+          tags:
+            only: /^v.*/
+          branches:
+            ignore: /.*/

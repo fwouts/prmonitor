@@ -42,6 +42,8 @@ export const Popup = observer((props: PopupProps) => {
     <>
       <Status core={props.core} />
       {props.core.token &&
+        // Don't show the list if there was an error, we're not refreshing
+        // anymore (because of the error) and we don't have any loaded state.
         !(
           props.core.lastError &&
           !props.core.refreshing &&

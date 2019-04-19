@@ -11,6 +11,11 @@ export function buildStore(chromeApi: ChromeApi): Store {
   return {
     lastError: chromeValueStorage<string>(chromeApi, "error"),
     lastCheck: chromeValueStorage<LoadedState>(chromeApi, "lastCheck"),
+    currentlyRefreshing: chromeValueStorageWithDefault<boolean>(
+      chromeApi,
+      "currentlyRefreshing",
+      false
+    ),
     muteConfiguration: chromeValueStorageWithDefault(
       chromeApi,
       "mute",

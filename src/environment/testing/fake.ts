@@ -37,6 +37,7 @@ function fakeStore() {
   return {
     lastError: fakeStorage<string | null>(null),
     lastCheck: fakeStorage<LoadedState | null>(null),
+    currentlyRefreshing: fakeStorage<boolean>(false),
     muteConfiguration: fakeStorage<MuteConfiguration>(NOTHING_MUTED),
     notifiedPullRequests: fakeStorage<string[]>([]),
     token: fakeStorage<string | null>(null),

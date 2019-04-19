@@ -1,4 +1,12 @@
 export interface LoadedState {
+  /**
+   * The timestamp at which we started loading the state.
+   *
+   * Note that since loading the state can take a few minutes, this can be quite
+   * different from the end time.
+   */
+  startRefreshTimestamp?: number;
+
   // TODO: Make it required once the field has been populated for long enough.
   userLogin?: string;
 

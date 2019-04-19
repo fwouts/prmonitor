@@ -37,6 +37,7 @@ export class Core {
     this.token = await this.env.store.token.load();
     this.overallStatus = "loading";
     if (this.token !== null) {
+      this.refreshing = await this.env.store.currentlyRefreshing.load();
       this.lastError = await this.env.store.lastError.load();
       this.loadedState = await this.env.store.lastCheck.load();
       this.notifiedPullRequestUrls = new Set(
@@ -44,6 +45,7 @@ export class Core {
       );
       this.muteConfiguration = await this.env.store.muteConfiguration.load();
     } else {
+      this.refreshing = false;
       this.lastError = null;
       this.token = null;
       this.loadedState = null;
@@ -57,6 +59,7 @@ export class Core {
   async setNewToken(token: string) {
     this.token = token;
     await this.env.store.token.save(token);
+    await this.saveRefreshing(false);
     await this.saveError(null);
     await this.saveNotifiedPullRequests([]);
     await this.saveLoadedState(null);
@@ -74,12 +77,18 @@ export class Core {
       console.debug("Not online, skipping refresh.");
       return;
     }
-    this.refreshing = true;
+    if (this.refreshing) {
+      return;
+    }
+    const startRefreshTimestamp = Date.now();
+    await this.saveRefreshing(true);
+    await this.triggerReload();
     this.updateBadge();
     try {
-      await this.saveLoadedState(
-        await this.env.githubLoader(this.token, this.loadedState)
-      );
+      await this.saveLoadedState({
+        startRefreshTimestamp,
+        ...(await this.env.githubLoader(this.token, this.loadedState))
+      });
       const unreviewedPullRequests = this.unreviewedPullRequests || [];
       await this.env.notifier.notify(
         unreviewedPullRequests,
@@ -91,7 +100,7 @@ export class Core {
       this.saveError(e.message);
       throw e;
     } finally {
-      this.refreshing = false;
+      await this.saveRefreshing(false);
       this.updateBadge();
       this.triggerReload();
     }
@@ -179,6 +188,11 @@ export class Core {
     await this.env.store.lastError.save(error);
   }
 
+  private async saveRefreshing(refreshing: boolean) {
+    this.refreshing = refreshing;
+    await this.env.store.currentlyRefreshing.save(refreshing);
+  }
+
   private async saveLoadedState(lastCheck: LoadedState | null) {
     this.loadedState = lastCheck;
     await this.env.store.lastCheck.save(lastCheck);
@@ -214,10 +228,17 @@ export class Core {
     this.env.badger.update(badgeState);
   }
 
-  private triggerBackgroundRefresh() {
+  triggerBackgroundRefresh() {
     this.env.messenger.send({
       kind: "refresh"
     });
+
+    // Note: this is a hack in place because outside of a Chrome extension (ie
+    // when developing with webpack dev server), we don't have a background
+    // script that will refresh.
+    if (!chrome.extension && process.env.NODE_ENV === "development") {
+      this.refreshPullRequests().catch(console.error);
+    }
   }
 
   private triggerReload() {

@@ -4,4 +4,5 @@ export const Link = styled.a`
   text-decoration: none;
   font-weight: bold;
   color: #000;
+  cursor: pointer;
 `;

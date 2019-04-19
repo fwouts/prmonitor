@@ -80,8 +80,8 @@ workflows:
   release:
     jobs:
       - build-release:
-        filters:
-          tags:
-            only: /^v.*/
-          branches:
-            ignore: /.*/
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/

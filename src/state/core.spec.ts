@@ -469,7 +469,7 @@ describe("Core", () => {
     ]);
   });
 
-  it("updates badge after muting a PR", async () => {
+  it("updates badge after muting and unmuting a PR", async () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
     env.store.token.currentValue = "valid-token";
@@ -528,6 +528,23 @@ describe("Core", () => {
       {
         kind: "loaded",
         unreviewedPullRequestCount: 1
+      }
+    ]);
+
+    // Unmute the PR.
+    await core.unmutePullRequest(pr1);
+    expect(env.badger.updated).toEqual([
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 2
+      },
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 1
+      },
+      {
+        kind: "loaded",
+        unreviewedPullRequestCount: 2
       }
     ]);
   });

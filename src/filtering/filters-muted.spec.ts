@@ -69,15 +69,33 @@ describe("filters (muted)", () => {
       })
     ).toBe(false);
   });
-  it("is false when the PR is muted but no longer needs to be reviewed", () => {
+  it("is false when the PR was muted but was since updated", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.MUTED)({
+      filterPredicate(
+        "kevin",
+        {
+          mutedPullRequests: [
+            {
+              repo: {
+                owner: "zenclabs",
+                name: "prmonitor"
+              },
+              number: 1,
+              until: {
+                kind: "next-update",
+                mutedAtTimestamp: 1000
+              }
+            }
+          ]
+        },
+        Filter.MUTED
+      )({
         ...DUMMY_PR,
         authorLogin: "fwouts",
-        requestedReviewers: [],
+        requestedReviewers: ["kevin"],
         reviews: [
           {
-            authorLogin: "kevin",
+            authorLogin: "fwouts",
             state: "COMMENTED",
             submittedAt: "2019-02-15T17:00:11Z"
           }

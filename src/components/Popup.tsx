@@ -128,7 +128,7 @@ export class Popup extends Component<PopupProps, PopupState> {
   }
 
   private onOpen = (pullRequestUrl: string) => {
-    this.props.core.openPullRequest(pullRequestUrl);
+    this.props.core.openPullRequest(pullRequestUrl).catch(console.error);
   };
 
   private onMute = (pullRequest: PullRequest) => {

@@ -28,7 +28,9 @@ export class Core {
         this.load();
       }
     });
-    this.env.notifier.registerClickListener(url => this.openPullRequest(url));
+    this.env.notifier.registerClickListener(url =>
+      this.openPullRequest(url).catch(console.error)
+    );
   }
 
   async load() {
@@ -95,8 +97,8 @@ export class Core {
     }
   }
 
-  openPullRequest(pullRequestUrl: string) {
-    this.env.tabOpener.openPullRequest(pullRequestUrl);
+  async openPullRequest(pullRequestUrl: string) {
+    await this.env.tabOpener.openPullRequest(pullRequestUrl);
   }
 
   async mutePullRequest(pullRequest: {

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react-lite";
+import React from "react";
 import { PullRequest } from "../storage/loaded-state";
 import { SmallButton } from "./design/Button";
 
@@ -77,44 +77,40 @@ export interface PullRequestItemProps {
   onMute(pullRequest: PullRequest): void;
 }
 
-@observer
-export class PullRequestItem extends Component<PullRequestItemProps> {
-  render() {
-    return (
-      <PullRequestBox key={this.props.pullRequest.nodeId} onClick={this.open}>
-        <Info>
-          <Title>
-            {this.props.pullRequest.title}
-            {this.props.allowMuting && (
-              <SmallButton title="Mute until next update" onClick={this.mute}>
-                <FontAwesomeIcon icon="bell-slash" />
-              </SmallButton>
-            )}
-          </Title>
-          <Repo>
-            {this.props.pullRequest.repoOwner}/{this.props.pullRequest.repoName}{" "}
-            (#
-            {this.props.pullRequest.pullRequestNumber})
-          </Repo>
-        </Info>
-        <AuthorBox title={this.props.pullRequest.authorLogin}>
-          {this.props.pullRequest.author && (
-            <AuthorAvatar src={this.props.pullRequest.author.avatarUrl} />
-          )}
-          <AuthorLogin>{this.props.pullRequest.authorLogin}</AuthorLogin>
-        </AuthorBox>
-      </PullRequestBox>
-    );
-  }
-
-  private open = (e: React.MouseEvent) => {
-    this.props.onOpen(this.props.pullRequest.htmlUrl);
+export const PullRequestItem = observer((props: PullRequestItemProps) => {
+  const open = (e: React.MouseEvent) => {
+    props.onOpen(props.pullRequest.htmlUrl);
     e.preventDefault();
   };
 
-  private mute = (e: React.MouseEvent) => {
-    this.props.onMute(this.props.pullRequest);
+  const mute = (e: React.MouseEvent) => {
+    props.onMute(props.pullRequest);
     e.preventDefault();
     e.stopPropagation();
   };
-}
+
+  return (
+    <PullRequestBox key={props.pullRequest.nodeId} onClick={open}>
+      <Info>
+        <Title>
+          {props.pullRequest.title}
+          {props.allowMuting && (
+            <SmallButton title="Mute until next update" onClick={mute}>
+              <FontAwesomeIcon icon="bell-slash" />
+            </SmallButton>
+          )}
+        </Title>
+        <Repo>
+          {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
+          {props.pullRequest.pullRequestNumber})
+        </Repo>
+      </Info>
+      <AuthorBox title={props.pullRequest.authorLogin}>
+        {props.pullRequest.author && (
+          <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
+        )}
+        <AuthorLogin>{props.pullRequest.authorLogin}</AuthorLogin>
+      </AuthorBox>
+    </PullRequestBox>
+  );
+});

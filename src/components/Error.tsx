@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react-lite";
+import React from "react";
 
 export interface ErrorProps {
   lastError: string | null;
@@ -13,12 +13,9 @@ const ErrorContainer = styled.p`
   padding: 8px;
 `;
 
-@observer
-export class Error extends Component<ErrorProps> {
-  render() {
-    if (!this.props.lastError) {
-      return <></>;
-    }
-    return <ErrorContainer>Error: {this.props.lastError}</ErrorContainer>;
+export const Error = observer((props: ErrorProps) => {
+  if (!props.lastError) {
+    return <></>;
   }
-}
+  return <ErrorContainer>Error: {props.lastError}</ErrorContainer>;
+});

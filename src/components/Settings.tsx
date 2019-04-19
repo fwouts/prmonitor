@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { observer } from "mobx-react";
-import React, { Component, FormEvent, RefObject } from "react";
+import { observer } from "mobx-react-lite";
+import React, { FormEvent, useRef, useState } from "react";
 import { Core } from "../state/core";
 import { LargeButton } from "./design/Button";
 import { Center } from "./design/Center";
@@ -8,10 +8,6 @@ import { Header } from "./design/Header";
 import { Link } from "./design/Link";
 import { Paragraph } from "./design/Paragraph";
 import { Row } from "./design/Row";
-
-export interface SettingsProps {
-  core: Core;
-}
 
 const UserLogin = styled.span`
   color: #000;
@@ -27,83 +23,98 @@ const TokenInput = styled.input`
   }
 `;
 
-@observer
-export class Settings extends Component<SettingsProps> {
-  state: {
+export interface SettingsProps {
+  core: Core;
+}
+
+export const Settings = observer((props: SettingsProps) => {
+  const [state, setState] = useState<{
     editing: boolean | "default";
-  } = {
+  }>({
     editing: "default"
+  });
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Show the token editing form if:
+  // - editing is "default" (user has not said whether they want to open or dismiss the form)
+  //   AND the token is not set; or
+  // - editing is explicitly set to true (user opened the form).
+  const editing =
+    state.editing === "default" ? !props.core.token : state.editing;
+
+  const openForm = () => {
+    setState({
+      editing: true
+    });
   };
 
-  private inputRef: RefObject<HTMLInputElement>;
+  const saveForm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!inputRef.current) {
+      return;
+    }
+    const token = inputRef.current.value;
+    props.core
+      .setNewToken(token)
+      .then(() => console.log("GitHub API token updated."));
+    setState({
+      editing: false
+    });
+  };
 
-  constructor(props: SettingsProps) {
-    super(props);
-    this.inputRef = React.createRef();
-  }
+  const cancelForm = () => {
+    setState({
+      editing: false
+    });
+  };
 
-  render() {
-    return (
-      <>
-        <Header>Settings</Header>
-        {this.renderSettingsContent()}
-      </>
-    );
-  }
-
-  renderSettingsContent() {
-    // Show the token editing form if:
-    // - editing is "default" (user has not said whether they want to open or dismiss the form)
-    //   AND the token is not set; or
-    // - editing is explicitly set to true (user opened the form).
-    const editing =
-      this.state.editing === "default"
-        ? !this.props.core.token
-        : this.state.editing;
-    if (!editing) {
-      return this.props.core.loadedState ? (
-        <Paragraph>
-          <Row>
-            <span>
-              Signed in as{" "}
-              <UserLogin>
-                {this.props.core.loadedState.userLogin || "unknown"}
-              </UserLogin>
-              .
-            </span>
-            <LargeButton onClick={this.openForm}>Update token</LargeButton>
-          </Row>
-        </Paragraph>
-      ) : this.props.core.lastError ? (
-        <Paragraph>
-          <Row>
-            Is your token valid?
-            <LargeButton onClick={this.openForm}>Update token</LargeButton>
-          </Row>
-        </Paragraph>
-      ) : this.props.core.token ? (
-        <Paragraph>
-          <Row>
-            We're loading your pull requests. This could take a while...
-            <LargeButton onClick={this.openForm}>Update token</LargeButton>
-          </Row>
-        </Paragraph>
-      ) : (
-        <>
+  return (
+    <>
+      <Header>Settings</Header>
+      {!editing ? (
+        props.core.loadedState ? (
           <Paragraph>
-            Welcome to PR Monitor! In order to use this Chrome extension, you
-            need to provide a GitHub API token. This will be used to load your
-            pull requests.
+            <Row>
+              <span>
+                Signed in as{" "}
+                <UserLogin>
+                  {props.core.loadedState.userLogin || "unknown"}
+                </UserLogin>
+                .
+              </span>
+              <LargeButton onClick={openForm}>Update token</LargeButton>
+            </Row>
           </Paragraph>
-          <Center>
-            <LargeButton onClick={this.openForm}>Update token</LargeButton>
-          </Center>
-        </>
-      );
-    } else {
-      return (
-        <form onSubmit={this.saveForm}>
-          {!this.props.core.token && (
+        ) : props.core.lastError ? (
+          <Paragraph>
+            <Row>
+              Is your token valid?
+              <LargeButton onClick={openForm}>Update token</LargeButton>
+            </Row>
+          </Paragraph>
+        ) : props.core.token ? (
+          <Paragraph>
+            <Row>
+              We're loading your pull requests. This could take a while...
+              <LargeButton onClick={openForm}>Update token</LargeButton>
+            </Row>
+          </Paragraph>
+        ) : (
+          <>
+            <Paragraph>
+              Welcome to PR Monitor! In order to use this Chrome extension, you
+              need to provide a GitHub API token. This will be used to load your
+              pull requests.
+            </Paragraph>
+            <Center>
+              <LargeButton onClick={openForm}>Update token</LargeButton>
+            </Center>
+          </>
+        )
+      ) : (
+        <form onSubmit={saveForm}>
+          {!props.core.token && (
             <Paragraph>
               Welcome to PR Monitor! In order to use this Chrome extension, you
               need to provide a GitHub API token. This will be used to load your
@@ -121,38 +132,12 @@ export class Settings extends Component<SettingsProps> {
             ):
           </Paragraph>
           <Row>
-            <TokenInput ref={this.inputRef} />
+            <TokenInput ref={inputRef} />
             <LargeButton type="submit">Save</LargeButton>
-            <LargeButton onClick={this.cancelForm}>Cancel</LargeButton>
+            <LargeButton onClick={cancelForm}>Cancel</LargeButton>
           </Row>
         </form>
-      );
-    }
-  }
-
-  openForm = () => {
-    this.setState({
-      editing: true
-    });
-  };
-
-  saveForm = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!this.inputRef.current) {
-      return;
-    }
-    const token = this.inputRef.current.value;
-    this.props.core
-      .setNewToken(token)
-      .then(() => console.log("GitHub API token updated."));
-    this.setState({
-      editing: false
-    });
-  };
-
-  cancelForm = () => {
-    this.setState({
-      editing: false
-    });
-  };
-}
+      )}
+    </>
+  );
+});

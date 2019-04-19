@@ -211,39 +211,6 @@ describe("Core", () => {
     expect(core.lastError).toBeNull();
   });
 
-  it("updates badge when it starts refreshing", async () => {
-    const env = buildTestingEnvironment();
-    const core = new Core(env);
-    env.store.token.currentValue = "valid-token";
-
-    // Initialise.
-    await core.load();
-    expect(core.refreshing).toBe(false);
-    expect(env.badger.updated).toEqual([
-      {
-        kind: "initializing"
-      }
-    ]);
-
-    // Refresh with a pending promise.
-    const githubLoaderPromise = new Promise<LoadedState>(() => {});
-    env.githubLoader.mockReturnValue(githubLoaderPromise);
-
-    // Note: we don't use await, as it would block the thread.
-    core.refreshPullRequests();
-
-    expect(env.githubLoader).toHaveBeenCalled();
-    expect(core.refreshing).toBe(true);
-    expect(env.badger.updated).toEqual([
-      {
-        kind: "initializing"
-      },
-      {
-        kind: "initializing"
-      }
-    ]);
-  });
-
   test("successful refresh after no stored state updates badge", async () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);

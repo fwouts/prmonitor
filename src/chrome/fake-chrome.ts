@@ -73,6 +73,9 @@ export const fakeChrome = (<Partial<ChromeApi>>{
   tabs: {
     query(_queryInfo, callback) {
       callback([]);
+    },
+    create(properties) {
+      window.open(properties.url);
     }
   }
 }) as ChromeApi;

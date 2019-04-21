@@ -13,6 +13,14 @@
 
 PR Monitor is a Chrome and Firefox extension that notifies you when you receive a pull request on GitHub.
 
+## What does it look like?
+
+Here's a real-life screenshot on Chrome:
+
+<p align="center">
+  <img src="./screenshots/v0.3.2.png" />
+</p>
+
 ## How to install
 
 1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng) or [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/pr-monitor)
@@ -25,6 +33,7 @@ PR Monitor is a Chrome and Firefox extension that notifies you when you receive 
 If you don't trust a random Chrome extension on the Internet with your GitHub token, that's understandable.
 
 Here's how to build the extension yourself from source:
+
 1. Install [Yarn](https://yarnpkg.com).
 2. Install dependencies with `yarn install`.
 3. Run `yarn build`.

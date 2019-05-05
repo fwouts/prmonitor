@@ -1,6 +1,7 @@
 import {
   IssuesListCommentsResponse,
   PullsGetResponse,
+  PullsListCommitsResponse,
   PullsListResponse
 } from "@octokit/rest";
 import {
@@ -71,6 +72,7 @@ describe("refreshOpenPullRequests", () => {
     );
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
+    githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
     const result = await refreshOpenPullRequests(
       githubApi,
       [
@@ -146,6 +148,10 @@ function mockGitHubApi() {
     loadComments: jest.fn<
       Promise<IssuesListCommentsResponse>,
       [PullRequestReference]
+    >(),
+    loadCommits: jest.fn<
+      Promise<PullsListCommitsResponse>,
+      [PullRequestReference]
     >()
   };
 }
@@ -170,7 +176,8 @@ export function createFakePullRequest(
     htmlUrl: "http://url",
     requestedReviewers: [],
     reviews: [],
-    comments: []
+    comments: [],
+    commits: []
   };
 }
 

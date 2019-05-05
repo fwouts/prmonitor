@@ -52,6 +52,15 @@ export function buildGitHubApi(token: string): GitHubApi {
           issue_number: pr.number
         })
       );
+    },
+    loadCommits(pr) {
+      return octokit.paginate(
+        octokit.pulls.listCommits.endpoint.merge({
+          owner: pr.repo.owner,
+          repo: pr.repo.name,
+          pull_number: pr.number
+        })
+      );
     }
   };
 }

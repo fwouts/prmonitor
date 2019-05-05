@@ -1,6 +1,7 @@
 import {
   IssuesListCommentsResponse,
   PullsGetResponse,
+  PullsListCommitsResponse,
   PullsListResponse,
   PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem,
   ReposGetResponse
@@ -43,6 +44,11 @@ export interface GitHubApi {
    * Returns the full list of comments for a pull request.
    */
   loadComments(pr: PullRequestReference): Promise<IssuesListCommentsResponse>;
+
+  /**
+   * Returns the full list of commits for a pull request.
+   */
+  loadCommits(pr: PullRequestReference): Promise<PullsListCommitsResponse>;
 }
 
 export interface RepoReference {

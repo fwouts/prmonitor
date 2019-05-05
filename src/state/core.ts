@@ -77,9 +77,6 @@ export class Core {
       console.debug("Not online, skipping refresh.");
       return;
     }
-    if (this.refreshing) {
-      return;
-    }
     await this.saveRefreshing(true);
     await this.triggerReload();
     this.updateBadge();

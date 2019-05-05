@@ -107,7 +107,7 @@ async function updateCommentsAndReviews(
       rawPullRequest,
       knownPullRequest.reviews,
       knownPullRequest.comments,
-      knownPullRequest.commits
+      knownPullRequest.commits || []
     );
   }
   const pr: PullRequestReference = {

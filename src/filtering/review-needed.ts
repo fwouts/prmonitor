@@ -13,13 +13,17 @@ import {
 export function isReviewNeeded(
   pr: PullRequest,
   currentUserLogin: string
-): boolean {
-  return (
-    pr.author.login !== currentUserLogin &&
-    (reviewRequested(pr, currentUserLogin) ||
-      userPreviouslyReviewed(pr, currentUserLogin)) &&
-    isNewReviewNeeded(pr, currentUserLogin)
-  );
+): PullRequestStatus {
+  if (pr.author.login === currentUserLogin) {
+    return PullRequestStatus.OUTGOING;
+  }
+  if (
+    !reviewRequested(pr, currentUserLogin) &&
+    !userPreviouslyReviewed(pr, currentUserLogin)
+  ) {
+    return PullRequestStatus.NOT_INVOLVED;
+  }
+  return isNewReviewNeeded(pr, currentUserLogin);
 }
 
 /**
@@ -32,14 +36,29 @@ function reviewRequested(pr: PullRequest, currentUserLogin: string): boolean {
 /**
  * Returns whether the user, who previously wrote a review, needs to take another look.
  */
-function isNewReviewNeeded(pr: PullRequest, currentUserLogin: string): boolean {
+function isNewReviewNeeded(
+  pr: PullRequest,
+  currentUserLogin: string
+): PullRequestStatus {
   const lastReviewOrCommentFromCurrentUser = getLastReviewOrCommentTimestamp(
     pr,
     currentUserLogin
   );
   const lastCommentFromAuthor = getLastAuthorCommentTimestamp(pr);
-  return (
-    lastReviewOrCommentFromCurrentUser === 0 ||
-    lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor
-  );
+  if (lastReviewOrCommentFromCurrentUser === 0) {
+    return PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED;
+  } else if (lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor) {
+    return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR;
+  } else {
+    return PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY;
+  }
+}
+
+export enum PullRequestStatus {
+  INCOMING_NEW_REVIEW_REQUESTED,
+  INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR,
+  INCOMING_REVIEWED_CODE_UPDATED,
+  INCOMING_REVIEWED_PENDING_REPLY,
+  NOT_INVOLVED,
+  OUTGOING
 }

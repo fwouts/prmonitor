@@ -56,6 +56,7 @@ export interface PullRequest {
   requestedReviewers: string[];
   reviews: Review[];
   comments: Comment[];
+  commits?: Commit[];
 }
 
 export interface Comment {
@@ -67,6 +68,11 @@ export interface Review {
   authorLogin: string;
   state: ReviewState;
   submittedAt: string;
+}
+
+export interface Commit {
+  authorLogin: string;
+  createdAt: string;
 }
 
 export type ReviewState =

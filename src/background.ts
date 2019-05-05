@@ -11,6 +11,8 @@ const chromeApi = chromeApiSingleton;
 const env = buildEnvironment(chromeApiSingleton);
 setUpBackgroundScript(chromeApi, env);
 
+let refreshing = false;
+
 function setUpBackgroundScript(chromeApi: ChromeApi, env: Environment) {
   selfUpdateAsap(chromeApi);
   refreshOnUpdate(chromeApi, triggerRefresh);
@@ -19,11 +21,19 @@ function setUpBackgroundScript(chromeApi: ChromeApi, env: Environment) {
   const core = new Core(env);
 
   async function triggerRefresh() {
-    await core.load();
-    if (!core.token) {
+    if (refreshing) {
       return;
     }
-    await core.refreshPullRequests();
+    try {
+      refreshing = true;
+      await core.load();
+      if (!core.token) {
+        return;
+      }
+      await core.refreshPullRequests();
+    } finally {
+      refreshing = false;
+    }
   }
 }
 

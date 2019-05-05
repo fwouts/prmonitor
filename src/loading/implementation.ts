@@ -14,7 +14,10 @@ async function load(
 ): Promise<LoadedState> {
   const githubApi = buildGitHubApi(token);
   const user = await githubApi.loadAuthenticatedUser();
-  const repos = await githubApi.loadRepos().then(r => r.map(repoFromResponse));
+  const repos = await githubApi
+    .loadRepos()
+    .then(response => response.filter(repo => !repo.archived))
+    .then(response => response.map(repoFromResponse));
   const openPullRequests = await refreshOpenPullRequests(
     githubApi,
     repos,

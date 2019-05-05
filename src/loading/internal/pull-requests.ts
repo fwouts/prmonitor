@@ -45,11 +45,20 @@ export async function refreshOpenPullRequests(
     openRawPullRequests.map(pr => pr.node_id)
   );
 
+  const availableRepos = new Set<string>();
+  for (const repo of freshlyLoadedRepos) {
+    availableRepos.add(`${repo.owner}/${repo.name}`);
+  }
+
   // Also update refresh every other known pull request.
   if (lastCheck) {
     const updatedRawPullRequests = await Promise.all(
       lastCheck.openPullRequests
-        .filter(pr => !alreadyLoadedPullRequestNodeIds.has(pr.nodeId))
+        .filter(
+          pr =>
+            !alreadyLoadedPullRequestNodeIds.has(pr.nodeId) &&
+            availableRepos.has(`${pr.repoOwner}/${pr.repoName}`)
+        )
         .map(pr =>
           githubApi.loadSinglePullRequest({
             repo: {

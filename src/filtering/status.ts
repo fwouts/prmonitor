@@ -10,7 +10,7 @@ import {
  * - either a review is explicitly requested
  * - or the PR has been updated by the author (new commit or comment) since the last review
  */
-export function isReviewNeeded(
+export function pullRequestStatus(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestStatus {
@@ -23,7 +23,7 @@ export function isReviewNeeded(
   ) {
     return PullRequestStatus.NOT_INVOLVED;
   }
-  return isNewReviewNeeded(pr, currentUserLogin);
+  return incomingPullRequestStatus(pr, currentUserLogin);
 }
 
 /**
@@ -36,7 +36,7 @@ function reviewRequested(pr: PullRequest, currentUserLogin: string): boolean {
 /**
  * Returns whether the user, who previously wrote a review, needs to take another look.
  */
-function isNewReviewNeeded(
+function incomingPullRequestStatus(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestStatus {
@@ -57,8 +57,17 @@ function isNewReviewNeeded(
 export enum PullRequestStatus {
   INCOMING_NEW_REVIEW_REQUESTED,
   INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR,
-  INCOMING_REVIEWED_CODE_UPDATED,
   INCOMING_REVIEWED_PENDING_REPLY,
   NOT_INVOLVED,
   OUTGOING
+}
+
+export function isReviewRequired(status: PullRequestStatus) {
+  switch (status) {
+    case PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED:
+    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
+      return true;
+    default:
+      return false;
+  }
 }

@@ -2,8 +2,11 @@ import assertNever from "assert-never";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { isMuted } from "./muted";
-import { isReviewNeeded } from "./review-needed";
-import { userPreviouslyReviewed } from "./reviewed";
+import {
+  isReviewRequired,
+  pullRequestStatus,
+  PullRequestStatus
+} from "./status";
 
 export enum Filter {
   /**
@@ -60,13 +63,16 @@ export function filterPredicate(
   switch (filter) {
     case Filter.INCOMING:
       return pr =>
-        isReviewNeeded(pr, userLogin) && !isMuted(pr, muteConfiguration);
+        isReviewRequired(pullRequestStatus(pr, userLogin)) &&
+        !isMuted(pr, muteConfiguration);
     case Filter.MUTED:
       return pr =>
-        isReviewNeeded(pr, userLogin) && isMuted(pr, muteConfiguration);
+        isReviewRequired(pullRequestStatus(pr, userLogin)) &&
+        isMuted(pr, muteConfiguration);
     case Filter.REVIEWED:
       return pr =>
-        userPreviouslyReviewed(pr, userLogin) && !isReviewNeeded(pr, userLogin);
+        pullRequestStatus(pr, userLogin) ===
+        PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY;
     case Filter.MINE:
       return pr => pr.author.login === userLogin;
     default:

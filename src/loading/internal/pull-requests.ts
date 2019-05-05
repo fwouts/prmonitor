@@ -133,7 +133,7 @@ async function updateCommentsAndReviews(
     ),
     githubApi.loadCommits(pr).then(commits =>
       commits.map(commit => ({
-        authorLogin: commit.author.login,
+        authorLogin: commit.author ? commit.author.login : "",
         createdAt: commit.commit.author.date
       }))
     )

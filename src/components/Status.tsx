@@ -10,8 +10,6 @@ export interface StatusProps {
 }
 
 export const Status = observer((props: StatusProps) => {
-  // TODO: Refresh button.
-  // TODO: Ensure it works on dev.
   let lastUpdated;
   if (props.core.loadedState && props.core.loadedState.startRefreshTimestamp) {
     lastUpdated = (

@@ -68,7 +68,7 @@ export function filterPredicate(
       return pr =>
         userPreviouslyReviewed(pr, userLogin) && !isReviewNeeded(pr, userLogin);
     case Filter.MINE:
-      return pr => pr.authorLogin === userLogin;
+      return pr => pr.author.login === userLogin;
     default:
       throw assertNever(filter);
   }

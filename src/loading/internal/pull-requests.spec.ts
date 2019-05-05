@@ -34,6 +34,7 @@ describe("refreshOpenPullRequests", () => {
         }
       ],
       {
+        userLogin: "author",
         repos: [
           {
             owner: "zenclabs",
@@ -81,6 +82,7 @@ describe("refreshOpenPullRequests", () => {
         }
       ],
       {
+        userLogin: "author",
         repos: [
           {
             owner: "zenclabs",
@@ -109,6 +111,7 @@ describe("refreshOpenPullRequests", () => {
         // Repo removed.
       ],
       {
+        userLogin: "author",
         repos: [
           {
             owner: "zenclabs",
@@ -156,10 +159,14 @@ export function createFakePullRequest(
   return {
     nodeId: id,
     title: id,
+    updatedAt: "5 May 2019",
     repoOwner,
     repoName,
     pullRequestNumber,
-    authorLogin: "author",
+    author: {
+      login: "author",
+      avatarUrl: "http://url"
+    },
     htmlUrl: "http://url",
     requestedReviewers: [],
     reviews: [],

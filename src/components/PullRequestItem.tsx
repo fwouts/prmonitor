@@ -105,11 +105,11 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
           {props.pullRequest.pullRequestNumber})
         </Repo>
       </Info>
-      <AuthorBox title={props.pullRequest.authorLogin}>
+      <AuthorBox title={props.pullRequest.author.login}>
         {props.pullRequest.author && (
           <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
         )}
-        <AuthorLogin>{props.pullRequest.authorLogin}</AuthorLogin>
+        <AuthorLogin>{props.pullRequest.author.login}</AuthorLogin>
       </AuthorBox>
     </PullRequestBox>
   );

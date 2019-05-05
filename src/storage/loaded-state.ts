@@ -7,8 +7,7 @@ export interface LoadedState {
    */
   startRefreshTimestamp?: number;
 
-  // TODO: Make it required once the field has been populated for long enough.
-  userLogin?: string;
+  userLogin: string;
 
   /**
    * The list of all repositories that the user is a member of.
@@ -48,20 +47,15 @@ export interface PullRequest {
    * The last time the PR has been updated. This changes every time a new review
    * or comment is added, so when it doesn't change, we know not to reload them.
    */
-  // TODO: Make required in May 2019.
-  updatedAt?: string;
-  // TODO: Remove in May 2019 (deprecated in favour of author object).
-  authorLogin: string;
-  // TODO: Make required in May 2019.
-  author?: {
+  updatedAt: string;
+  author: {
     login: string;
     avatarUrl: string;
   };
   title: string;
   requestedReviewers: string[];
   reviews: Review[];
-  // TODO: Make required in May 2019.
-  comments?: Comment[];
+  comments: Comment[];
 }
 
 export interface Comment {

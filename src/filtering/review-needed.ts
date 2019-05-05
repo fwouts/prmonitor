@@ -15,7 +15,7 @@ export function isReviewNeeded(
   currentUserLogin: string
 ): boolean {
   return (
-    pr.authorLogin !== currentUserLogin &&
+    pr.author.login !== currentUserLogin &&
     (reviewRequested(pr, currentUserLogin) ||
       userPreviouslyReviewed(pr, currentUserLogin)) &&
     isNewReviewNeeded(pr, currentUserLogin)

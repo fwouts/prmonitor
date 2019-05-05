@@ -3,15 +3,20 @@ import { NOTHING_MUTED } from "../storage/mute-configuration";
 import { Filter, filterPredicate } from "./filters";
 
 const DUMMY_PR: PullRequest = {
-  authorLogin: "fwouts",
+  author: {
+    login: "fwouts",
+    avatarUrl: "http://url"
+  },
   repoOwner: "zenclabs",
   repoName: "prmonitor",
   pullRequestNumber: 1,
   title: "Dummy PR",
+  updatedAt: "5 May 2019",
   htmlUrl: "https://github.com/zenclabs/prmonitor/pull/1",
   nodeId: "fake",
   requestedReviewers: [],
-  reviews: []
+  reviews: [],
+  comments: []
 };
 
 describe("filters (incoming)", () => {
@@ -19,7 +24,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("fwouts", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["fwouts"]
       })
     ).toBe(false);
@@ -28,7 +32,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: []
       })
     ).toBe(false);
@@ -37,7 +40,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["kevin"]
       })
     ).toBe(true);
@@ -46,7 +48,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         reviews: [
           {
@@ -68,7 +69,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         comments: [
           {
@@ -87,7 +87,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         reviews: [
           {
@@ -103,7 +102,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["kevin"],
         comments: [
           {
@@ -126,7 +124,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         comments: [
           {
@@ -145,7 +142,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         comments: [
           {
@@ -167,7 +163,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         reviews: [
           {
@@ -189,7 +184,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: [],
         reviews: [
           {
@@ -211,7 +205,6 @@ describe("filters (incoming)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["kevin"],
         reviews: [
           {
@@ -245,7 +238,6 @@ describe("filters (incoming)", () => {
         Filter.INCOMING
       )({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["kevin"],
         reviews: [
           // Another user posted a review after we muted.
@@ -280,7 +272,6 @@ describe("filters (incoming)", () => {
         Filter.INCOMING
       )({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["kevin"],
         comments: [
           {
@@ -313,7 +304,6 @@ describe("filters (incoming)", () => {
         Filter.INCOMING
       )({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["kevin"]
       })
     ).toBe(true);

@@ -2,6 +2,7 @@ import { PullRequest } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
   getLastAuthorCommentTimestamp,
+  getLastCommitTimestamp,
   getLastReviewOrCommentTimestamp
 } from "./timestamps";
 
@@ -45,10 +46,13 @@ function incomingPullRequestStatus(
     currentUserLogin
   );
   const lastCommentFromAuthor = getLastAuthorCommentTimestamp(pr);
+  const lastCommit = getLastCommitTimestamp(pr);
   if (lastReviewOrCommentFromCurrentUser === 0) {
     return PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED;
   } else if (lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor) {
     return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR;
+  } else if (lastReviewOrCommentFromCurrentUser < lastCommit) {
+    return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT;
   } else {
     return PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY;
   }
@@ -57,6 +61,7 @@ function incomingPullRequestStatus(
 export enum PullRequestStatus {
   INCOMING_NEW_REVIEW_REQUESTED,
   INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR,
+  INCOMING_REVIEWED_NEW_COMMIT,
   INCOMING_REVIEWED_PENDING_REPLY,
   NOT_INVOLVED,
   OUTGOING
@@ -66,6 +71,7 @@ export function isReviewRequired(status: PullRequestStatus) {
   switch (status) {
     case PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED:
     case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
+    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT:
       return true;
     default:
       return false;

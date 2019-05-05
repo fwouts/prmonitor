@@ -28,3 +28,12 @@ export function getLastReviewOrCommentTimestamp(
   }
   return lastCommentedTime;
 }
+
+export function getLastCommitTimestamp(pr: PullRequest): number {
+  let lastCommitTime = 0;
+  for (const commit of pr.commits || []) {
+    const createdAt = new Date(commit.createdAt).getTime();
+    lastCommitTime = Math.max(lastCommitTime, createdAt);
+  }
+  return lastCommitTime;
+}

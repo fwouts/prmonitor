@@ -3,15 +3,20 @@ import { NOTHING_MUTED } from "../storage/mute-configuration";
 import { Filter, filterPredicate } from "./filters";
 
 const DUMMY_PR: PullRequest = {
-  authorLogin: "fwouts",
+  author: {
+    login: "fwouts",
+    avatarUrl: "http://url"
+  },
   repoOwner: "zenclabs",
   repoName: "prmonitor",
   pullRequestNumber: 1,
   title: "Dummy PR",
+  updatedAt: "5 May 2019",
   htmlUrl: "https://github.com/zenclabs/prmonitor/pull/1",
   nodeId: "fake",
   requestedReviewers: [],
-  reviews: []
+  reviews: [],
+  comments: []
 };
 
 describe("filters (reviewed)", () => {
@@ -19,7 +24,6 @@ describe("filters (reviewed)", () => {
     expect(
       filterPredicate("fwouts", NOTHING_MUTED, Filter.MINE)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["fwouts"]
       })
     ).toBe(true);
@@ -28,7 +32,6 @@ describe("filters (reviewed)", () => {
     expect(
       filterPredicate("kevin", NOTHING_MUTED, Filter.MINE)({
         ...DUMMY_PR,
-        authorLogin: "fwouts",
         requestedReviewers: ["fwouts"]
       })
     ).toBe(false);

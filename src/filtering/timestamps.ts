@@ -1,7 +1,7 @@
 import { PullRequest } from "../storage/loaded-state";
 
 export function getLastAuthorCommentTimestamp(pr: PullRequest): number {
-  return getLastReviewOrCommentTimestamp(pr, pr.authorLogin);
+  return getLastReviewOrCommentTimestamp(pr, pr.author.login);
 }
 
 export function getLastReviewOrCommentTimestamp(

@@ -136,7 +136,7 @@ async function updateCommentsAndReviews(
 function pullRequestFromResponse(
   response: PullsGetResponse | PullsListResponseItem,
   reviews: Review[],
-  comments?: Comment[]
+  comments: Comment[]
 ): PullRequest {
   return {
     nodeId: response.node_id,
@@ -145,7 +145,6 @@ function pullRequestFromResponse(
     repoName: response.base.repo.name,
     pullRequestNumber: response.number,
     updatedAt: response.updated_at,
-    authorLogin: response.user.login,
     author: {
       login: response.user.login,
       avatarUrl: response.user.avatar_url

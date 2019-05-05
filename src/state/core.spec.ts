@@ -1,5 +1,5 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
-import { LoadedState } from "../storage/loaded-state";
+import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
@@ -430,7 +430,11 @@ describe("Core", () => {
             pullRequestNumber: 1,
             nodeId: "a-pr",
             title: "A PR",
-            authorLogin: "kevin",
+            author: {
+              login: "kevin",
+              avatarUrl: "http://url"
+            },
+            updatedAt: "5 May 2019",
             htmlUrl: "http://a-pr",
             requestedReviewers: ["fwouts"],
             reviews: [],
@@ -456,25 +460,33 @@ describe("Core", () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
     env.store.token.currentValue = "valid-token";
-    const pr1 = {
+    const pr1: PullRequest = {
       repoOwner: "zenclabs",
       repoName: "prmonitor",
       pullRequestNumber: 1,
       nodeId: "pr-1",
       title: "A PR",
-      authorLogin: "kevin",
+      author: {
+        login: "kevin",
+        avatarUrl: "http://url"
+      },
+      updatedAt: "5 May 2019",
       htmlUrl: "http://pr-1",
       requestedReviewers: ["fwouts"],
       reviews: [],
       comments: []
     };
-    const pr2 = {
+    const pr2: PullRequest = {
       repoOwner: "zenclabs",
       repoName: "prmonitor",
       pullRequestNumber: 2,
       nodeId: "pr-2",
       title: "A PR",
-      authorLogin: "kevin",
+      author: {
+        login: "kevin",
+        avatarUrl: "http://url"
+      },
+      updatedAt: "5 May 2019",
       htmlUrl: "http://pr-2",
       requestedReviewers: ["fwouts"],
       reviews: [],

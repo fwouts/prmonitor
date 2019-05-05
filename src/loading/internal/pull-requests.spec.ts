@@ -1,6 +1,7 @@
 import {
   IssuesListCommentsResponse,
   PullsGetResponse,
+  PullsListCommitsResponse,
   PullsListResponse
 } from "@octokit/rest";
 import {
@@ -146,6 +147,10 @@ function mockGitHubApi() {
     loadComments: jest.fn<
       Promise<IssuesListCommentsResponse>,
       [PullRequestReference]
+    >(),
+    loadCommits: jest.fn<
+      Promise<PullsListCommitsResponse>,
+      [PullRequestReference]
     >()
   };
 }
@@ -170,7 +175,8 @@ export function createFakePullRequest(
     htmlUrl: "http://url",
     requestedReviewers: [],
     reviews: [],
-    comments: []
+    comments: [],
+    commits: []
   };
 }
 

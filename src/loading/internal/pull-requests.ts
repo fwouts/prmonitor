@@ -3,6 +3,7 @@ import { repoWasPushedAfter } from "../../filtering/repos-pushed-after";
 import { GitHubApi, PullRequestReference } from "../../github-api/api";
 import {
   Comment,
+  Commit,
   LoadedState,
   PullRequest,
   Repo,
@@ -105,7 +106,8 @@ async function updateCommentsAndReviews(
     return pullRequestFromResponse(
       rawPullRequest,
       knownPullRequest.reviews,
-      knownPullRequest.comments
+      knownPullRequest.comments,
+      knownPullRequest.commits
     );
   }
   const pr: PullRequestReference = {
@@ -115,7 +117,7 @@ async function updateCommentsAndReviews(
     },
     number: rawPullRequest.number
   };
-  const [freshReviews, freshComments] = await Promise.all([
+  const [freshReviews, freshComments, freshCommits] = await Promise.all([
     githubApi.loadReviews(pr).then(reviews =>
       reviews.map(review => ({
         authorLogin: review.user.login,
@@ -128,15 +130,27 @@ async function updateCommentsAndReviews(
         authorLogin: comment.user.login,
         createdAt: comment.created_at
       }))
+    ),
+    githubApi.loadCommits(pr).then(commits =>
+      commits.map(commit => ({
+        authorLogin: commit.author.login,
+        createdAt: commit.commit.author.date
+      }))
     )
   ]);
-  return pullRequestFromResponse(rawPullRequest, freshReviews, freshComments);
+  return pullRequestFromResponse(
+    rawPullRequest,
+    freshReviews,
+    freshComments,
+    freshCommits
+  );
 }
 
 function pullRequestFromResponse(
   response: PullsGetResponse | PullsListResponseItem,
   reviews: Review[],
-  comments: Comment[]
+  comments: Comment[],
+  commits: Commit[]
 ): PullRequest {
   return {
     nodeId: response.node_id,
@@ -152,6 +166,7 @@ function pullRequestFromResponse(
     title: response.title,
     requestedReviewers: response.requested_reviewers.map(r => r.login),
     reviews,
-    comments
+    comments,
+    commits
   };
 }

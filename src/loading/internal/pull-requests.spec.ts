@@ -72,6 +72,7 @@ describe("refreshOpenPullRequests", () => {
     );
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
+    githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
     const result = await refreshOpenPullRequests(
       githubApi,
       [

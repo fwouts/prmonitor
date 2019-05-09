@@ -1,6 +1,7 @@
 import { computed, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
+import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import {
   Filter,
   FilteredPullRequests,
@@ -167,7 +168,7 @@ export class Core {
   }
 
   @computed
-  get unreviewedPullRequests(): PullRequest[] | null {
+  get unreviewedPullRequests(): EnrichedPullRequest[] | null {
     return this.filteredPullRequests
       ? this.filteredPullRequests[Filter.INCOMING]
       : null;

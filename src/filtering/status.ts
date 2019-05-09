@@ -45,14 +45,18 @@ function incomingPullRequestStatus(
     pr,
     currentUserLogin
   );
-  const lastCommentFromAuthor = getLastAuthorCommentTimestamp(pr);
-  const lastCommit = getLastCommitTimestamp(pr);
+  const hasNewCommentByAuthor =
+    lastReviewOrCommentFromCurrentUser < getLastAuthorCommentTimestamp(pr);
+  const hasNewCommit =
+    lastReviewOrCommentFromCurrentUser < getLastCommitTimestamp(pr);
   if (lastReviewOrCommentFromCurrentUser === 0) {
     return PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED;
-  } else if (lastReviewOrCommentFromCurrentUser < lastCommentFromAuthor) {
-    return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR;
-  } else if (lastReviewOrCommentFromCurrentUser < lastCommit) {
+  } else if (hasNewCommentByAuthor && hasNewCommit) {
+    return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR;
+  } else if (hasNewCommit) {
     return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT;
+  } else if (hasNewCommentByAuthor) {
+    return PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR;
   } else {
     return PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY;
   }
@@ -62,6 +66,7 @@ export enum PullRequestStatus {
   INCOMING_NEW_REVIEW_REQUESTED,
   INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR,
   INCOMING_REVIEWED_NEW_COMMIT,
+  INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR,
   INCOMING_REVIEWED_PENDING_REPLY,
   NOT_INVOLVED,
   OUTGOING
@@ -72,6 +77,7 @@ export function isReviewRequired(status: PullRequestStatus) {
     case PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED:
     case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
     case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT:
+    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
       return true;
     default:
       return false;

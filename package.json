@@ -2,9 +2,9 @@
   "name": "prmonitor",
   "dependencies": {
     "@emotion/core": "^10.0.10",
-    "@emotion/styled": "^10.0.10",
+    "@emotion/styled": "^10.0.11",
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
-    "@fortawesome/free-solid-svg-icons": "^5.8.1",
+    "@fortawesome/free-solid-svg-icons": "^5.8.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@types/moment": "^2.13.0",
     "assert-never": "^1.2.0",
@@ -24,7 +24,7 @@
     "@types/chrome": "^0.0.83",
     "@types/jest": "^24.0.12",
     "@types/node": "^11.13.9",
-    "@types/react": "^16.8.16",
+    "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^5.0.3",
@@ -37,7 +37,7 @@
     "ts-loader": "^5.3.3",
     "typescript": "^3.4.5",
     "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.1",
+    "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.3.1"
   },
   "scripts": {

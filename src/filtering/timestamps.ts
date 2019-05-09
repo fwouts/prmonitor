@@ -1,5 +1,12 @@
 import { PullRequest } from "../storage/loaded-state";
 
+export function getLastChangeTimestamp(pr: PullRequest): number {
+  return Math.max(
+    getLastAuthorCommentTimestamp(pr),
+    getLastCommitTimestamp(pr)
+  );
+}
+
 export function getLastAuthorCommentTimestamp(pr: PullRequest): number {
   return getLastReviewOrCommentTimestamp(pr, pr.author.login);
 }

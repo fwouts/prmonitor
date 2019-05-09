@@ -1,6 +1,6 @@
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
-import { getLastAuthorCommentTimestamp } from "./timestamps";
+import { getLastChangeTimestamp } from "./timestamps";
 
 /**
  * Returns whether the pull request is muted.
@@ -16,7 +16,7 @@ export function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
       switch (muted.until.kind) {
         case "next-update":
           const updatedSince =
-            getLastAuthorCommentTimestamp(pr) > muted.until.mutedAtTimestamp;
+            getLastChangeTimestamp(pr) > muted.until.mutedAtTimestamp;
           return !updatedSince;
       }
     }

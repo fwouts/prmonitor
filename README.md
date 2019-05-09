@@ -10,6 +10,9 @@
 </p>
 
 [![CircleCI](https://circleci.com/gh/zenclabs/prmonitor.svg?style=svg)](https://circleci.com/gh/zenclabs/prmonitor)
+![License](https://img.shields.io/github/license/zenclabs/prmonitor.svg)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/pneldbfhblmldbhmkolclpkijgnjcmng.svg)](https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng)
+[![Mozilla Add-on](https://img.shields.io/amo/v/pr-monitor.svg)](https://addons.mozilla.org/en-US/firefox/addon/pr-monitor)
 
 PR Monitor is a Chrome and Firefox extension that notifies you when you receive a pull request on GitHub.
 

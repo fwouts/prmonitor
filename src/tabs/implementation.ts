@@ -41,8 +41,10 @@ function openTab(
       );
       if (existingTab) {
         chromeApi.tabs.highlight({
+          windowId: existingTab.windowId,
           tabs: existingTab.index
         });
+        chromeApi.windows.update(existingTab.windowId, { focused: true });
       } else {
         chrome.tabs.create({
           url: pullRequestUrl

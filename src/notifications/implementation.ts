@@ -1,5 +1,6 @@
 import { ChromeApi } from "../chrome/api";
-import { PullRequest } from "../storage/loaded-state";
+import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
+import { PullRequestStatus } from "../filtering/status";
 import { Notifier } from "./api";
 
 export function buildNotifier(chromeApi: ChromeApi): Notifier {
@@ -26,7 +27,7 @@ export function buildNotifier(chromeApi: ChromeApi): Notifier {
  */
 async function showNotificationForNewPullRequests(
   chromeApi: ChromeApi,
-  unreviewedPullRequests: PullRequest[],
+  unreviewedPullRequests: EnrichedPullRequest[],
   notifiedPullRequestUrls: Set<string>
 ) {
   if (!unreviewedPullRequests) {
@@ -46,7 +47,10 @@ async function showNotificationForNewPullRequests(
 /**
  * Shows a notification if the pull request is new.
  */
-function showNotification(chromeApi: ChromeApi, pullRequest: PullRequest) {
+function showNotification(
+  chromeApi: ChromeApi,
+  pullRequest: EnrichedPullRequest
+) {
   // We set the notification ID to the URL so that we simply cannot have duplicate
   // notifications about the same pull request and we can easily open a browser tab
   // to this pull request just by knowing the notification ID.
@@ -58,8 +62,26 @@ function showNotification(chromeApi: ChromeApi, pullRequest: PullRequest) {
   chromeApi.notifications.create(notificationId, {
     type: "basic",
     iconUrl: "images/GitHub-Mark-120px-plus.png",
-    title: "New pull request",
-    message: pullRequest.title,
+    title: getTitle(pullRequest),
+    message: getMessage(pullRequest),
     ...(supportsRequireInteraction ? { requireInteraction: true } : {})
   });
+}
+
+function getTitle(pullRequest: EnrichedPullRequest): string {
+  switch (pullRequest.status) {
+    case PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED:
+      return "New pull request";
+    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
+      return `${pullRequest.author.login} commented`;
+    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT:
+    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
+      return `Pull request updated`;
+    default:
+      throw new Error(`Well, this should never happen.`);
+  }
+}
+
+function getMessage(pullRequest: EnrichedPullRequest): string {
+  return pullRequest.title;
 }

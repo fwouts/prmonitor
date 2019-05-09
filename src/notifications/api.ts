@@ -1,8 +1,8 @@
-import { PullRequest } from "../storage/loaded-state";
+import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 
 export interface Notifier {
   notify(
-    unreviewedPullRequests: PullRequest[],
+    unreviewedPullRequests: EnrichedPullRequest[],
     alreadyNotifiedPullRequestUrls: Set<string>
   ): void;
   registerClickListener(clickListener: NotifierClickListener): void;

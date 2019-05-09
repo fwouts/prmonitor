@@ -2,8 +2,10 @@ import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequest } from "../storage/loaded-state";
 import { SmallButton } from "./design/Button";
+import { PullRequestStatus } from "./PullRequestStatus";
 
 const PullRequestBox = styled.a`
   display: flex;
@@ -71,7 +73,7 @@ const AuthorLogin = styled.div`
 `;
 
 export interface PullRequestItemProps {
-  pullRequest: PullRequest;
+  pullRequest: EnrichedPullRequest;
   allowMuting: boolean;
   onOpen(pullRequestUrl: string): void;
   onMute(pullRequest: PullRequest): void;
@@ -100,6 +102,7 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
             </SmallButton>
           )}
         </Title>
+        <PullRequestStatus status={props.pullRequest.status} />
         <Repo>
           {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
           {props.pullRequest.pullRequestNumber})

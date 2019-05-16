@@ -46,13 +46,13 @@ function openTab(
         });
         chromeApi.windows.update(existingTab.windowId, { focused: true });
       } else {
-        chrome.tabs.create({
+        chromeApi.tabs.create({
           url: pullRequestUrl
         });
       }
     });
   } else {
-    chrome.tabs.create({
+    chromeApi.tabs.create({
       url: pullRequestUrl
     });
   }

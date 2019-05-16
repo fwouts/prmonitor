@@ -10,30 +10,14 @@ export function buildGitHubApi(token: string): GitHubApi {
       const response = await octokit.users.getAuthenticated({});
       return response.data;
     },
-    loadRepos() {
+    searchPullRequests(query) {
       return octokit.paginate(
-        octokit.repos.list.endpoint.merge({
-          sort: "pushed",
-          direction: "desc"
+        octokit.search.issuesAndPullRequests.endpoint.merge({
+          q: `is:pr ${query}`,
+          sort: "updated",
+          order: "desc"
         })
       );
-    },
-    loadPullRequests(repo, state) {
-      return octokit.paginate(
-        octokit.pulls.list.endpoint.merge({
-          owner: repo.owner,
-          repo: repo.name,
-          state
-        })
-      );
-    },
-    async loadSinglePullRequest(pr) {
-      const response = await octokit.pulls.get({
-        owner: pr.repo.owner,
-        repo: pr.repo.name,
-        pull_number: pr.number
-      });
-      return response.data;
     },
     loadReviews(pr) {
       return octokit.paginate(

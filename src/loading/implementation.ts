@@ -1,6 +1,5 @@
-import { ReposGetResponse } from "@octokit/rest";
 import { buildGitHubApi } from "../github-api/implementation";
-import { LoadedState, Repo } from "../storage/loaded-state";
+import { LoadedState } from "../storage/loaded-state";
 import { GitHubLoader } from "./api";
 import { refreshOpenPullRequests } from "./internal/pull-requests";
 
@@ -14,26 +13,13 @@ async function load(
 ): Promise<LoadedState> {
   const githubApi = buildGitHubApi(token);
   const user = await githubApi.loadAuthenticatedUser();
-  const repos = await githubApi
-    .loadRepos()
-    .then(response => response.filter(repo => !repo.archived))
-    .then(response => response.map(repoFromResponse));
   const openPullRequests = await refreshOpenPullRequests(
     githubApi,
-    repos,
+    user.login,
     lastCheck
   );
   return {
     userLogin: user.login,
-    openPullRequests,
-    repos
-  };
-}
-
-function repoFromResponse(response: ReposGetResponse): Repo {
-  return {
-    owner: response.owner.login,
-    name: response.name,
-    pushedAt: response.pushed_at
+    openPullRequests
   };
 }

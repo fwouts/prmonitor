@@ -1,9 +1,12 @@
-import assertNever from "assert-never";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
+import { EnrichedPullRequest } from "./enriched-pull-request";
 import { isMuted } from "./muted";
-import { isReviewNeeded } from "./review-needed";
-import { userPreviouslyReviewed } from "./reviewed";
+import {
+  isReviewRequired,
+  pullRequestStatus,
+  PullRequestStatus
+} from "./status";
 
 export enum Filter {
   /**
@@ -29,47 +32,29 @@ export enum Filter {
   MINE = "mine"
 }
 
-export type FilteredPullRequests = { [filter in Filter]: PullRequest[] };
+export type FilteredPullRequests = {
+  [filter in Filter]: EnrichedPullRequest[]
+};
 
 export function filterPullRequests(
   userLogin: string,
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration
 ): FilteredPullRequests {
+  const enrichedPullRequests = openPullRequests.map(pr => ({
+    status: pullRequestStatus(pr, userLogin),
+    ...pr
+  }));
   return {
-    incoming: openPullRequests.filter(
-      filterPredicate(userLogin, muteConfiguration, Filter.INCOMING)
+    incoming: enrichedPullRequests.filter(
+      pr => isReviewRequired(pr.status) && !isMuted(pr, muteConfiguration)
     ),
-    muted: openPullRequests.filter(
-      filterPredicate(userLogin, muteConfiguration, Filter.MUTED)
+    muted: enrichedPullRequests.filter(
+      pr => isReviewRequired(pr.status) && isMuted(pr, muteConfiguration)
     ),
-    reviewed: openPullRequests.filter(
-      filterPredicate(userLogin, muteConfiguration, Filter.REVIEWED)
+    reviewed: enrichedPullRequests.filter(
+      pr => pr.status === PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY
     ),
-    mine: openPullRequests.filter(
-      filterPredicate(userLogin, muteConfiguration, Filter.MINE)
-    )
+    mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin)
   };
-}
-
-export function filterPredicate(
-  userLogin: string,
-  muteConfiguration: MuteConfiguration,
-  filter: Filter
-): (pr: PullRequest) => boolean {
-  switch (filter) {
-    case Filter.INCOMING:
-      return pr =>
-        isReviewNeeded(pr, userLogin) && !isMuted(pr, muteConfiguration);
-    case Filter.MUTED:
-      return pr =>
-        isReviewNeeded(pr, userLogin) && isMuted(pr, muteConfiguration);
-    case Filter.REVIEWED:
-      return pr =>
-        userPreviouslyReviewed(pr, userLogin) && !isReviewNeeded(pr, userLogin);
-    case Filter.MINE:
-      return pr => pr.author.login === userLogin;
-    default:
-      throw assertNever(filter);
-  }
 }

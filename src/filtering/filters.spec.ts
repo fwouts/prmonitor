@@ -1,6 +1,7 @@
 import { PullRequest } from "../storage/loaded-state";
 import { NOTHING_MUTED } from "../storage/mute-configuration";
-import { Filter, filterPredicate } from "./filters";
+import { Filter } from "./filters";
+import { getFilteredBucket } from "./testing";
 
 const DUMMY_PR: PullRequest = {
   author: {
@@ -20,33 +21,33 @@ const DUMMY_PR: PullRequest = {
 };
 
 describe("filters (incoming)", () => {
-  it("is false for the user's own PRs", () => {
+  it("is MINE for the user's own PRs", () => {
     expect(
-      filterPredicate("fwouts", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("fwouts", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: ["fwouts"]
       })
-    ).toBe(false);
+    ).toEqual([Filter.MINE]);
   });
-  it("is false when the user is not a reviewer and hasn't commented", () => {
+  it("is NOTHING when the user is not a reviewer and hasn't commented", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: []
       })
-    ).toBe(false);
+    ).toEqual([]);
   });
-  it("is true when the user is a reviewer and hasn't reviewed or commented", () => {
+  it("is INCOMING when the user is a reviewer and hasn't reviewed or commented", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: ["kevin"]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is true when the user is not a reviewer but had reviewed, and the author responds", () => {
+  it("is INCOMING when the user is not a reviewer but had reviewed, and the author responds", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         reviews: [
@@ -63,11 +64,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is true when the user is not a reviewer but had commented, and the author responds", () => {
+  it("is INCOMING when the user is not a reviewer but had commented, and the author responds", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         comments: [
@@ -81,11 +82,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is false when the user has reviewed and the author hasn't responded", () => {
+  it("is REVIEWED when the user has reviewed and the author hasn't responded", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         reviews: [
@@ -96,11 +97,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(false);
+    ).toEqual([Filter.REVIEWED]);
   });
-  it("is false when the user is a reviewer, has commented and the author hasn't responded", () => {
+  it("is REVIEWED when the user is a reviewer, has commented and the author hasn't responded", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: ["kevin"],
         comments: [
@@ -118,11 +119,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(false);
+    ).toEqual([Filter.REVIEWED]);
   });
-  it("is true when the author responded with a comment", () => {
+  it("is INCOMING when the author responded with a comment", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         comments: [
@@ -136,11 +137,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is true when the author responded with a review", () => {
+  it("is INCOMING when the author responded with a review", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         comments: [
@@ -157,11 +158,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is true when the PR was previously reviewed but the author responded", () => {
+  it("is INCOMING when the PR was previously reviewed but the author responded", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         reviews: [
@@ -178,11 +179,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is true when the PR was approved but the author responded", () => {
+  it("is INCOMING when the PR was approved but the author responded", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: [],
         reviews: [
@@ -199,11 +200,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("ignores pending review comments", () => {
+  it("is still INCOMING when there are pending review comments", () => {
     expect(
-      filterPredicate("kevin", NOTHING_MUTED, Filter.INCOMING)({
+      getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
         requestedReviewers: ["kevin"],
         reviews: [
@@ -214,11 +215,11 @@ describe("filters (incoming)", () => {
           }
         ]
       })
-    ).toBe(true);
+    ).toEqual([Filter.INCOMING]);
   });
-  it("ignores muted PRs that the author did not add new comments or reviews to", () => {
+  it("is MUTED when the PR is muted and the author did not add new comments or reviews to", () => {
     expect(
-      filterPredicate(
+      getFilteredBucket(
         "kevin",
         {
           mutedPullRequests: [
@@ -235,24 +236,24 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        Filter.INCOMING
-      )({
-        ...DUMMY_PR,
-        requestedReviewers: ["kevin"],
-        reviews: [
-          // Another user posted a review after we muted.
-          {
-            authorLogin: "dries",
-            state: "CHANGES_REQUESTED",
-            submittedAt: "2019-03-18T17:00:11Z"
-          }
-        ]
-      })
-    ).toBe(false);
+        {
+          ...DUMMY_PR,
+          requestedReviewers: ["kevin"],
+          reviews: [
+            // Another user posted a review after we muted.
+            {
+              authorLogin: "dries",
+              state: "CHANGES_REQUESTED",
+              submittedAt: "2019-03-18T17:00:11Z"
+            }
+          ]
+        }
+      )
+    ).toEqual([Filter.MUTED]);
   });
-  it("does not ignore muted PRs that the author added comments to since muting", () => {
+  it("is INCOMING when the PR was muted but the author added comments since muting", () => {
     expect(
-      filterPredicate(
+      getFilteredBucket(
         "kevin",
         {
           mutedPullRequests: [
@@ -269,22 +270,22 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        Filter.INCOMING
-      )({
-        ...DUMMY_PR,
-        requestedReviewers: ["kevin"],
-        comments: [
-          {
-            authorLogin: "fwouts",
-            createdAt: "2019-03-18T17:00:11Z"
-          }
-        ]
-      })
-    ).toBe(true);
+        {
+          ...DUMMY_PR,
+          requestedReviewers: ["kevin"],
+          comments: [
+            {
+              authorLogin: "fwouts",
+              createdAt: "2019-03-18T17:00:11Z"
+            }
+          ]
+        }
+      )
+    ).toEqual([Filter.INCOMING]);
   });
-  it("is true for a PR that needs review when an unrelated PR is muted", () => {
+  it("is INCOMING for a PR that needs review when an unrelated PR is muted", () => {
     expect(
-      filterPredicate(
+      getFilteredBucket(
         "kevin",
         {
           mutedPullRequests: [
@@ -301,11 +302,11 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        Filter.INCOMING
-      )({
-        ...DUMMY_PR,
-        requestedReviewers: ["kevin"]
-      })
-    ).toBe(true);
+        {
+          ...DUMMY_PR,
+          requestedReviewers: ["kevin"]
+        }
+      )
+    ).toEqual([Filter.INCOMING]);
   });
 });

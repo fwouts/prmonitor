@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequest } from "../storage/loaded-state";
 import { Paragraph } from "./design/Paragraph";
 import { Loader } from "./Loader";
@@ -14,7 +15,7 @@ export const List = styled.div`
 `;
 
 export interface PullRequestListProps {
-  pullRequests: PullRequest[] | null;
+  pullRequests: EnrichedPullRequest[] | null;
   emptyMessage: string;
   allowMuting: boolean;
   onOpen(pullRequestUrl: string): void;

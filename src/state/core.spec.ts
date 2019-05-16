@@ -19,7 +19,6 @@ describe("Core", () => {
     env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      repos: [],
       openPullRequests: []
     };
     env.store.notifiedPullRequests.currentValue = ["a", "b", "c"];
@@ -229,7 +228,6 @@ describe("Core", () => {
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        repos: [],
         openPullRequests: []
       })
     );
@@ -261,7 +259,6 @@ describe("Core", () => {
     const core = new Core(env);
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      repos: [],
       openPullRequests: []
     };
     env.store.token.currentValue = "valid-token";
@@ -280,7 +277,6 @@ describe("Core", () => {
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        repos: [],
         openPullRequests: []
       })
     );
@@ -328,7 +324,6 @@ describe("Core", () => {
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        repos: [],
         openPullRequests: []
       })
     );
@@ -360,7 +355,6 @@ describe("Core", () => {
     const core = new Core(env);
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      repos: [],
       openPullRequests: []
     };
     env.store.token.currentValue = "valid-token";
@@ -416,13 +410,6 @@ describe("Core", () => {
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        repos: [
-          {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "2019-04-18"
-          }
-        ],
         openPullRequests: [
           {
             repoOwner: "zenclabs",
@@ -494,13 +481,6 @@ describe("Core", () => {
     };
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      repos: [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          pushedAt: "2019-04-18"
-        }
-      ],
       openPullRequests: [pr1, pr2]
     };
 

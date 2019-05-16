@@ -36,6 +36,11 @@ export interface GitHubApi {
   loadSinglePullRequest(pr: PullRequestReference): Promise<PullsGetResponse>;
 
   /**
+   * Returns the full list of pull requests matching a given query.
+   */
+  searchPullRequests(query: string): Promise<PullsSearchResponse>;
+
+  /**
    * Returns the full list of reviews for a pull request.
    */
   loadReviews(pr: PullRequestReference): Promise<PullsListReviewsResponse>;
@@ -77,4 +82,24 @@ export interface PullsListReviewsResponseItem
   extends IncompletePullsListReviewsResponseItem {
   state: ReviewState;
   submitted_at: string;
+}
+
+export type PullsSearchResponse = PullsSearchResponseItem[];
+
+export interface PullsSearchResponseItem {
+  node_id: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  number: number;
+  state: string;
+  user: {
+    login: string;
+    avatar_url: string;
+  };
+  html_url: string;
+  /**
+   * Example of repository URL: "https://api.github.com/repos/airtasker/spot"
+   */
+  repository_url: string;
 }

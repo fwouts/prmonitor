@@ -8,6 +8,7 @@ import {
   GetAuthenticatedUserResponse,
   PullRequestReference,
   PullsListReviewsResponse,
+  PullsSearchResponse,
   RepoReference,
   ReposListResponse
 } from "../../github-api/api";
@@ -18,49 +19,8 @@ import { refreshOpenPullRequests } from "./pull-requests";
 describe("refreshOpenPullRequests", () => {
   it("returns an empty list when there are no repos", async () => {
     const githubApi = mockGitHubApi();
-    const result = await refreshOpenPullRequests(githubApi, [], null);
+    const result = await refreshOpenPullRequests(githubApi, "author", null);
     expect(result).toHaveLength(0);
-  });
-
-  it("only tries to load new pull requests from updated repos", async () => {
-    const githubApi = mockGitHubApi();
-    githubApi.loadPullRequests.mockReturnValue(Promise.resolve([]));
-    await refreshOpenPullRequests(
-      githubApi,
-      [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          pushedAt: "7 May 2019"
-        }
-      ],
-      {
-        userLogin: "author",
-        repos: [
-          {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "5 May 2019"
-          },
-          {
-            owner: "zenclabs",
-            name: "other",
-            pushedAt: "4 May 2019"
-          }
-        ],
-        openPullRequests: []
-      }
-    );
-    expect(githubApi.loadPullRequests.mock.calls).toEqual([
-      [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          pushedAt: "7 May 2019"
-        },
-        "open"
-      ]
-    ]);
   });
 
   it("refreshes all known pull requests", async () => {
@@ -73,28 +33,10 @@ describe("refreshOpenPullRequests", () => {
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
     githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
-    const result = await refreshOpenPullRequests(
-      githubApi,
-      [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          // Unchanged.
-          pushedAt: "5 May 2019"
-        }
-      ],
-      {
-        userLogin: "author",
-        repos: [
-          {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "5 May 2019"
-          }
-        ],
-        openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
-      }
-    );
+    const result = await refreshOpenPullRequests(githubApi, "author", {
+      userLogin: "author",
+      openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
+    });
     expect(result).toHaveLength(1);
     expect(githubApi.loadSinglePullRequest).toHaveBeenCalledWith({
       repo: {
@@ -107,23 +49,10 @@ describe("refreshOpenPullRequests", () => {
 
   it("removes pull requests from removed repos", async () => {
     const githubApi = mockGitHubApi();
-    const result = await refreshOpenPullRequests(
-      githubApi,
-      [
-        // Repo removed.
-      ],
-      {
-        userLogin: "author",
-        repos: [
-          {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "5 May 2019"
-          }
-        ],
-        openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
-      }
-    );
+    const result = await refreshOpenPullRequests(githubApi, "author", {
+      userLogin: "author",
+      openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
+    });
     expect(result).toHaveLength(0);
     expect(githubApi.loadSinglePullRequest).not.toHaveBeenCalled();
   });
@@ -141,6 +70,7 @@ function mockGitHubApi() {
       Promise<PullsGetResponse>,
       [PullRequestReference]
     >(),
+    searchPullRequests: jest.fn<Promise<PullsSearchResponse>, [string]>(),
     loadReviews: jest.fn<
       Promise<PullsListReviewsResponse>,
       [PullRequestReference]

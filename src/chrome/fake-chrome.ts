@@ -77,5 +77,10 @@ export const fakeChrome = (<Partial<ChromeApi>>{
     create(properties) {
       window.open(properties.url);
     }
+  },
+  windows: {
+    update(windowId, updateInfo) {
+      console.log("chrome.windows.update", windowId, updateInfo);
+    }
   }
 }) as ChromeApi;

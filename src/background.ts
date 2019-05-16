@@ -68,7 +68,7 @@ function refreshRegulary(
   triggerRefresh: () => Promise<void>
 ) {
   chromeApi.alarms.create({
-    periodInMinutes: 3
+    periodInMinutes: 1
   });
   chromeApi.alarms.onAlarm.addListener(alarm => {
     console.debug("Alarm triggered", alarm);

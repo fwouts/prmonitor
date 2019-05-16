@@ -35,6 +35,15 @@ export function buildGitHubApi(token: string): GitHubApi {
       });
       return response.data;
     },
+    searchPullRequests(query) {
+      return octokit.paginate(
+        octokit.search.issuesAndPullRequests.endpoint.merge({
+          q: `is:pr ${query}`,
+          sort: "updated",
+          order: "desc"
+        })
+      );
+    },
     loadReviews(pr) {
       return octokit.paginate(
         octokit.pulls.listReviews.endpoint.merge({

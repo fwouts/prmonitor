@@ -31,7 +31,12 @@ export function pullRequestStatus(
  * Returns whether a review is specifically requested from the user.
  */
 function reviewRequested(pr: PullRequest, currentUserLogin: string): boolean {
-  return pr.requestedReviewers.includes(currentUserLogin);
+  return (
+    (pr.requestedReviewers &&
+      pr.requestedReviewers.includes(currentUserLogin)) ||
+    pr.reviewRequested ||
+    false
+  );
 }
 
 /**

@@ -8,6 +8,7 @@ import {
   GetAuthenticatedUserResponse,
   PullRequestReference,
   PullsListReviewsResponse,
+  PullsSearchResponse,
   RepoReference,
   ReposListResponse
 } from "../../github-api/api";
@@ -16,116 +17,85 @@ import { RecursivePartial } from "../../testing/recursive-partial";
 import { refreshOpenPullRequests } from "./pull-requests";
 
 describe("refreshOpenPullRequests", () => {
-  it("returns an empty list when there are no repos", async () => {
+  it("returns an empty list when there are no PRs", async () => {
     const githubApi = mockGitHubApi();
-    const result = await refreshOpenPullRequests(githubApi, [], null);
+    githubApi.searchPullRequests.mockReturnValue(Promise.resolve([]));
+    const result = await refreshOpenPullRequests(githubApi, "author", null);
     expect(result).toHaveLength(0);
   });
 
-  it("only tries to load new pull requests from updated repos", async () => {
+  it("loads pull requests from all three queries", async () => {
     const githubApi = mockGitHubApi();
-    githubApi.loadPullRequests.mockReturnValue(Promise.resolve([]));
-    await refreshOpenPullRequests(
-      githubApi,
-      [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          pushedAt: "7 May 2019"
-        }
-      ],
-      {
-        userLogin: "author",
-        repos: [
+    githubApi.searchPullRequests.mockImplementation(async query => {
+      if (query.startsWith("author:")) {
+        return [
           {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "5 May 2019"
-          },
-          {
-            owner: "zenclabs",
-            name: "other",
-            pushedAt: "4 May 2019"
+            node_id: "authored",
+            created_at: "16 May 2019",
+            updated_at: "16 May 2019",
+            html_url: "http://authored",
+            repository_url: "https://github.com/zenclabs/prmonitor",
+            number: 1,
+            title: "authored",
+            user: {
+              login: "author",
+              avatar_url: "http://avatar"
+            }
           }
-        ],
-        openPullRequests: []
+        ];
+      } else if (query.startsWith("commenter:")) {
+        return [
+          {
+            node_id: "commented",
+            created_at: "16 May 2019",
+            updated_at: "16 May 2019",
+            html_url: "http://commented",
+            repository_url: "https://github.com/zenclabs/prmonitor",
+            number: 2,
+            title: "commented",
+            user: {
+              login: "someone",
+              avatar_url: "http://avatar"
+            }
+          }
+        ];
+      } else if (query.startsWith("review-requested:")) {
+        return [
+          {
+            node_id: "review-requested",
+            created_at: "16 May 2019",
+            updated_at: "16 May 2019",
+            html_url: "http://review-requested",
+            repository_url: "https://github.com/zenclabs/prmonitor",
+            number: 3,
+            title: "review-requested",
+            user: {
+              login: "someone",
+              avatar_url: "http://avatar"
+            }
+          }
+        ];
+      } else {
+        throw new Error(
+          `Unknown query: "${query}". Do you need to fix the mock?`
+        );
       }
-    );
-    expect(githubApi.loadPullRequests.mock.calls).toEqual([
-      [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          pushedAt: "7 May 2019"
-        },
-        "open"
-      ]
-    ]);
-  });
-
-  it("refreshes all known pull requests", async () => {
-    const githubApi = mockGitHubApi();
-    githubApi.loadSinglePullRequest.mockReturnValue(
-      Promise.resolve(
-        createFakeSinglePullRequestResponse("zenclabs", "prmonitor", 1)
-      )
-    );
+    });
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
     githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
-    const result = await refreshOpenPullRequests(
-      githubApi,
-      [
-        {
-          owner: "zenclabs",
-          name: "prmonitor",
-          // Unchanged.
-          pushedAt: "5 May 2019"
-        }
-      ],
-      {
-        userLogin: "author",
-        repos: [
-          {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "5 May 2019"
-          }
-        ],
-        openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
-      }
-    );
-    expect(result).toHaveLength(1);
-    expect(githubApi.loadSinglePullRequest).toHaveBeenCalledWith({
-      repo: {
-        owner: "zenclabs",
-        name: "prmonitor"
-      },
-      number: 1
+    const result = await refreshOpenPullRequests(githubApi, "author", {
+      userLogin: "author",
+      openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
     });
-  });
-
-  it("removes pull requests from removed repos", async () => {
-    const githubApi = mockGitHubApi();
-    const result = await refreshOpenPullRequests(
-      githubApi,
+    expect(result).toHaveLength(3);
+    expect(githubApi.searchPullRequests.mock.calls).toEqual([
+      [`review-requested:author is:open archived:false`],
+      [`commenter:author -review-requested:author is:open archived:false`],
       [
-        // Repo removed.
-      ],
-      {
-        userLogin: "author",
-        repos: [
-          {
-            owner: "zenclabs",
-            name: "prmonitor",
-            pushedAt: "5 May 2019"
-          }
-        ],
-        openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
-      }
-    );
-    expect(result).toHaveLength(0);
-    expect(githubApi.loadSinglePullRequest).not.toHaveBeenCalled();
+        `author:author -commenter:author -review-requested:author is:open archived:false`
+      ]
+    ]);
   });
 });
 
@@ -141,6 +111,7 @@ function mockGitHubApi() {
       Promise<PullsGetResponse>,
       [PullRequestReference]
     >(),
+    searchPullRequests: jest.fn<Promise<PullsSearchResponse>, [string]>(),
     loadReviews: jest.fn<
       Promise<PullsListReviewsResponse>,
       [PullRequestReference]

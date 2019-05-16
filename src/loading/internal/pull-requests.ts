@@ -1,12 +1,14 @@
-import { PullsGetResponse, PullsListResponseItem } from "@octokit/rest";
-import { repoWasPushedAfter } from "../../filtering/repos-pushed-after";
-import { GitHubApi, PullRequestReference } from "../../github-api/api";
+import {
+  GitHubApi,
+  PullRequestReference,
+  PullsSearchResponseItem,
+  RepoReference
+} from "../../github-api/api";
 import {
   Comment,
   Commit,
   LoadedState,
   PullRequest,
-  Repo,
   Review
 } from "../../storage/loaded-state";
 
@@ -19,71 +21,35 @@ import {
  */
 export async function refreshOpenPullRequests(
   githubApi: GitHubApi,
-  freshlyLoadedRepos: Repo[],
+  userLogin: string,
   lastCheck: LoadedState | null
 ): Promise<PullRequest[]> {
-  const maximumPushedAt =
-    lastCheck && lastCheck.repos.length > 0
-      ? lastCheck.repos[0].pushedAt
-      : null;
-
-  // Look for new pull requests in repos that have been recently pushed.
-  const reposWithPotentiallyNewPullRequests = freshlyLoadedRepos.filter(
-    repoWasPushedAfter(maximumPushedAt)
+  // Note: each query should specifically exclude the previous ones so we don't end up having
+  // to deduplicate PRs across lists.
+  const reviewRequestedPullRequests = await githubApi.searchPullRequests(
+    `review-requested:${userLogin} is:open archived:false`
   );
-
-  // For each recently pushed repo, load all open pull requests.
-  const openRawPullRequests: Array<
-    PullsListResponseItem | PullsGetResponse
-  > = (await Promise.all(
-    reposWithPotentiallyNewPullRequests.map(repo =>
-      githubApi.loadPullRequests(repo, "open")
-    )
-  )).flat();
-
-  // Make sure not to do redundant work in the upcoming loop.
-  const alreadyLoadedPullRequestNodeIds = new Set(
-    openRawPullRequests.map(pr => pr.node_id)
+  const commentedPullRequests = await githubApi.searchPullRequests(
+    `commenter:${userLogin} -review-requested:${userLogin} is:open archived:false`
   );
-
-  const availableRepos = new Set<string>();
-  for (const repo of freshlyLoadedRepos) {
-    availableRepos.add(`${repo.owner}/${repo.name}`);
-  }
-
-  // Also update refresh every other known pull request.
-  if (lastCheck) {
-    const updatedRawPullRequests = await Promise.all(
-      lastCheck.openPullRequests
-        .filter(
-          pr =>
-            !alreadyLoadedPullRequestNodeIds.has(pr.nodeId) &&
-            availableRepos.has(`${pr.repoOwner}/${pr.repoName}`)
-        )
-        .map(pr =>
-          githubApi.loadSinglePullRequest({
-            repo: {
-              owner: pr.repoOwner,
-              name: pr.repoName
-            },
-            number: pr.pullRequestNumber
-          })
-        )
-    );
-    openRawPullRequests.push(
-      ...updatedRawPullRequests.filter(pr => pr.state === "open")
-    );
-  }
-
+  const ownPullRequests = await githubApi.searchPullRequests(
+    `author:${userLogin} -commenter:${userLogin} -review-requested:${userLogin} is:open archived:false`
+  );
   const mapping: KnownPullRequestMapping = {};
   for (const oldPr of lastCheck ? lastCheck.openPullRequests : []) {
     mapping[oldPr.nodeId] = oldPr;
   }
-  return Promise.all(
-    openRawPullRequests.map(pr =>
+  return Promise.all([
+    ...reviewRequestedPullRequests.map(pr =>
+      updateCommentsAndReviews(githubApi, pr, mapping, true)
+    ),
+    ...commentedPullRequests.map(pr =>
+      updateCommentsAndReviews(githubApi, pr, mapping)
+    ),
+    ...ownPullRequests.map(pr =>
       updateCommentsAndReviews(githubApi, pr, mapping)
     )
-  );
+  ]);
 }
 
 interface KnownPullRequestMapping {
@@ -92,11 +58,12 @@ interface KnownPullRequestMapping {
 
 async function updateCommentsAndReviews(
   githubApi: GitHubApi,
-  rawPullRequest: PullsListResponseItem | PullsGetResponse,
-  mapping: KnownPullRequestMapping
+  rawPullRequest: PullsSearchResponseItem,
+  mapping: KnownPullRequestMapping,
+  isReviewRequested = false
 ): Promise<PullRequest> {
   const knownPullRequest = mapping[rawPullRequest.node_id];
-  // Only reload comments and reviews if the PR has been updated or it's a new one.
+  // Only reload comments, reviews and commits if the PR has been updated or it's a new one.
   if (
     knownPullRequest &&
     knownPullRequest.updatedAt &&
@@ -107,14 +74,13 @@ async function updateCommentsAndReviews(
       rawPullRequest,
       knownPullRequest.reviews,
       knownPullRequest.comments,
-      knownPullRequest.commits || []
+      knownPullRequest.commits || [],
+      isReviewRequested
     );
   }
+  const repo = extractRepo(rawPullRequest);
   const pr: PullRequestReference = {
-    repo: {
-      owner: rawPullRequest.base.repo.owner.login,
-      name: rawPullRequest.base.repo.name
-    },
+    repo,
     number: rawPullRequest.number
   };
   const [freshReviews, freshComments, freshCommits] = await Promise.all([
@@ -142,21 +108,24 @@ async function updateCommentsAndReviews(
     rawPullRequest,
     freshReviews,
     freshComments,
-    freshCommits
+    freshCommits,
+    isReviewRequested
   );
 }
 
 function pullRequestFromResponse(
-  response: PullsGetResponse | PullsListResponseItem,
+  response: PullsSearchResponseItem,
   reviews: Review[],
   comments: Comment[],
-  commits: Commit[]
+  commits: Commit[],
+  reviewRequested: boolean
 ): PullRequest {
+  const repo = extractRepo(response);
   return {
     nodeId: response.node_id,
     htmlUrl: response.html_url,
-    repoOwner: response.base.repo.owner.login,
-    repoName: response.base.repo.name,
+    repoOwner: repo.owner,
+    repoName: repo.name,
     pullRequestNumber: response.number,
     updatedAt: response.updated_at,
     author: {
@@ -164,9 +133,20 @@ function pullRequestFromResponse(
       avatarUrl: response.user.avatar_url
     },
     title: response.title,
-    requestedReviewers: response.requested_reviewers.map(r => r.login),
+    reviewRequested,
     reviews,
     comments,
     commits
+  };
+}
+
+function extractRepo(response: PullsSearchResponseItem): RepoReference {
+  const urlParts = response.repository_url.split("/");
+  if (urlParts.length < 2) {
+    throw new Error(`Unexpected repository_url: ${response.repository_url}`);
+  }
+  return {
+    owner: urlParts[urlParts.length - 2],
+    name: urlParts[urlParts.length - 1]
   };
 }

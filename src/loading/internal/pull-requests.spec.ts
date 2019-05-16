@@ -1,16 +1,13 @@
 import {
   IssuesListCommentsResponse,
   PullsGetResponse,
-  PullsListCommitsResponse,
-  PullsListResponse
+  PullsListCommitsResponse
 } from "@octokit/rest";
 import {
   GetAuthenticatedUserResponse,
   PullRequestReference,
   PullsListReviewsResponse,
-  PullsSearchResponse,
-  RepoReference,
-  ReposListResponse
+  PullsSearchResponse
 } from "../../github-api/api";
 import { PullRequest } from "../../storage/loaded-state";
 import { RecursivePartial } from "../../testing/recursive-partial";
@@ -102,15 +99,6 @@ describe("refreshOpenPullRequests", () => {
 function mockGitHubApi() {
   return {
     loadAuthenticatedUser: jest.fn<Promise<GetAuthenticatedUserResponse>, []>(),
-    loadRepos: jest.fn<Promise<ReposListResponse>, []>(),
-    loadPullRequests: jest.fn<
-      Promise<PullsListResponse>,
-      [RepoReference, "open" | "closed" | "all"]
-    >(),
-    loadSinglePullRequest: jest.fn<
-      Promise<PullsGetResponse>,
-      [PullRequestReference]
-    >(),
     searchPullRequests: jest.fn<Promise<PullsSearchResponse>, [string]>(),
     loadReviews: jest.fn<
       Promise<PullsListReviewsResponse>,

@@ -1,10 +1,7 @@
 import {
   IssuesListCommentsResponse,
-  PullsGetResponse,
   PullsListCommitsResponse,
-  PullsListResponse,
-  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem,
-  ReposGetResponse
+  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem
 } from "@octokit/rest";
 import { ReviewState } from "../storage/loaded-state";
 
@@ -18,22 +15,9 @@ export interface GitHubApi {
   loadAuthenticatedUser(): Promise<GetAuthenticatedUserResponse>;
 
   /**
-   * Returns the full list of repositories for the user.
+   * Returns the full list of pull requests matching a given query.
    */
-  loadRepos(): Promise<ReposListResponse>;
-
-  /**
-   * Returns the full list of pull requests in a given state for a repository.
-   */
-  loadPullRequests(
-    repo: RepoReference,
-    state: "open" | "closed" | "all"
-  ): Promise<PullsListResponse>;
-
-  /**
-   * Returns a single pull request.
-   */
-  loadSinglePullRequest(pr: PullRequestReference): Promise<PullsGetResponse>;
+  searchPullRequests(query: string): Promise<PullsSearchResponse>;
 
   /**
    * Returns the full list of reviews for a pull request.
@@ -67,8 +51,6 @@ export interface GetAuthenticatedUserResponse {
   login: string;
 }
 
-export type ReposListResponse = ReposGetResponse[];
-
 export type PullsListReviewsResponse = PullsListReviewsResponseItem[];
 
 // PullsListReviewsResponseItem provides in @octokit/rest isn't specific enough
@@ -77,4 +59,23 @@ export interface PullsListReviewsResponseItem
   extends IncompletePullsListReviewsResponseItem {
   state: ReviewState;
   submitted_at: string;
+}
+
+export type PullsSearchResponse = PullsSearchResponseItem[];
+
+export interface PullsSearchResponseItem {
+  node_id: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  number: number;
+  user: {
+    login: string;
+    avatar_url: string;
+  };
+  html_url: string;
+  /**
+   * Example of repository URL: "https://api.github.com/repos/airtasker/spot"
+   */
+  repository_url: string;
 }

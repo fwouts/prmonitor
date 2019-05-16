@@ -10,11 +10,6 @@ export interface LoadedState {
   userLogin: string;
 
   /**
-   * The list of all repositories that the user is a member of.
-   */
-  repos: Repo[];
-
-  /**
    * The list of all open pull requests across all repositories.
    *
    * This includes pull requests that the user isn't involved in (yet). We will check the
@@ -53,7 +48,14 @@ export interface PullRequest {
     avatarUrl: string;
   };
   title: string;
-  requestedReviewers: string[];
+  // Deprecated because GitHub Search API does not return requested reviewers.
+  // TODO: Remove in June 2019.
+  requestedReviewers?: string[];
+  /**
+   * Whether a review is requested from the current user.
+   */
+  // TODO: Make it required from June 2019.
+  reviewRequested?: boolean;
   reviews: Review[];
   comments: Comment[];
   commits?: Commit[];

@@ -1,10 +1,7 @@
 import {
   IssuesListCommentsResponse,
-  PullsGetResponse,
   PullsListCommitsResponse,
-  PullsListResponse,
-  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem,
-  ReposGetResponse
+  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem
 } from "@octokit/rest";
 import { ReviewState } from "../storage/loaded-state";
 
@@ -16,24 +13,6 @@ export interface GitHubApi {
    * Returns the information about the current authenticated user.
    */
   loadAuthenticatedUser(): Promise<GetAuthenticatedUserResponse>;
-
-  /**
-   * Returns the full list of repositories for the user.
-   */
-  loadRepos(): Promise<ReposListResponse>;
-
-  /**
-   * Returns the full list of pull requests in a given state for a repository.
-   */
-  loadPullRequests(
-    repo: RepoReference,
-    state: "open" | "closed" | "all"
-  ): Promise<PullsListResponse>;
-
-  /**
-   * Returns a single pull request.
-   */
-  loadSinglePullRequest(pr: PullRequestReference): Promise<PullsGetResponse>;
 
   /**
    * Returns the full list of pull requests matching a given query.
@@ -71,8 +50,6 @@ export interface PullRequestReference {
 export interface GetAuthenticatedUserResponse {
   login: string;
 }
-
-export type ReposListResponse = ReposGetResponse[];
 
 export type PullsListReviewsResponse = PullsListReviewsResponseItem[];
 

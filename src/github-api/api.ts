@@ -92,7 +92,6 @@ export interface PullsSearchResponseItem {
   updated_at: string;
   title: string;
   number: number;
-  state: string;
   user: {
     login: string;
     avatar_url: string;

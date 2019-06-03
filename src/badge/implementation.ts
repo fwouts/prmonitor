@@ -36,7 +36,7 @@ function badgeColor(state: BadgeState): string {
       return "#48f";
     case "loaded":
     case "reloading":
-      return state.unreviewedPullRequestCount === 0 ? "#4d4" : "#f00";
+      return state.unreviewedPullRequestCount === 0 ? "#000000d9" : "#f00";
     case "error":
       return "#000";
   }

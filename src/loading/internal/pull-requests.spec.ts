@@ -1,6 +1,5 @@
 import {
   IssuesListCommentsResponse,
-  PullsGetResponse,
   PullsListCommitsResponse
 } from "@octokit/rest";
 import {
@@ -10,7 +9,6 @@ import {
   PullsSearchResponse
 } from "../../github-api/api";
 import { PullRequest } from "../../storage/loaded-state";
-import { RecursivePartial } from "../../testing/recursive-partial";
 import { refreshOpenPullRequests } from "./pull-requests";
 
 describe("refreshOpenPullRequests", () => {

@@ -18,25 +18,10 @@ export function pullRequestStatus(
   if (pr.author.login === currentUserLogin) {
     return PullRequestStatus.OUTGOING;
   }
-  if (
-    !reviewRequested(pr, currentUserLogin) &&
-    !userPreviouslyReviewed(pr, currentUserLogin)
-  ) {
+  if (!pr.reviewRequested && !userPreviouslyReviewed(pr, currentUserLogin)) {
     return PullRequestStatus.NOT_INVOLVED;
   }
   return incomingPullRequestStatus(pr, currentUserLogin);
-}
-
-/**
- * Returns whether a review is specifically requested from the user.
- */
-function reviewRequested(pr: PullRequest, currentUserLogin: string): boolean {
-  return (
-    (pr.requestedReviewers &&
-      pr.requestedReviewers.includes(currentUserLogin)) ||
-    pr.reviewRequested ||
-    false
-  );
 }
 
 /**

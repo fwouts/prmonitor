@@ -15,7 +15,7 @@ const DUMMY_PR: PullRequest = {
   updatedAt: "5 May 2019",
   htmlUrl: "https://github.com/zenclabs/prmonitor/pull/1",
   nodeId: "fake",
-  requestedReviewers: [],
+  reviewRequested: false,
   reviews: [],
   comments: []
 };
@@ -25,7 +25,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("fwouts", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: ["fwouts"]
+        reviewRequested: true
       })
     ).toEqual([Filter.MINE]);
   });
@@ -33,7 +33,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: []
+        reviewRequested: false
       })
     ).toEqual([]);
   });
@@ -41,7 +41,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: ["kevin"]
+        reviewRequested: true
       })
     ).toEqual([Filter.INCOMING]);
   });
@@ -49,7 +49,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         reviews: [
           {
             authorLogin: "kevin",
@@ -70,7 +70,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         comments: [
           {
             authorLogin: "kevin",
@@ -88,7 +88,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         reviews: [
           {
             authorLogin: "kevin",
@@ -103,7 +103,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: ["kevin"],
+        reviewRequested: true,
         comments: [
           {
             authorLogin: "kevin",
@@ -125,7 +125,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         comments: [
           {
             authorLogin: "kevin",
@@ -143,7 +143,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         comments: [
           {
             authorLogin: "kevin",
@@ -164,7 +164,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         reviews: [
           {
             authorLogin: "kevin",
@@ -185,7 +185,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: [],
+        reviewRequested: false,
         reviews: [
           {
             authorLogin: "kevin",
@@ -206,7 +206,7 @@ describe("filters (incoming)", () => {
     expect(
       getFilteredBucket("kevin", NOTHING_MUTED, {
         ...DUMMY_PR,
-        requestedReviewers: ["kevin"],
+        reviewRequested: true,
         reviews: [
           {
             authorLogin: "kevin",
@@ -238,7 +238,7 @@ describe("filters (incoming)", () => {
         },
         {
           ...DUMMY_PR,
-          requestedReviewers: ["kevin"],
+          reviewRequested: true,
           reviews: [
             // Another user posted a review after we muted.
             {
@@ -272,7 +272,7 @@ describe("filters (incoming)", () => {
         },
         {
           ...DUMMY_PR,
-          requestedReviewers: ["kevin"],
+          reviewRequested: true,
           comments: [
             {
               authorLogin: "fwouts",
@@ -304,7 +304,7 @@ describe("filters (incoming)", () => {
         },
         {
           ...DUMMY_PR,
-          requestedReviewers: ["kevin"]
+          reviewRequested: true
         }
       )
     ).toEqual([Filter.INCOMING]);

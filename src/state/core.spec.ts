@@ -423,7 +423,7 @@ describe("Core", () => {
             },
             updatedAt: "5 May 2019",
             htmlUrl: "http://a-pr",
-            requestedReviewers: ["fwouts"],
+            reviewRequested: true,
             reviews: [],
             comments: []
           }
@@ -459,7 +459,7 @@ describe("Core", () => {
       },
       updatedAt: "5 May 2019",
       htmlUrl: "http://pr-1",
-      requestedReviewers: ["fwouts"],
+      reviewRequested: true,
       reviews: [],
       comments: []
     };
@@ -475,7 +475,7 @@ describe("Core", () => {
       },
       updatedAt: "5 May 2019",
       htmlUrl: "http://pr-2",
-      requestedReviewers: ["fwouts"],
+      reviewRequested: true,
       reviews: [],
       comments: []
     };

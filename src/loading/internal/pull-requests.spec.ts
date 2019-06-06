@@ -17,7 +17,7 @@ describe("refreshOpenPullRequests", () => {
   it("returns an empty list when there are no PRs", async () => {
     const githubApi = mockGitHubApi();
     githubApi.searchPullRequests.mockReturnValue(Promise.resolve([]));
-    const result = await refreshOpenPullRequests(githubApi, "author", null);
+    const result = await refreshOpenPullRequests(githubApi, "author");
     expect(result).toHaveLength(0);
   });
 
@@ -81,10 +81,7 @@ describe("refreshOpenPullRequests", () => {
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
     githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
-    const result = await refreshOpenPullRequests(githubApi, "author", {
-      userLogin: "author",
-      openPullRequests: [createFakePullRequest("zenclabs", "prmonitor", 1)]
-    });
+    const result = await refreshOpenPullRequests(githubApi, "author");
     expect(result).toHaveLength(3);
     expect(githubApi.searchPullRequests.mock.calls).toEqual([
       [`review-requested:author is:open archived:false`],

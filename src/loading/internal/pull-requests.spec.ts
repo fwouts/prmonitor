@@ -32,6 +32,7 @@ describe("refreshOpenPullRequests", () => {
             repository_url: "https://github.com/zenclabs/prmonitor",
             number: 1,
             title: "authored",
+            draft: false,
             user: {
               login: "author",
               avatar_url: "http://avatar"
@@ -48,6 +49,7 @@ describe("refreshOpenPullRequests", () => {
             repository_url: "https://github.com/zenclabs/prmonitor",
             number: 2,
             title: "commented",
+            draft: false,
             user: {
               login: "someone",
               avatar_url: "http://avatar"
@@ -64,6 +66,7 @@ describe("refreshOpenPullRequests", () => {
             repository_url: "https://github.com/zenclabs/prmonitor",
             number: 3,
             title: "review-requested",
+            draft: false,
             user: {
               login: "someone",
               avatar_url: "http://avatar"

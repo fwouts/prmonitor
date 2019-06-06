@@ -102,6 +102,7 @@ function pullRequestFromResponse(
       avatarUrl: response.user.avatar_url
     },
     title: response.title,
+    draft: response.draft,
     reviewRequested,
     reviews,
     comments,

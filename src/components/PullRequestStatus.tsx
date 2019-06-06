@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Badge } from "react-bootstrap";
+import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequestStatus as Status } from "../filtering/status";
 
 const StatusBox = styled.div`
@@ -26,21 +27,42 @@ const NEW_COMMIT = (
   </Badge>
 );
 
-export const PullRequestStatus = observer((props: { status: Status }) => {
-  switch (props.status) {
-    case Status.INCOMING_NEW_REVIEW_REQUESTED:
-      return <StatusBox>{UNREVIEWED}</StatusBox>;
-    case Status.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
-      return <StatusBox>{AUTHOR_REPLIED}</StatusBox>;
-    case Status.INCOMING_REVIEWED_NEW_COMMIT:
-      return <StatusBox>{NEW_COMMIT}</StatusBox>;
-    case Status.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
+const DRAFT = (
+  <Badge pill variant="dark">
+    Draft
+  </Badge>
+);
+
+export const PullRequestStatus = observer(
+  ({ pullRequest }: { pullRequest: EnrichedPullRequest }) => {
+    const status = renderStatus(pullRequest.status);
+    const draft = pullRequest.draft && DRAFT;
+    if (status || draft) {
       return (
         <StatusBox>
-          {AUTHOR_REPLIED} {NEW_COMMIT}
+          {draft} {status}
         </StatusBox>
       );
-    default:
-      return <></>;
+    }
+    return <></>;
   }
-});
+);
+
+function renderStatus(status: Status) {
+  switch (status) {
+    case Status.INCOMING_NEW_REVIEW_REQUESTED:
+      return UNREVIEWED;
+    case Status.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
+      return AUTHOR_REPLIED;
+    case Status.INCOMING_REVIEWED_NEW_COMMIT:
+      return NEW_COMMIT;
+    case Status.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
+      return (
+        <>
+          {AUTHOR_REPLIED} {NEW_COMMIT}
+        </>
+      );
+    default:
+      return null;
+  }
+}

@@ -102,7 +102,7 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
             </SmallButton>
           )}
         </Title>
-        <PullRequestStatus status={props.pullRequest.status} />
+        <PullRequestStatus pullRequest={props.pullRequest} />
         <Repo>
           {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
           {props.pullRequest.pullRequestNumber})

@@ -48,6 +48,7 @@ export interface PullRequest {
     avatarUrl: string;
   };
   title: string;
+  draft?: boolean;
   /**
    * Whether a review is requested from the current user.
    */

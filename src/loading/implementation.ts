@@ -7,17 +7,10 @@ export function buildGitHubLoader(): GitHubLoader {
   return load;
 }
 
-async function load(
-  token: string,
-  lastCheck: LoadedState | null
-): Promise<LoadedState> {
+async function load(token: string): Promise<LoadedState> {
   const githubApi = buildGitHubApi(token);
   const user = await githubApi.loadAuthenticatedUser();
-  const openPullRequests = await refreshOpenPullRequests(
-    githubApi,
-    user.login,
-    lastCheck
-  );
+  const openPullRequests = await refreshOpenPullRequests(githubApi, user.login);
   return {
     userLogin: user.login,
     openPullRequests

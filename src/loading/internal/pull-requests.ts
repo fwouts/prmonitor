@@ -7,7 +7,6 @@ import {
 import {
   Comment,
   Commit,
-  LoadedState,
   PullRequest,
   Review
 } from "../../storage/loaded-state";
@@ -21,8 +20,7 @@ import {
  */
 export async function refreshOpenPullRequests(
   githubApi: GitHubApi,
-  userLogin: string,
-  lastCheck: LoadedState | null
+  userLogin: string
 ): Promise<PullRequest[]> {
   // Note: each query should specifically exclude the previous ones so we don't end up having
   // to deduplicate PRs across lists.
@@ -35,49 +33,20 @@ export async function refreshOpenPullRequests(
   const ownPullRequests = await githubApi.searchPullRequests(
     `author:${userLogin} -commenter:${userLogin} -review-requested:${userLogin} is:open archived:false`
   );
-  const mapping: KnownPullRequestMapping = {};
-  for (const oldPr of lastCheck ? lastCheck.openPullRequests : []) {
-    mapping[oldPr.nodeId] = oldPr;
-  }
   return Promise.all([
     ...reviewRequestedPullRequests.map(pr =>
-      updateCommentsAndReviews(githubApi, pr, mapping, true)
+      updateCommentsAndReviews(githubApi, pr, true)
     ),
-    ...commentedPullRequests.map(pr =>
-      updateCommentsAndReviews(githubApi, pr, mapping)
-    ),
-    ...ownPullRequests.map(pr =>
-      updateCommentsAndReviews(githubApi, pr, mapping)
-    )
+    ...commentedPullRequests.map(pr => updateCommentsAndReviews(githubApi, pr)),
+    ...ownPullRequests.map(pr => updateCommentsAndReviews(githubApi, pr))
   ]);
-}
-
-interface KnownPullRequestMapping {
-  [nodeId: string]: PullRequest;
 }
 
 async function updateCommentsAndReviews(
   githubApi: GitHubApi,
   rawPullRequest: PullsSearchResponseItem,
-  mapping: KnownPullRequestMapping,
   isReviewRequested = false
 ): Promise<PullRequest> {
-  const knownPullRequest = mapping[rawPullRequest.node_id];
-  // Only reload comments, reviews and commits if the PR has been updated or it's a new one.
-  if (
-    knownPullRequest &&
-    knownPullRequest.updatedAt &&
-    new Date(knownPullRequest.updatedAt).getTime() ===
-      new Date(rawPullRequest.updated_at).getTime()
-  ) {
-    return pullRequestFromResponse(
-      rawPullRequest,
-      knownPullRequest.reviews,
-      knownPullRequest.comments,
-      knownPullRequest.commits || [],
-      isReviewRequested
-    );
-  }
   const repo = extractRepo(rawPullRequest);
   const pr: PullRequestReference = {
     repo,

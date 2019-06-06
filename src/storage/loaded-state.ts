@@ -48,14 +48,10 @@ export interface PullRequest {
     avatarUrl: string;
   };
   title: string;
-  // Deprecated because GitHub Search API does not return requested reviewers.
-  // TODO: Remove in June 2019.
-  requestedReviewers?: string[];
   /**
    * Whether a review is requested from the current user.
    */
-  // TODO: Make it required from June 2019.
-  reviewRequested?: boolean;
+  reviewRequested: boolean;
   reviews: Review[];
   comments: Comment[];
   commits?: Commit[];

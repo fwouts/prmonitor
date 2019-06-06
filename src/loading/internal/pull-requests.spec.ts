@@ -1,6 +1,5 @@
 import {
   IssuesListCommentsResponse,
-  PullsGetResponse,
   PullsListCommitsResponse
 } from "@octokit/rest";
 import {
@@ -10,7 +9,6 @@ import {
   PullsSearchResponse
 } from "../../github-api/api";
 import { PullRequest } from "../../storage/loaded-state";
-import { RecursivePartial } from "../../testing/recursive-partial";
 import { refreshOpenPullRequests } from "./pull-requests";
 
 describe("refreshOpenPullRequests", () => {
@@ -130,34 +128,9 @@ export function createFakePullRequest(
       avatarUrl: "http://url"
     },
     htmlUrl: "http://url",
-    requestedReviewers: [],
+    reviewRequested: false,
     reviews: [],
     comments: [],
     commits: []
   };
-}
-
-export function createFakeSinglePullRequestResponse(
-  repoOwner: string,
-  repoName: string,
-  pullRequestNumber: number,
-  state = "open"
-): PullsGetResponse {
-  const partial: RecursivePartial<PullsGetResponse> = {
-    base: {
-      repo: {
-        owner: {
-          login: repoOwner
-        },
-        name: repoName
-      }
-    },
-    number: pullRequestNumber,
-    state,
-    user: {
-      login: "author"
-    },
-    requested_reviewers: []
-  };
-  return partial as PullsGetResponse;
 }

@@ -2,7 +2,7 @@
   "name": "prmonitor",
   "dependencies": {
     "@emotion/core": "^10.0.14",
-    "@emotion/styled": "^10.0.12",
+    "@emotion/styled": "^10.0.14",
     "@fortawesome/fontawesome-svg-core": "^1.2.19",
     "@fortawesome/free-solid-svg-icons": "^5.9.0",
     "@fortawesome/react-fontawesome": "^0.1.4",

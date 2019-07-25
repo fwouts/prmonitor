@@ -18,7 +18,7 @@
     "react-spinners": "^0.5.13"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@octokit/rest": "^16.25.0",
     "@types/chrome": "^0.0.86",

@@ -6101,10 +6101,10 @@ react-popper@^1.3.2:
     typed-styles "^0.0.7"
     warning "^4.0.2"
 
-react-spinners@^0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.5.4.tgz#58166f8bf84cbf06dd7accad4b94a5797cfea9b9"
-  integrity sha512-jo7BE8prvnZNL7xNrQL16geVXH6LmaWrhvvXnmUwz2MhFO14bhlAdCLuKCwqmUJ37kGphH0C2CJRThwkjfpVzw==
+react-spinners@^0.5.13:
+  version "0.5.13"
+  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.5.13.tgz#09da41ee6b321083ff9670cbf78e11effb3feb87"
+  integrity sha512-zrQTWlyhqs+3nQ4Zpg19eW4elYQgrrvu0fXL1tIP3CKgLBxkO+rmXdL8l34qTHrpDZnukMFGLxyqQebijeVSJA==
   dependencies:
     "@emotion/core" "^10.0.4"
     prop-types "^15.5.10"

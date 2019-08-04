@@ -1,10 +1,10 @@
 {
   "name": "prmonitor",
   "dependencies": {
-    "@emotion/core": "^10.0.14",
+    "@emotion/core": "^10.0.15",
     "@emotion/styled": "^10.0.14",
-    "@fortawesome/fontawesome-svg-core": "^1.2.20",
-    "@fortawesome/free-solid-svg-icons": "^5.10.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.21",
+    "@fortawesome/free-solid-svg-icons": "^5.10.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "assert-never": "^1.2.0",
     "bootstrap": "^4.3.1",
@@ -20,7 +20,7 @@
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@octokit/rest": "^16.25.0",
-    "@types/chrome": "^0.0.86",
+    "@types/chrome": "^0.0.87",
     "@types/jest": "^24.0.16",
     "@types/node": "^12.6.9",
     "@types/react": "^16.8.24",

@@ -53,7 +53,9 @@ export const Popup = observer((props: PopupProps) => {
             <Tabs
               id="popup-tabs"
               activeKey={state.currentFilter}
-              onSelect={(key: Filter) => setState({ currentFilter: key })}
+              onSelect={(key: string) =>
+                setState({ currentFilter: key as Filter })
+              }
             >
               <Tab
                 title={

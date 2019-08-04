@@ -1,5 +1,6 @@
 import {
   IssuesListCommentsResponse,
+  PullsGetResponse,
   PullsListCommitsResponse
 } from "@octokit/rest";
 import {
@@ -79,6 +80,11 @@ describe("refreshOpenPullRequests", () => {
         );
       }
     });
+    githubApi.loadPullRequestDetails.mockReturnValue(
+      Promise.resolve(({
+        requested_reviewers: []
+      } as unknown) as PullsGetResponse)
+    );
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
     githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
@@ -98,6 +104,10 @@ function mockGitHubApi() {
   return {
     loadAuthenticatedUser: jest.fn<Promise<GetAuthenticatedUserResponse>, []>(),
     searchPullRequests: jest.fn<Promise<PullsSearchResponse>, [string]>(),
+    loadPullRequestDetails: jest.fn<
+      Promise<PullsGetResponse>,
+      [PullRequestReference]
+    >(),
     loadReviews: jest.fn<
       Promise<PullsListReviewsResponse>,
       [PullRequestReference]

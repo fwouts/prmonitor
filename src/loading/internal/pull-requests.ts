@@ -1,3 +1,4 @@
+import { PullsGetResponse } from "@octokit/rest";
 import {
   GitHubApi,
   PullRequestReference,
@@ -52,7 +53,13 @@ async function updateCommentsAndReviews(
     repo,
     number: rawPullRequest.number
   };
-  const [freshReviews, freshComments, freshCommits] = await Promise.all([
+  const [
+    freshPullRequestDetails,
+    freshReviews,
+    freshComments,
+    freshCommits
+  ] = await Promise.all([
+    githubApi.loadPullRequestDetails(pr),
     githubApi.loadReviews(pr).then(reviews =>
       reviews.map(review => ({
         authorLogin: review.user.login,
@@ -75,6 +82,7 @@ async function updateCommentsAndReviews(
   ]);
   return pullRequestFromResponse(
     rawPullRequest,
+    freshPullRequestDetails,
     freshReviews,
     freshComments,
     freshCommits,
@@ -84,6 +92,7 @@ async function updateCommentsAndReviews(
 
 function pullRequestFromResponse(
   response: PullsSearchResponseItem,
+  details: PullsGetResponse,
   reviews: Review[],
   comments: Comment[],
   commits: Commit[],
@@ -104,6 +113,9 @@ function pullRequestFromResponse(
     title: response.title,
     draft: response.draft,
     reviewRequested,
+    requestedReviewers: details.requested_reviewers.map(
+      reviewer => reviewer.login
+    ),
     reviews,
     comments,
     commits

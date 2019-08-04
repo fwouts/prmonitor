@@ -1,5 +1,6 @@
 import {
   IssuesListCommentsResponse,
+  PullsGetResponse,
   PullsListCommitsResponse,
   PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem
 } from "@octokit/rest";
@@ -18,6 +19,11 @@ export interface GitHubApi {
    * Returns the full list of pull requests matching a given query.
    */
   searchPullRequests(query: string): Promise<PullsSearchResponse>;
+
+  /**
+   * Returns the details of a pull request.
+   */
+  loadPullRequestDetails(pr: PullRequestReference): Promise<PullsGetResponse>;
 
   /**
    * Returns the full list of reviews for a pull request.

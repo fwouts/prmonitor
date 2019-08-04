@@ -24,6 +24,14 @@ export function buildGitHubApi(token: string): GitHubApi {
         })
       );
     },
+    async loadPullRequestDetails(pr) {
+      const response = await octokit.pulls.get({
+        owner: pr.repo.owner,
+        repo: pr.repo.name,
+        pull_number: pr.number
+      });
+      return response.data;
+    },
     loadReviews(pr) {
       return octokit.paginate(
         octokit.pulls.listReviews.endpoint.merge({

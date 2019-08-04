@@ -5,7 +5,7 @@ import { ChromeApi, ChromeStorageItems } from "./api";
  * A fake implementation of the Chrome extension API to allow development
  * outside of a Chrome extension.
  */
-export const fakeChrome: RecursivePartial<ChromeApi> = {
+const partialFakeChrome: RecursivePartial<ChromeApi> = {
   browserAction: {
     setBadgeText(details: chrome.browserAction.BadgeTextDetails) {
       console.log("chrome.browserAction.setBadgeText", details);
@@ -64,7 +64,7 @@ export const fakeChrome: RecursivePartial<ChromeApi> = {
     local: {
       set(items: ChromeStorageItems, callback?: () => void) {
         for (const [key, value] of Object.entries(items)) {
-          localStorage.setItem(key, value);
+          localStorage.setItem(key, JSON.stringify(value));
         }
         if (callback) {
           callback();
@@ -73,7 +73,8 @@ export const fakeChrome: RecursivePartial<ChromeApi> = {
       get(keys: string[], callback: (items: ChromeStorageItems) => void) {
         callback(
           keys.reduce<ChromeStorageItems>((acc, key) => {
-            acc[key] = localStorage.getItem(key);
+            const json = localStorage.getItem(key);
+            acc[key] = json ? JSON.parse(json) : null;
             return acc;
           }, {})
         );
@@ -97,3 +98,5 @@ export const fakeChrome: RecursivePartial<ChromeApi> = {
     }
   }
 };
+
+export const fakeChrome = partialFakeChrome as ChromeApi;

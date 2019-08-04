@@ -33,7 +33,7 @@ export enum Filter {
 }
 
 export type FilteredPullRequests = {
-  [filter in Filter]: EnrichedPullRequest[]
+  [filter in Filter]: EnrichedPullRequest[];
 };
 
 export function filterPullRequests(

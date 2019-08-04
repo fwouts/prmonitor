@@ -5,10 +5,10 @@ import { Notifier } from "./api";
 
 export function buildNotifier(chromeApi: ChromeApi): Notifier {
   return {
-    notify(unreviewedPullRequests, notifiedPullRequestUrls) {
+    notify(pullRequests, notifiedPullRequestUrls) {
       showNotificationForNewPullRequests(
         chromeApi,
-        unreviewedPullRequests,
+        pullRequests,
         notifiedPullRequestUrls
       );
     },
@@ -27,14 +27,10 @@ export function buildNotifier(chromeApi: ChromeApi): Notifier {
  */
 async function showNotificationForNewPullRequests(
   chromeApi: ChromeApi,
-  unreviewedPullRequests: EnrichedPullRequest[],
+  pullRequests: EnrichedPullRequest[],
   notifiedPullRequestUrls: Set<string>
 ) {
-  if (!unreviewedPullRequests) {
-    // Do nothing.
-    return;
-  }
-  for (const pullRequest of unreviewedPullRequests) {
+  for (const pullRequest of pullRequests) {
     if (!notifiedPullRequestUrls.has(pullRequest.htmlUrl)) {
       console.log(`Showing ${pullRequest.htmlUrl}`);
       showNotification(chromeApi, pullRequest);
@@ -77,6 +73,10 @@ function getTitle(pullRequest: EnrichedPullRequest): string {
     case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT:
     case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
       return `Pull request updated`;
+    case PullRequestStatus.OUTGOING_APPROVED:
+      return `Pull request approved`;
+    case PullRequestStatus.OUTGOING_PENDING_CHANGES:
+      return `New changes requested`;
     default:
       throw new Error(`Well, this should never happen.`);
   }

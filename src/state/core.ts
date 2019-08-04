@@ -7,6 +7,7 @@ import {
   FilteredPullRequests,
   filterPullRequests
 } from "../filtering/filters";
+import { PullRequestStatus } from "../filtering/status";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   MuteConfiguration,
@@ -90,12 +91,15 @@ export class Core {
         startRefreshTimestamp,
         ...(await this.env.githubLoader(this.token, this.loadedState))
       });
-      const unreviewedPullRequests = this.unreviewedPullRequests || [];
+      const notifyAboutPullRequests = [
+        ...(this.unreviewedPullRequests || []),
+        ...(this.actionRequiredOwnPullRequests || [])
+      ];
       await this.env.notifier.notify(
-        unreviewedPullRequests,
+        notifyAboutPullRequests,
         this.notifiedPullRequestUrls
       );
-      await this.saveNotifiedPullRequests(unreviewedPullRequests);
+      await this.saveNotifiedPullRequests(notifyAboutPullRequests);
       this.saveError(null);
     } catch (e) {
       this.saveError(e.message);
@@ -174,6 +178,17 @@ export class Core {
   get unreviewedPullRequests(): EnrichedPullRequest[] | null {
     return this.filteredPullRequests
       ? this.filteredPullRequests[Filter.INCOMING]
+      : null;
+  }
+
+  @computed
+  get actionRequiredOwnPullRequests(): EnrichedPullRequest[] | null {
+    return this.filteredPullRequests
+      ? this.filteredPullRequests[Filter.MINE].filter(
+          pr =>
+            pr.status === PullRequestStatus.OUTGOING_APPROVED ||
+            pr.status === PullRequestStatus.OUTGOING_PENDING_CHANGES
+        )
       : null;
   }
 

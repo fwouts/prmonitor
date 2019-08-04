@@ -38,10 +38,6 @@ export interface PullRequest {
   repoOwner: string;
   repoName: string;
   pullRequestNumber: number;
-  /**
-   * The last time the PR has been updated. This changes every time a new review
-   * or comment is added, so when it doesn't change, we know not to reload them.
-   */
   updatedAt: string;
   author: {
     login: string;

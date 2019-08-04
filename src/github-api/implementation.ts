@@ -18,9 +18,7 @@ export function buildGitHubApi(token: string): GitHubApi {
     searchPullRequests(query) {
       return octokit.paginate(
         octokit.search.issuesAndPullRequests.endpoint.merge({
-          q: `is:pr ${query}`,
-          sort: "updated",
-          order: "desc"
+          q: `is:pr ${query}`
         })
       );
     },

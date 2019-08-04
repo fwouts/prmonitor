@@ -14,6 +14,8 @@ import {
 } from "../storage/mute-configuration";
 
 export class Core {
+  private readonly env: Environment;
+
   @observable overallStatus: "loading" | "loaded" = "loading";
   @observable refreshing: boolean = false;
   @observable token: string | null = null;
@@ -22,7 +24,8 @@ export class Core {
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
-  constructor(private readonly env: Environment) {
+  constructor(env: Environment) {
+    this.env = env;
     this.env.messenger.listen(message => {
       console.debug("Message received", message);
       if (message.kind === "reload") {

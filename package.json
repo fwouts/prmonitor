@@ -51,7 +51,7 @@
     "watch": "tsc --noEmit --watch",
     "build": "rm -rf dist; webpack --mode production",
     "test": "jest",
-    "lint:check": "eslint \"src/*.ts\" \"src/*.tsx\"",
-    "lint:fix": "eslint --fix \"src/*.ts\" \"src/*.tsx\""
+    "lint:check": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
+    "lint:fix": "eslint --fix \"src/**/*.ts\" \"src/**/*.tsx\""
   }
 }

@@ -1,10 +1,11 @@
+import { RecursivePartial } from "../testing/recursive-partial";
 import { ChromeApi, ChromeStorageItems } from "./api";
 
 /**
  * A fake implementation of the Chrome extension API to allow development
  * outside of a Chrome extension.
  */
-export const fakeChrome = (<Partial<ChromeApi>>{
+export const fakeChrome: RecursivePartial<ChromeApi> = {
   browserAction: {
     setBadgeText(details: chrome.browserAction.BadgeTextDetails) {
       console.log("chrome.browserAction.setBadgeText", details);
@@ -17,12 +18,18 @@ export const fakeChrome = (<Partial<ChromeApi>>{
   },
   runtime: {
     // Sending a message won't do anything, but we can at least log it.
-    sendMessage(message: any) {
+    sendMessage(message: unknown) {
       console.log("chrome.runtime.sendMessage", message);
     },
     onMessage: {
-      addListener(listener: any) {
-        console.log("chrome.runtime.onMessage.addListener", listener);
+      addListener(
+        callback: (
+          message: unknown,
+          sender: chrome.runtime.MessageSender,
+          sendResponse: (response?: unknown) => void
+        ) => void
+      ) {
+        console.log("chrome.runtime.onMessage.addListener", callback);
       }
     }
   },
@@ -34,25 +41,28 @@ export const fakeChrome = (<Partial<ChromeApi>>{
       console.log("chrome.notifications.create", notificationId, options);
     },
     onClicked: {
-      addListener(listener: any) {
-        console.log("chrome.notifications.onClicked.addListener", listener);
+      addListener(callback: (notificationId: string) => void) {
+        console.log("chrome.notifications.onClicked.addListener", callback);
       }
     }
   },
   permissions: {
-    request(_permissions, callback) {
+    request(
+      _permissions: chrome.permissions.Permissions,
+      callback?: (granted: boolean) => void
+    ) {
       if (callback) {
         callback(true);
       }
     },
-    getAll(callback) {
+    getAll(callback: (permissions: chrome.permissions.Permissions) => void) {
       callback({});
     }
   },
   storage: {
     // To simulate chrome.storage.local, we simply fall back to the localStorage API.
     local: {
-      set(items: ChromeStorageItems, callback) {
+      set(items: ChromeStorageItems, callback?: () => void) {
         for (const [key, value] of Object.entries(items)) {
           localStorage.setItem(key, value);
         }
@@ -71,16 +81,19 @@ export const fakeChrome = (<Partial<ChromeApi>>{
     }
   },
   tabs: {
-    query(_queryInfo, callback) {
+    query(
+      _queryInfo: chrome.tabs.QueryInfo,
+      callback: (result: chrome.tabs.Tab[]) => void
+    ) {
       callback([]);
     },
-    create(properties) {
+    create(properties: chrome.tabs.CreateProperties) {
       window.open(properties.url);
     }
   },
   windows: {
-    update(windowId, updateInfo) {
+    update(windowId: number, updateInfo: chrome.windows.UpdateInfo) {
       console.log("chrome.windows.update", windowId, updateInfo);
     }
   }
-}) as ChromeApi;
+};

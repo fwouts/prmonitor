@@ -63,7 +63,7 @@ function fakeStorage<T>(defaultValue: T) {
 }
 
 function fakeNotifier() {
-  const notified: Array<string[]> = [];
+  const notified: string[][] = [];
   const listeners: NotifierClickListener[] = [];
   const notifier: Notifier = {
     notify(unreviewedPullRequests) {
@@ -99,7 +99,7 @@ function fakeBadger() {
 
 function fakeMessenger() {
   const sent: Message[] = [];
-  const listeners: Array<(message: Message) => void> = [];
+  const listeners: ((message: Message) => void)[] = [];
   const messenger: CrossScriptMessenger = {
     listen(listener) {
       listeners.push(listener);

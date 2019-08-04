@@ -1,7 +1,10 @@
 import { PullRequest } from "../storage/loaded-state";
 
 export function getLastUpdateTimestamp(pr: PullRequest) {
-  let prTimestamp = new Date(pr.updatedAt).getTime();
+  let prTimestamp = Math.max(
+    new Date(pr.updatedAt).getTime(),
+    getLastCommitTimestamp(pr)
+  );
   for (const comment of pr.comments) {
     prTimestamp = Math.max(prTimestamp, new Date(comment.createdAt).getTime());
   }

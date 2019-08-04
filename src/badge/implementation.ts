@@ -24,7 +24,8 @@ function badgeLabel(state: BadgeState): string {
       return "⟳";
     case "loaded":
     case "reloading":
-      return `${state.unreviewedPullRequestCount}`;
+      return `${state.unreviewedPullRequestCount ||
+        state.approvedOwnPullRequestCount}`;
     case "error":
       return "!";
   }
@@ -36,7 +37,11 @@ function badgeColor(state: BadgeState): string {
       return "#48f";
     case "loaded":
     case "reloading":
-      return state.unreviewedPullRequestCount === 0 ? "#000000d9" : "#f00";
+      return state.unreviewedPullRequestCount === 0
+        ? state.approvedOwnPullRequestCount
+          ? "#00a022"
+          : "#000000d9"
+        : "#f00";
     case "error":
       return "#000";
   }

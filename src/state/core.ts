@@ -93,7 +93,8 @@ export class Core {
       });
       const notifyAboutPullRequests = [
         ...(this.unreviewedPullRequests || []),
-        ...(this.actionRequiredOwnPullRequests || [])
+        ...(this.approvedOwnPullRequests || []),
+        ...(this.pendingChangesOwnPullRequests || [])
       ];
       await this.env.notifier.notify(
         notifyAboutPullRequests,
@@ -182,12 +183,19 @@ export class Core {
   }
 
   @computed
-  get actionRequiredOwnPullRequests(): EnrichedPullRequest[] | null {
+  get approvedOwnPullRequests(): EnrichedPullRequest[] | null {
     return this.filteredPullRequests
       ? this.filteredPullRequests[Filter.MINE].filter(
-          pr =>
-            pr.status === PullRequestStatus.OUTGOING_APPROVED ||
-            pr.status === PullRequestStatus.OUTGOING_PENDING_CHANGES
+          pr => pr.status === PullRequestStatus.OUTGOING_APPROVED
+        )
+      : null;
+  }
+
+  @computed
+  get pendingChangesOwnPullRequests(): EnrichedPullRequest[] | null {
+    return this.filteredPullRequests
+      ? this.filteredPullRequests[Filter.MINE].filter(
+          pr => pr.status === PullRequestStatus.OUTGOING_PENDING_CHANGES
         )
       : null;
   }
@@ -222,23 +230,26 @@ export class Core {
   private updateBadge() {
     let badgeState: BadgeState;
     const unreviewedPullRequests = this.unreviewedPullRequests;
+    const approvedOwnPullRequests = this.approvedOwnPullRequests;
     if (this.lastError || !this.token) {
       badgeState = {
         kind: "error"
       };
-    } else if (!unreviewedPullRequests) {
+    } else if (!unreviewedPullRequests || !approvedOwnPullRequests) {
       badgeState = {
         kind: "initializing"
       };
     } else if (this.refreshing) {
       badgeState = {
         kind: "reloading",
-        unreviewedPullRequestCount: unreviewedPullRequests.length
+        unreviewedPullRequestCount: unreviewedPullRequests.length,
+        approvedOwnPullRequestCount: approvedOwnPullRequests.length
       };
     } else {
       badgeState = {
         kind: "loaded",
-        unreviewedPullRequestCount: unreviewedPullRequests.length
+        unreviewedPullRequestCount: unreviewedPullRequests.length,
+        approvedOwnPullRequestCount: approvedOwnPullRequests.length
       };
     }
     this.env.badger.update(badgeState);

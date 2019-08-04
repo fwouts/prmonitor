@@ -9,10 +9,12 @@ export type BadgeState =
   | {
       kind: "loaded";
       unreviewedPullRequestCount: number;
+      approvedOwnPullRequestCount: number;
     }
   | {
       kind: "reloading";
       unreviewedPullRequestCount: number;
+      approvedOwnPullRequestCount: number;
     }
   | {
       kind: "error";

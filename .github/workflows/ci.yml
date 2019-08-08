@@ -1,0 +1,20 @@
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: [12]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          version: ${{ matrix.node_version }}
+      - name: yarn install, build and test
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+          yarn test
+          yarn lint:check

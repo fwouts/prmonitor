@@ -2,8 +2,10 @@ import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { Dropdown } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequest } from "../storage/loaded-state";
+import { MuteType } from "../storage/mute-configuration";
 import { SmallButton } from "./design/Button";
 import { PullRequestStatus } from "./PullRequestStatus";
 
@@ -72,11 +74,21 @@ const AuthorLogin = styled.div`
   max-width: ${AuthorWidth};
 `;
 
+const InlineDropdown = styled(Dropdown)`
+  display: inline-block;
+  margin: 0 8px;
+
+  .dropdown-menu {
+    font-size: 0.9rem;
+  }
+`;
+
 export interface PullRequestItemProps {
   pullRequest: EnrichedPullRequest;
-  allowMuting: boolean;
+  mutingConfiguration: "allow-muting" | "allow-unmuting" | "none";
   onOpen(pullRequestUrl: string): void;
-  onMute(pullRequest: PullRequest): void;
+  onMute(pullRequest: PullRequest, muteType: MuteType): void;
+  onUnmute(pullRequest: PullRequest): void;
 }
 
 export const PullRequestItem = observer((props: PullRequestItemProps) => {
@@ -85,8 +97,19 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
     e.preventDefault();
   };
 
-  const mute = (e: React.MouseEvent) => {
-    props.onMute(props.pullRequest);
+  const preventDefault = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const createMuteHandler = (muteType: MuteType) => {
+    return () => {
+      props.onMute(props.pullRequest, muteType);
+    };
+  };
+
+  const unmute = (e: React.MouseEvent) => {
+    props.onUnmute(props.pullRequest);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -96,9 +119,40 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
       <Info>
         <Title>
           {props.pullRequest.title}
-          {props.allowMuting && (
-            <SmallButton title="Mute until next update" onClick={mute}>
-              <FontAwesomeIcon icon="bell-slash" />
+          {props.mutingConfiguration === "allow-muting" && (
+            <InlineDropdown onClick={preventDefault} alignRight>
+              <Dropdown.Toggle
+                as={
+                  SmallButton as any /* TypeScript isn't happy but the code is happy */
+                }
+                id={`mute-dropdown-${props.pullRequest.nodeId}`}
+              >
+                <FontAwesomeIcon icon="bell-slash" />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onSelect={createMuteHandler("next-update")}>
+                  Mute until next update by author
+                </Dropdown.Item>
+                <Dropdown.Item onSelect={createMuteHandler("1-hour")}>
+                  Mute for 1 hour
+                </Dropdown.Item>
+                <Dropdown.Item onSelect={createMuteHandler("forever")}>
+                  Mute forever
+                </Dropdown.Item>
+                <Dropdown.Item onSelect={createMuteHandler("repo")}>
+                  Ignore PRs in{" "}
+                  <b>{`${props.pullRequest.repoOwner}/${props.pullRequest.repoName}`}</b>
+                </Dropdown.Item>
+                <Dropdown.Item onSelect={createMuteHandler("owner")}>
+                  Ignore all PRs in repositories owned by{" "}
+                  <b>{props.pullRequest.repoOwner}</b>
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </InlineDropdown>
+          )}
+          {props.mutingConfiguration === "allow-unmuting" && (
+            <SmallButton title="Unmute" onClick={unmute}>
+              <FontAwesomeIcon icon="bell" />
             </SmallButton>
           )}
         </Title>

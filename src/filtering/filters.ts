@@ -1,7 +1,7 @@
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { EnrichedPullRequest } from "./enriched-pull-request";
-import { isMuted } from "./muted";
+import { isMuted, MutedResult } from "./muted";
 import {
   isReviewRequired,
   pullRequestStatus,
@@ -47,10 +47,14 @@ export function filterPullRequests(
   }));
   return {
     incoming: enrichedPullRequests.filter(
-      pr => isReviewRequired(pr.status) && !isMuted(pr, muteConfiguration)
+      pr =>
+        isReviewRequired(pr.status) &&
+        isMuted(pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
-      pr => isReviewRequired(pr.status) && isMuted(pr, muteConfiguration)
+      pr =>
+        isReviewRequired(pr.status) &&
+        isMuted(pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
       pr => pr.status === PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY

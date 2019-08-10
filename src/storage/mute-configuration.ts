@@ -1,5 +1,5 @@
 import assertNever from "assert-never";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import { Environment } from "../environment/api";
 import { PullRequestReference, RepoReference } from "../github-api/api";
 

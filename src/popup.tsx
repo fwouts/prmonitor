@@ -1,6 +1,7 @@
 import { css, Global } from "@emotion/core";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faBell, faBellSlash } from "@fortawesome/free-solid-svg-icons";
+import { faBell } from "@fortawesome/free-solid-svg-icons/faBell";
+import { faBellSlash } from "@fortawesome/free-solid-svg-icons/faBellSlash";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom";

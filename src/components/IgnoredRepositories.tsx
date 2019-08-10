@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { flatten } from "lodash";
+import flatten from "lodash/flatten";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Card } from "react-bootstrap";

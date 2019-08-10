@@ -5,7 +5,7 @@ import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
 import { PullRequest, ref } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
-import { Ignored } from "./Ignored";
+import { IgnoredRepositories } from "./IgnoredRepositories";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
@@ -139,7 +139,7 @@ export const Popup = observer((props: PopupProps) => {
         )}
       {props.core.overallStatus !== "loading" && (
         <>
-          <Ignored core={props.core} />
+          <IgnoredRepositories core={props.core} />
           <Settings core={props.core} />
         </>
       )}

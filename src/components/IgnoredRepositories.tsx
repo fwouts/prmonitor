@@ -8,10 +8,6 @@ import { MediumButton } from "./design/Button";
 import { Header } from "./design/Header";
 import { Link } from "./design/Link";
 
-export interface IgnoredProps {
-  core: Core;
-}
-
 const Container = styled.div`
   margin-bottom: 16px;
 `;
@@ -25,7 +21,7 @@ const Remove = styled(MediumButton)`
   margin-right: 8px;
 `;
 
-export const Ignored = observer((props: IgnoredProps) => {
+export const IgnoredRepositories = observer((props: { core: Core }) => {
   const ignored = props.core.muteConfiguration.ignored || {};
   if (Object.keys(ignored).length === 0) {
     return <></>;

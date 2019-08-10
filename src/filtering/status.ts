@@ -68,8 +68,8 @@ function outgoingPullRequestStatus(
       continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();
-    if (submittedAt < lastActionByCurrentUserTimestamp) {
-      // This review may not be relevant anymore.
+    if (submittedAt < lastActionByCurrentUserTimestamp && review.state === "CHANGES_REQUESTED") {
+      // This change request may not be relevant anymore.
       statusByUser.set(review.authorLogin, "PENDING");
       continue;
     }

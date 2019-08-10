@@ -1,19 +1,29 @@
 import styled from "@emotion/styled";
+import { flatten } from "lodash";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Card } from "react-bootstrap";
 import { Core } from "../state/core";
+import { MediumButton } from "./design/Button";
 import { Header } from "./design/Header";
+import { Link } from "./design/Link";
 
 export interface IgnoredProps {
   core: Core;
 }
 
-const Item = styled.div``;
+const Container = styled.div`
+  margin-bottom: 16px;
+`;
 
-const Label = styled.span``;
+const Item = styled.div`
+  padding: 8px;
+`;
 
-const Remove = styled.a``;
+const Remove = styled(MediumButton)`
+  margin-left: 0;
+  margin-right: 8px;
+`;
 
 export const Ignored = observer((props: IgnoredProps) => {
   const ignored = props.core.muteConfiguration.ignored || {};
@@ -21,20 +31,37 @@ export const Ignored = observer((props: IgnoredProps) => {
     return <></>;
   }
   return (
-    <>
+    <Container>
       <Header>Ignored repositories</Header>
       <Card>
-        {Object.entries(ignored).map(([owner, config]) => (
-          <Item>
-            <Label>
-              {config.kind === "ignore-all"
-                ? `${owner}/*`
-                : config.repoNames.map(repo => `${owner}/${repo}`).join(", ")}
-            </Label>
-            <Remove>+</Remove>
-          </Item>
-        ))}
+        {...flatten(
+          Object.entries(ignored).map(([owner, config]) =>
+            config.kind === "ignore-all" ? (
+              <Item key={owner}>
+                <Remove onClick={() => props.core.unmuteOwner(owner)}>+</Remove>
+                <Link
+                  href={`https://github.com/${owner}`}
+                  target="_blank"
+                >{`${owner}/*`}</Link>
+              </Item>
+            ) : (
+              config.repoNames.map(repo => (
+                <Item key={`${owner}/${repo}`}>
+                  <Remove
+                    onClick={() => props.core.unmuteRepository(owner, repo)}
+                  >
+                    +
+                  </Remove>
+                  <Link
+                    href={`https://github.com/${owner}/${repo}`}
+                    target="_blank"
+                  >{`${owner}/${repo}`}</Link>
+                </Item>
+              ))
+            )
+          )
+        )}
       </Card>
-    </>
+    </Container>
   );
 });

@@ -19,7 +19,13 @@ const Button = styled.button`
   }
 `;
 
-export const SmallButton = Button;
+export const SmallButton = styled(Button)`
+  padding: 0 6px;
+`;
+
+export const MediumButton = styled(Button)`
+  padding: 2px 8px;
+`;
 
 export const LargeButton = styled(Button)`
   padding: 4px 16px;

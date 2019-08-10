@@ -90,7 +90,7 @@ export function addMute(
   return muteConfiguration;
 }
 
-export function removeMute(
+export function removePullRequestMute(
   config: MuteConfiguration,
   pullRequest: PullRequestReference
 ): MuteConfiguration {
@@ -102,6 +102,46 @@ export function removeMute(
         pr.number !== pullRequest.number
     ),
     ignored: config.ignored || {}
+  };
+}
+
+export function removeOwnerMute(
+  config: MuteConfiguration,
+  owner: string
+): MuteConfiguration {
+  const ignored = cloneDeep(config.ignored || {});
+  delete ignored[owner];
+  return {
+    ...config,
+    ignored
+  };
+}
+
+export function removeRepositoryMute(
+  config: MuteConfiguration,
+  owner: string,
+  repo: string
+): MuteConfiguration {
+  const ignored = cloneDeep(config.ignored || {});
+  const ownerConfig = ignored[owner];
+  if (ownerConfig) {
+    switch (ownerConfig.kind) {
+      case "ignore-all":
+        delete ignored[owner];
+        break;
+      case "ignore-only":
+        ownerConfig.repoNames = ownerConfig.repoNames.filter(
+          repoName => repoName !== repo
+        );
+        if (ownerConfig.repoNames.length === 0) {
+          delete ignored[owner];
+        }
+        break;
+    }
+  }
+  return {
+    ...config,
+    ignored
   };
 }
 

@@ -15,7 +15,9 @@ import {
   MuteConfiguration,
   MuteType,
   NOTHING_MUTED,
-  removeMute
+  removeOwnerMute,
+  removePullRequestMute,
+  removeRepositoryMute
 } from "../storage/mute-configuration";
 
 export class Core {
@@ -128,7 +130,21 @@ export class Core {
 
   async unmutePullRequest(pullRequest: PullRequestReference) {
     await this.saveMuteConfiguration(
-      removeMute(this.muteConfiguration, pullRequest)
+      removePullRequestMute(this.muteConfiguration, pullRequest)
+    );
+    this.updateBadge();
+  }
+
+  async unmuteOwner(owner: string) {
+    await this.saveMuteConfiguration(
+      removeOwnerMute(this.muteConfiguration, owner)
+    );
+    this.updateBadge();
+  }
+
+  async unmuteRepository(owner: string, repo: string) {
+    await this.saveMuteConfiguration(
+      removeRepositoryMute(this.muteConfiguration, owner, repo)
     );
     this.updateBadge();
   }

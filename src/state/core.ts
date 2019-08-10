@@ -8,7 +8,7 @@ import {
   filterPullRequests
 } from "../filtering/filters";
 import { PullRequestStatus } from "../filtering/status";
-import { PullRequestReference } from "../github-api/api";
+import { PullRequestReference, RepoReference } from "../github-api/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
   addMute,
@@ -123,7 +123,7 @@ export class Core {
 
   async mutePullRequest(pullRequest: PullRequestReference, muteType: MuteType) {
     await this.saveMuteConfiguration(
-      addMute(this.muteConfiguration, pullRequest, muteType)
+      addMute(this.env, this.muteConfiguration, pullRequest, muteType)
     );
     this.updateBadge();
   }
@@ -142,9 +142,9 @@ export class Core {
     this.updateBadge();
   }
 
-  async unmuteRepository(owner: string, repo: string) {
+  async unmuteRepository(repo: RepoReference) {
     await this.saveMuteConfiguration(
-      removeRepositoryMute(this.muteConfiguration, owner, repo)
+      removeRepositoryMute(this.muteConfiguration, repo)
     );
     this.updateBadge();
   }
@@ -156,6 +156,7 @@ export class Core {
       return null;
     }
     return filterPullRequests(
+      this.env,
       lastCheck.userLogin,
       lastCheck.openPullRequests,
       this.muteConfiguration

@@ -48,7 +48,9 @@ export const Ignored = observer((props: IgnoredProps) => {
               config.repoNames.map(repo => (
                 <Item key={`${owner}/${repo}`}>
                   <Remove
-                    onClick={() => props.core.unmuteRepository(owner, repo)}
+                    onClick={() =>
+                      props.core.unmuteRepository({ owner, name: repo })
+                    }
                   >
                     +
                   </Remove>

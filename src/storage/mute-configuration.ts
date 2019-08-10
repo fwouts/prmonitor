@@ -1,6 +1,7 @@
 import assertNever from "assert-never";
 import { cloneDeep } from "lodash";
-import { PullRequestReference } from "../github-api/api";
+import { Environment } from "../environment/api";
+import { PullRequestReference, RepoReference } from "../github-api/api";
 
 export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: [],
@@ -23,6 +24,7 @@ export interface MuteConfiguration {
 }
 
 export function addMute(
+  env: Environment,
   config: MuteConfiguration,
   pullRequest: PullRequestReference,
   muteType: MuteType
@@ -46,7 +48,7 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "next-update",
-          mutedAtTimestamp: Date.now()
+          mutedAtTimestamp: env.getCurrentTime()
         }
       });
       break;
@@ -55,7 +57,7 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "specific-time",
-          unmuteAtTimestamp: Date.now() + 3600 * 1000
+          unmuteAtTimestamp: env.getCurrentTime() + 3600 * 1000
         }
       });
       break;
@@ -119,22 +121,21 @@ export function removeOwnerMute(
 
 export function removeRepositoryMute(
   config: MuteConfiguration,
-  owner: string,
-  repo: string
+  repo: RepoReference
 ): MuteConfiguration {
   const ignored = cloneDeep(config.ignored || {});
-  const ownerConfig = ignored[owner];
+  const ownerConfig = ignored[repo.owner];
   if (ownerConfig) {
     switch (ownerConfig.kind) {
       case "ignore-all":
-        delete ignored[owner];
+        delete ignored[repo.owner];
         break;
       case "ignore-only":
         ownerConfig.repoNames = ownerConfig.repoNames.filter(
-          repoName => repoName !== repo
+          repoName => repoName !== repo.name
         );
         if (ownerConfig.repoNames.length === 0) {
-          delete ignored[owner];
+          delete ignored[repo.owner];
         }
         break;
     }

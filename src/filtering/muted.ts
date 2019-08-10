@@ -1,3 +1,4 @@
+import { Environment } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { getLastAuthorUpdateTimestamp } from "./timestamps";
@@ -6,10 +7,11 @@ import { getLastAuthorUpdateTimestamp } from "./timestamps";
  * Returns whether the pull request is muted.
  */
 export function isMuted(
+  env: Environment,
   pr: PullRequest,
   muteConfiguration: MuteConfiguration
 ): MutedResult {
-  const currentTime = Date.now();
+  const currentTime = env.getCurrentTime();
   for (const [owner, ignoreConfiguration] of Object.entries(
     muteConfiguration.ignored || {}
   )) {

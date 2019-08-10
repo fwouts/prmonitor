@@ -1,3 +1,4 @@
+import { Environment } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { EnrichedPullRequest } from "./enriched-pull-request";
@@ -42,6 +43,7 @@ export type FilteredPullRequests = {
 };
 
 export function filterPullRequests(
+  env: Environment,
   userLogin: string,
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration
@@ -54,19 +56,19 @@ export function filterPullRequests(
     incoming: enrichedPullRequests.filter(
       pr =>
         isReviewRequired(pr.status) &&
-        isMuted(pr, muteConfiguration) === MutedResult.VISIBLE
+        isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
       pr =>
         isReviewRequired(pr.status) &&
-        isMuted(pr, muteConfiguration) === MutedResult.MUTED
+        isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
       pr => pr.status === PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY
     ),
     mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin),
     ignored: enrichedPullRequests.filter(
-      pr => isMuted(pr, muteConfiguration) === MutedResult.INVISIBLE
+      pr => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
     )
   };
 }

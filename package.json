@@ -11,7 +11,7 @@
     "mobx": "^5.13.0",
     "mobx-react-lite": "^1.4.1",
     "moment": "^2.24.0",
-    "react": "^16.8.6",
+    "react": "^16.9.0",
     "react-bootstrap": "^1.0.0-beta.10",
     "react-dom": "^16.9.0",
     "react-spinners": "^0.5.13"

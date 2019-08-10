@@ -60,6 +60,7 @@ function showNotification(
     iconUrl: "images/GitHub-Mark-120px-plus.png",
     title: getTitle(pullRequest),
     message: getMessage(pullRequest),
+    contextMessage: getContextMessage(pullRequest),
     ...(supportsRequireInteraction ? { requireInteraction: true } : {})
   });
 }
@@ -84,4 +85,8 @@ function getTitle(pullRequest: EnrichedPullRequest): string {
 
 function getMessage(pullRequest: EnrichedPullRequest): string {
   return pullRequest.title;
+}
+
+function getContextMessage(pullRequest: EnrichedPullRequest): string {
+  return `${pullRequest.repoOwner}/${pullRequest.repoName}`;
 }

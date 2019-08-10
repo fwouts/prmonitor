@@ -29,7 +29,12 @@ export enum Filter {
   /**
    * Filter that shows the user's own open pull requests.
    */
-  MINE = "mine"
+  MINE = "mine",
+
+  /**
+   * Filter that contains ignored PRs.
+   */
+  IGNORED = "ignored"
 }
 
 export type FilteredPullRequests = {
@@ -59,6 +64,9 @@ export function filterPullRequests(
     reviewed: enrichedPullRequests.filter(
       pr => pr.status === PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY
     ),
-    mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin)
+    mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin),
+    ignored: enrichedPullRequests.filter(
+      pr => isMuted(pr, muteConfiguration) === MutedResult.INVISIBLE
+    )
   };
 }

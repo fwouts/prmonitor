@@ -217,7 +217,7 @@ describe("filters (incoming)", () => {
       })
     ).toEqual([Filter.INCOMING]);
   });
-  it("is MUTED when the PR is muted and the author did not add new comments or reviews to", () => {
+  it("is MUTED when the PR is muted until next upadte and the author did not add new comments or reviews to", () => {
     expect(
       getFilteredBucket(
         "kevin",
@@ -251,6 +251,21 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.MUTED]);
   });
+  it.todo(
+    "is MUTED when the PR is muted until a specific time that hasn't been reached yet"
+  );
+  it.todo(
+    "is INCOMING when the PR is muted until a specific time that has been reached and the PR needs review"
+  );
+  it.todo(
+    "is REVIEWED when the PR is muted until a specific time that has been reached but the PR has been reviewed"
+  );
+  it.todo("is MUTED when the PR is muted forever and the PR needs review");
+  it.todo(
+    "is REVIEWED when the PR is muted forever and the PR has been reviewed"
+  );
+  it.todo("is IGNORED when the PR belongs to an owner that is ignored");
+  it.todo("is IGNORED when the PR belongs to a repository that is ignored");
   it("is INCOMING when the PR was muted but the author added comments since muting", () => {
     expect(
       getFilteredBucket(

@@ -4,11 +4,9 @@ import { GitHubApi } from "./api";
 export function buildGitHubApi(token: string): GitHubApi {
   const octokit = new Octokit({
     auth: `token ${token}`,
-    headers: {
-      // https://developer.github.com/v3/pulls/#list-pull-requests
-      // Enable Draft Pull Request API.
-      Accept: "application/vnd.github.shadow-cat-preview+json"
-    }
+    // https://developer.github.com/v3/pulls/#list-pull-requests
+    // Enable Draft Pull Request API.
+    previews: ["shadow-cat"]
   });
   return {
     async loadAuthenticatedUser() {

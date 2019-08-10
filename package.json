@@ -6,6 +6,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.21",
     "@fortawesome/free-solid-svg-icons": "^5.10.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
+    "@octokit/rest": "^16.28.7",
     "@types/lodash": "^4.14.136",
     "assert-never": "^1.2.0",
     "bootstrap": "^4.3.1",
@@ -21,7 +22,6 @@
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
-    "@octokit/rest": "^16.25.0",
     "@types/chrome": "^0.0.88",
     "@types/jest": "^24.0.17",
     "@types/node": "^12.7.1",

@@ -27,8 +27,10 @@ export function buildTestingEnvironment() {
     badger,
     messenger,
     tabOpener,
+    getCurrentTime: () => self.currentTime,
     isOnline: () => self.online,
-    online: true
+    online: true,
+    currentTime: 0
   };
   return self;
 }

@@ -529,29 +529,21 @@ describe("Core", () => {
     const core = new Core(env);
     await core.load();
 
-    // Oh well. This isn't very good, is it?
-    //
-    // We should have a date helper that we pass around so we can mock it out
-    // without replacing a global singleton with a mock. JavaScript, it's all your
-    // fault for making it too easy!
-    const nowDate = jest.fn();
-    Date.now = nowDate;
-
     // Mute two PRs (on different dates).
-    nowDate.mockReturnValue(Date.parse("1 Jan 2019"));
+    env.currentTime = 1;
     await core.mutePullRequest({
       repoOwner: "zenclabs",
       repoName: "prmonitor",
       pullRequestNumber: 1
     });
-    nowDate.mockReturnValue(Date.parse("5 Jan 2019"));
+    env.currentTime = 2;
     await core.mutePullRequest({
       repoOwner: "zenclabs",
       repoName: "prmonitor",
       pullRequestNumber: 2
     });
     // Late on, mute the first PR again
-    nowDate.mockReturnValue(Date.parse("8 Jan 2019"));
+    env.currentTime = 3;
     await core.mutePullRequest({
       repoOwner: "zenclabs",
       repoName: "prmonitor",
@@ -567,7 +559,7 @@ describe("Core", () => {
       },
       until: {
         kind: "next-update",
-        mutedAtTimestamp: Date.parse("5 Jan 2019")
+        mutedAtTimestamp: 2
       }
     });
     expect(core.muteConfiguration.mutedPullRequests[1]).toEqual({
@@ -578,7 +570,7 @@ describe("Core", () => {
       },
       until: {
         kind: "next-update",
-        mutedAtTimestamp: Date.parse("8 Jan 2019")
+        mutedAtTimestamp: 3
       }
     });
   });

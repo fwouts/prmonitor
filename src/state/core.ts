@@ -86,7 +86,7 @@ export class Core {
     await this.triggerReload();
     this.updateBadge();
     try {
-      const startRefreshTimestamp = Date.now();
+      const startRefreshTimestamp = this.env.getCurrentTime();
       await this.saveLoadedState({
         startRefreshTimestamp,
         ...(await this.env.githubLoader(this.token, this.loadedState))
@@ -137,7 +137,7 @@ export class Core {
         number: pullRequest.pullRequestNumber,
         until: {
           kind: "next-update",
-          mutedAtTimestamp: Date.now()
+          mutedAtTimestamp: this.env.getCurrentTime()
         }
       }
     ];

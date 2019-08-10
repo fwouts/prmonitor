@@ -121,7 +121,6 @@ export class Core {
     await this.env.tabOpener.openPullRequest(pullRequestUrl);
   }
 
-<<<<<<< HEAD
   async mutePullRequest(pullRequest: PullRequestReference, muteType: MuteType) {
     await this.saveMuteConfiguration(
       addMute(this.muteConfiguration, pullRequest, muteType)
@@ -140,35 +139,6 @@ export class Core {
     await this.saveMuteConfiguration(
       removeOwnerMute(this.muteConfiguration, owner)
     );
-=======
-  async mutePullRequest(pullRequest: {
-    repoOwner: string;
-    repoName: string;
-    pullRequestNumber: number;
-  }) {
-    this.muteConfiguration.mutedPullRequests = [
-      // Remove any previous mute of this PR.
-      ...this.muteConfiguration.mutedPullRequests.filter(
-        pr =>
-          pr.repo.owner !== pullRequest.repoOwner ||
-          pr.repo.name !== pullRequest.repoName ||
-          pr.number !== pullRequest.pullRequestNumber
-      ),
-      // Add the new mute.
-      {
-        repo: {
-          owner: pullRequest.repoOwner,
-          name: pullRequest.repoName
-        },
-        number: pullRequest.pullRequestNumber,
-        until: {
-          kind: "next-update",
-          mutedAtTimestamp: this.env.getCurrentTime()
-        }
-      }
-    ];
-    await this.saveMuteConfiguration(this.muteConfiguration);
->>>>>>> master
     this.updateBadge();
   }
 

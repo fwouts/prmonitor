@@ -74,32 +74,28 @@ export const Settings = observer((props: SettingsProps) => {
       <Header>Settings</Header>
       {!editing ? (
         props.core.loadedState ? (
-          <Paragraph>
-            <Row>
-              <span>
-                Signed in as{" "}
-                <UserLogin>
-                  {props.core.loadedState.userLogin || "unknown"}
-                </UserLogin>
-                .
-              </span>
-              <LargeButton onClick={openForm}>Update token</LargeButton>
-            </Row>
-          </Paragraph>
+          <Row>
+            <Paragraph>
+              Signed in as{" "}
+              <UserLogin>
+                {props.core.loadedState.userLogin || "unknown"}
+              </UserLogin>
+              .
+            </Paragraph>
+            <LargeButton onClick={openForm}>Update token</LargeButton>
+          </Row>
         ) : props.core.lastError ? (
-          <Paragraph>
-            <Row>
-              Is your token valid?
-              <LargeButton onClick={openForm}>Update token</LargeButton>
-            </Row>
-          </Paragraph>
+          <Row>
+            <Paragraph>Is your token valid?</Paragraph>
+            <LargeButton onClick={openForm}>Update token</LargeButton>
+          </Row>
         ) : props.core.token ? (
-          <Paragraph>
-            <Row>
+          <Row>
+            <Paragraph>
               We're loading your pull requests. This could take a while...
-              <LargeButton onClick={openForm}>Update token</LargeButton>
-            </Row>
-          </Paragraph>
+            </Paragraph>
+            <LargeButton onClick={openForm}>Update token</LargeButton>
+          </Row>
         ) : (
           <>
             <Paragraph>

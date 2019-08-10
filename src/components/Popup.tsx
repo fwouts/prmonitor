@@ -23,6 +23,15 @@ export const Popup = observer((props: PopupProps) => {
     currentFilter: Filter.INCOMING
   });
 
+  const onOpenAll = () => {
+    const pullRequests = props.core.filteredPullRequests
+      ? props.core.filteredPullRequests[state.currentFilter]
+      : [];
+    for (const pullRequest of pullRequests) {
+      onOpen(pullRequest.htmlUrl);
+    }
+  };
+
   const onOpen = (pullRequestUrl: string) => {
     props.core.openPullRequest(pullRequestUrl).catch(console.error);
   };
@@ -131,6 +140,7 @@ export const Popup = observer((props: PopupProps) => {
                   ? "allow-unmuting"
                   : "none"
               }
+              onOpenAll={onOpenAll}
               onOpen={onOpen}
               onMute={onMute}
               onUnmute={onUnmute}

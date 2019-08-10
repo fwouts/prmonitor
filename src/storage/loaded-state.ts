@@ -1,3 +1,5 @@
+import { PullRequestReference } from "../github-api/api";
+
 export interface LoadedState {
   /**
    * The timestamp at which we started loading the state.
@@ -30,6 +32,16 @@ export interface Repo {
 
   /** Date when the last commit was pushed (across any branch). */
   pushedAt: string;
+}
+
+export function ref(pullRequest: PullRequest): PullRequestReference {
+  return {
+    repo: {
+      owner: pullRequest.repoOwner,
+      name: pullRequest.repoName
+    },
+    number: pullRequest.pullRequestNumber
+  };
 }
 
 export interface PullRequest {

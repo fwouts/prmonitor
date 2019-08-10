@@ -8,10 +8,16 @@ import {
   filterPullRequests
 } from "../filtering/filters";
 import { PullRequestStatus } from "../filtering/status";
+import { PullRequestReference, RepoReference } from "../github-api/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
+  addMute,
   MuteConfiguration,
-  NOTHING_MUTED
+  MuteType,
+  NOTHING_MUTED,
+  removeOwnerMute,
+  removePullRequestMute,
+  removeRepositoryMute
 } from "../storage/mute-configuration";
 
 export class Core {
@@ -115,49 +121,31 @@ export class Core {
     await this.env.tabOpener.openPullRequest(pullRequestUrl);
   }
 
-  async mutePullRequest(pullRequest: {
-    repoOwner: string;
-    repoName: string;
-    pullRequestNumber: number;
-  }) {
-    this.muteConfiguration.mutedPullRequests = [
-      // Remove any previous mute of this PR.
-      ...this.muteConfiguration.mutedPullRequests.filter(
-        pr =>
-          pr.repo.owner !== pullRequest.repoOwner ||
-          pr.repo.name !== pullRequest.repoName ||
-          pr.number !== pullRequest.pullRequestNumber
-      ),
-      // Add the new mute.
-      {
-        repo: {
-          owner: pullRequest.repoOwner,
-          name: pullRequest.repoName
-        },
-        number: pullRequest.pullRequestNumber,
-        until: {
-          kind: "next-update",
-          mutedAtTimestamp: this.env.getCurrentTime()
-        }
-      }
-    ];
-    await this.saveMuteConfiguration(this.muteConfiguration);
+  async mutePullRequest(pullRequest: PullRequestReference, muteType: MuteType) {
+    await this.saveMuteConfiguration(
+      addMute(this.env, this.muteConfiguration, pullRequest, muteType)
+    );
     this.updateBadge();
   }
 
-  async unmutePullRequest(pullRequest: {
-    repoOwner: string;
-    repoName: string;
-    pullRequestNumber: number;
-  }) {
-    // Remove any previous mute of this PR.
-    this.muteConfiguration.mutedPullRequests = this.muteConfiguration.mutedPullRequests.filter(
-      pr =>
-        pr.repo.owner !== pullRequest.repoOwner ||
-        pr.repo.name !== pullRequest.repoName ||
-        pr.number !== pullRequest.pullRequestNumber
+  async unmutePullRequest(pullRequest: PullRequestReference) {
+    await this.saveMuteConfiguration(
+      removePullRequestMute(this.muteConfiguration, pullRequest)
     );
-    await this.saveMuteConfiguration(this.muteConfiguration);
+    this.updateBadge();
+  }
+
+  async unmuteOwner(owner: string) {
+    await this.saveMuteConfiguration(
+      removeOwnerMute(this.muteConfiguration, owner)
+    );
+    this.updateBadge();
+  }
+
+  async unmuteRepository(repo: RepoReference) {
+    await this.saveMuteConfiguration(
+      removeRepositoryMute(this.muteConfiguration, repo)
+    );
     this.updateBadge();
   }
 
@@ -168,6 +156,7 @@ export class Core {
       return null;
     }
     return filterPullRequests(
+      this.env,
       lastCheck.userLogin,
       lastCheck.openPullRequests,
       this.muteConfiguration

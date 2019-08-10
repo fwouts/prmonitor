@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequest } from "../storage/loaded-state";
+import { MuteType } from "../storage/mute-configuration";
 import { Paragraph } from "./design/Paragraph";
 import { Loader } from "./Loader";
 import { PullRequestItem } from "./PullRequestItem";
@@ -17,9 +18,10 @@ export const List = styled.div`
 export interface PullRequestListProps {
   pullRequests: EnrichedPullRequest[] | null;
   emptyMessage: string;
-  allowMuting: boolean;
+  mutingConfiguration: "allow-muting" | "allow-unmuting" | "none";
   onOpen(pullRequestUrl: string): void;
-  onMute(pullRequest: PullRequest): void;
+  onMute(pullRequest: PullRequest, muteType: MuteType): void;
+  onUnmute(pullRequest: PullRequest): void;
 }
 
 export const PullRequestList = observer((props: PullRequestListProps) => (
@@ -33,9 +35,10 @@ export const PullRequestList = observer((props: PullRequestListProps) => (
         <PullRequestItem
           key={pullRequest.nodeId}
           pullRequest={pullRequest}
-          allowMuting={props.allowMuting}
+          mutingConfiguration={props.mutingConfiguration}
           onOpen={props.onOpen}
           onMute={props.onMute}
+          onUnmute={props.onUnmute}
         />
       ))
     )}

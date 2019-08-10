@@ -2,7 +2,11 @@ import { ChromeApi } from "../chrome/api";
 import { Store } from "../storage/api";
 import { TabOpener } from "./api";
 
-export function buildTabOpener(chromeApi: ChromeApi, store: Store): TabOpener {
+export function buildTabOpener(
+  chromeApi: ChromeApi,
+  store: Store,
+  getCurrentTime: () => number
+): TabOpener {
   return {
     async openPullRequest(pullRequestUrl: string) {
       const lastRequestTimestamp = await store.lastRequestForTabsPermission.load();
@@ -15,7 +19,7 @@ export function buildTabOpener(chromeApi: ChromeApi, store: Store): TabOpener {
           openTab(chromeApi, pullRequestUrl, granted);
         });
       } else {
-        await store.lastRequestForTabsPermission.save(Date.now());
+        await store.lastRequestForTabsPermission.save(getCurrentTime());
         chromeApi.permissions.request(
           {
             permissions: ["tabs"]

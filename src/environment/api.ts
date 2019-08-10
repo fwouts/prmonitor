@@ -12,5 +12,6 @@ export interface Environment {
   badger: Badger;
   messenger: CrossScriptMessenger;
   tabOpener: TabOpener;
+  getCurrentTime(): number;
   isOnline(): boolean;
 }

@@ -9,13 +9,15 @@ import { Environment } from "./api";
 
 export function buildEnvironment(chromeApi: ChromeApi): Environment {
   const store = buildStore(chromeApi);
+  const getCurrentTime = () => Date.now();
   return {
     store,
     githubLoader: buildGitHubLoader(),
     notifier: buildNotifier(chromeApi),
     badger: buildBadger(chromeApi),
     messenger: buildMessenger(chromeApi),
-    tabOpener: buildTabOpener(chromeApi, store),
+    tabOpener: buildTabOpener(chromeApi, store, getCurrentTime),
+    getCurrentTime,
     isOnline: () => navigator.onLine
   };
 }

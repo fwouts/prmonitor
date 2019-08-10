@@ -60,6 +60,6 @@ module.exports = {
       { from: "manifest.json", to: "." },
       { from: "images", to: "images" }
     ]),
-    new BundleAnalyzerPlugin()
+    ...(process.env.BUNDLE_ANALYZER ? [new BundleAnalyzerPlugin()] : [])
   ]
 };

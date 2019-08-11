@@ -24,6 +24,7 @@ Here's a quick demo of PR Monitor in action:
   <a href="https://www.youtube.com/watch?v=kUtAhvPIg3Q" target="_blank">
     <img src="./screencasts/v0.5.1.gif" />
   </a>
+  <i>GIF made with <a href="https://www.producthunt.com/posts/gifski-2">Gifski 2</a></i>
 </p>
 
 ## How to install

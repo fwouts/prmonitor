@@ -18,7 +18,7 @@ PR Monitor is a Chrome and Firefox extension that helps you keep track of incomi
 
 ## What does it look like?
 
-Here's a quick demo of PR Monitor in action (click to open):
+Here's a quick demo of PR Monitor in action:
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=kUtAhvPIg3Q" target="_blank">

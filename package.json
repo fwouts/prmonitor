@@ -1,5 +1,5 @@
 {
-  "name": "prmonitor",
+  "private": true,
   "dependencies": {
     "@emotion/core": "^10.0.15",
     "@emotion/styled": "^10.0.15",

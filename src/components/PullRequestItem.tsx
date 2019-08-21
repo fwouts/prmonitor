@@ -122,9 +122,7 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
           {props.mutingConfiguration === "allow-muting" && (
             <InlineDropdown onClick={preventDefault} alignRight>
               <Dropdown.Toggle
-                as={
-                  SmallButton as any /* TypeScript isn't happy but the code is happy */
-                }
+                as={SmallButton}
                 id={`mute-dropdown-${props.pullRequest.nodeId}`}
               >
                 <FontAwesomeIcon icon="bell-slash" />

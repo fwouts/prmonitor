@@ -7,7 +7,6 @@ import {
   FilteredPullRequests,
   filterPullRequests
 } from "../filtering/filters";
-import { PullRequestStatus } from "../filtering/status";
 import { PullRequestReference, RepoReference } from "../github-api/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
 import {
@@ -175,8 +174,8 @@ export class Core {
     return this.filteredPullRequests
       ? this.filteredPullRequests[Filter.MINE].filter(
           pr =>
-            pr.status === PullRequestStatus.OUTGOING_APPROVED ||
-            pr.status === PullRequestStatus.OUTGOING_PENDING_CHANGES
+            pr.state.kind === "outgoing" &&
+            (pr.state.approvedByEveryone || pr.state.changesRequested)
         )
       : null;
   }

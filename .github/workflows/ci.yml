@@ -4,8 +4,7 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
-    strategy:
-      <<: *strategy
+    strategy: &strategy
       matrix:
         node_version: [12]
         os: [ubuntu-latest]

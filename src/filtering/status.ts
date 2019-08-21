@@ -94,7 +94,7 @@ function outgoingPullRequestStatus(
     return PullRequestStatus.OUTGOING_PENDING_REVIEW_HAS_REVIEWERS;
   }
   if (statuses.has("APPROVED")) {
-    return PullRequestStatus.OUTGOING_APPROVED;
+    return PullRequestStatus.OUTGOING_APPROVED_BY_EVERYONE;
   }
   // If there are no reviewers (e.g. for a PR on an open source repo you're not
   // a member of) then default to pending review.
@@ -161,7 +161,7 @@ export enum PullRequestStatus {
   /**
    * The current user has sent a PR and received approval from all reviewers.
    */
-  OUTGOING_APPROVED
+  OUTGOING_APPROVED_BY_EVERYONE
 }
 
 export function isReviewRequired(status: PullRequestStatus) {

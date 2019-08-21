@@ -33,9 +33,9 @@ const DRAFT = (
   </Badge>
 );
 
-const APPROVED = (
+const APPROVED_BY_EVERONE = (
   <Badge pill variant="success">
-    Approved
+    Approved by everyone
   </Badge>
 );
 
@@ -86,8 +86,8 @@ function renderStatus(status: Status) {
           {AUTHOR_REPLIED} {NEW_COMMIT}
         </>
       );
-    case Status.OUTGOING_APPROVED:
-      return APPROVED;
+    case Status.OUTGOING_APPROVED_BY_EVERYONE:
+      return APPROVED_BY_EVERONE;
     case Status.OUTGOING_PENDING_CHANGES:
       return CHANGES_REQUESTED;
     case Status.OUTGOING_PENDING_REVIEW_HAS_REVIEWERS:

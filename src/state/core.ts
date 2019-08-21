@@ -175,7 +175,7 @@ export class Core {
     return this.filteredPullRequests
       ? this.filteredPullRequests[Filter.MINE].filter(
           pr =>
-            pr.status === PullRequestStatus.OUTGOING_APPROVED ||
+            pr.status === PullRequestStatus.OUTGOING_APPROVED_BY_EVERYONE ||
             pr.status === PullRequestStatus.OUTGOING_PENDING_CHANGES
         )
       : null;

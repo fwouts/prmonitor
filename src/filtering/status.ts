@@ -84,13 +84,13 @@ function outgoingPullRequestState(
     stateByUser.set(requestedReviewer, "PENDING");
   }
 
-  const statees = new Set(stateByUser.values());
+  const states = new Set(stateByUser.values());
   return {
     kind: "outgoing",
     draft: pr.draft === true,
     noReviewers: stateByUser.size === 0,
-    changesRequested: stateByUser.has("CHANGES_REQUESTED"),
-    approvedByEveryone: statees.has("APPROVED") && statees.size === 1
+    changesRequested: states.has("CHANGES_REQUESTED"),
+    approvedByEveryone: states.has("APPROVED") && states.size === 1
   };
 }
 

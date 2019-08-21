@@ -14,9 +14,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           version: ${{ matrix.node_version }}
-      - name: yarn install, build and test
+      - uses: Borales/actions-yarn@install
+      - name: yarn build and test
         run: |
-          yarn install --frozen-lockfile
           yarn build
           yarn test
           yarn lint:check

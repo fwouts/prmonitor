@@ -37,9 +37,15 @@ const DRAFT = (
   </Badge>
 );
 
+const MERGEABLE = (
+  <Badge pill variant="success">
+    Mergeable
+  </Badge>
+);
+
 const APPROVED_BY_EVERONE = (
   <Badge pill variant="success">
-    Approved
+    Approved by everyone
   </Badge>
 );
 
@@ -76,7 +82,10 @@ function renderState(state: PullRequestState) {
     case "incoming":
       return renderIncomingState(state);
     case "outgoing":
-      return addDraftTag(state, renderOutgoingState(state));
+      return addDraftTag(
+        state,
+        addMergeableTag(state, renderOutgoingState(state))
+      );
     default:
       return null;
   }
@@ -113,6 +122,18 @@ function renderOutgoingState(state: OutgoingState): JSX.Element {
     );
   } else {
     return WAITING_FOR_REVIEW;
+  }
+}
+
+function addMergeableTag(state: OutgoingState, otherTags: JSX.Element) {
+  if (state.mergeable) {
+    return (
+      <>
+        {MERGEABLE} {otherTags}
+      </>
+    );
+  } else {
+    return otherTags;
   }
 }
 

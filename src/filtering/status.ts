@@ -90,6 +90,7 @@ function outgoingPullRequestState(
     draft: pr.draft === true,
     noReviewers: stateByUser.size === 0,
     changesRequested: states.has("CHANGES_REQUESTED"),
+    mergeable: pr.mergeable === true,
     approvedByEveryone: states.has("APPROVED") && states.size === 1
   };
 }
@@ -151,6 +152,11 @@ export interface OutgoingState {
    * by responding or adding new commits.
    */
   changesRequested: boolean;
+
+  /**
+   * True if GitHub indicates that the PR can be merged.
+   */
+  mergeable: boolean;
 
   /**
    * True if the PR was approved by all reviewers.

@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
 import { Filter } from "../filtering/filters";
 import { Core } from "../state/core";
-import { PullRequest } from "../storage/loaded-state";
+import { PullRequest, ref } from "../storage/loaded-state";
+import { MuteType } from "../storage/mute-configuration";
+import { IgnoredRepositories } from "./IgnoredRepositories";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
@@ -21,21 +23,25 @@ export const Popup = observer((props: PopupProps) => {
     currentFilter: Filter.INCOMING
   });
 
+  const onOpenAll = () => {
+    const pullRequests = props.core.filteredPullRequests
+      ? props.core.filteredPullRequests[state.currentFilter]
+      : [];
+    for (const pullRequest of pullRequests) {
+      onOpen(pullRequest.htmlUrl);
+    }
+  };
+
   const onOpen = (pullRequestUrl: string) => {
     props.core.openPullRequest(pullRequestUrl).catch(console.error);
   };
 
-  const onMute = (pullRequest: PullRequest) => {
-    switch (state.currentFilter) {
-      case Filter.INCOMING:
-        props.core.mutePullRequest(pullRequest);
-        break;
-      case Filter.MUTED:
-        props.core.unmutePullRequest(pullRequest);
-        break;
-      default:
-      // Do nothing.
-    }
+  const onMute = (pullRequest: PullRequest, muteType: MuteType) => {
+    props.core.mutePullRequest(ref(pullRequest), muteType);
+  };
+
+  const onUnmute = (pullRequest: PullRequest) => {
+    props.core.unmutePullRequest(ref(pullRequest));
   };
 
   return (
@@ -127,16 +133,26 @@ export const Popup = observer((props: PopupProps) => {
                   ? `Nothing to review, yay!`
                   : `There's nothing to see here.`
               }
-              allowMuting={
-                state.currentFilter === Filter.INCOMING ||
-                state.currentFilter === Filter.MUTED
+              mutingConfiguration={
+                state.currentFilter === Filter.INCOMING
+                  ? "allow-muting"
+                  : state.currentFilter === Filter.MUTED
+                  ? "allow-unmuting"
+                  : "none"
               }
+              onOpenAll={onOpenAll}
               onOpen={onOpen}
               onMute={onMute}
+              onUnmute={onUnmute}
             />
           </>
         )}
-      {props.core.overallStatus !== "loading" && <Settings core={props.core} />}
+      {props.core.overallStatus !== "loading" && (
+        <>
+          <IgnoredRepositories core={props.core} />
+          <Settings core={props.core} />
+        </>
+      )}
     </>
   );
 });

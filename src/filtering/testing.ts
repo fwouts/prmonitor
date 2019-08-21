@@ -1,13 +1,16 @@
+import { Environment } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { Filter, filterPullRequests } from "./filters";
 
 export function getFilteredBucket(
+  env: Environment,
   userLogin: string,
   muteConfiguration: MuteConfiguration,
   pr: PullRequest
 ) {
   const filteredPullRequests = filterPullRequests(
+    env,
     userLogin,
     [pr],
     muteConfiguration
@@ -24,6 +27,9 @@ export function getFilteredBucket(
   }
   if (filteredPullRequests.mine.length > 0) {
     filters.push(Filter.MINE);
+  }
+  if (filteredPullRequests.ignored.length > 0) {
+    filters.push(Filter.IGNORED);
   }
   return filters;
 }

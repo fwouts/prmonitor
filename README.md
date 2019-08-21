@@ -9,8 +9,8 @@
   </a>
 </p>
 
-[![CircleCI](https://circleci.com/gh/zenclabs/prmonitor.svg?style=svg)](https://circleci.com/gh/zenclabs/prmonitor)
-![License](https://img.shields.io/github/license/zenclabs/prmonitor.svg)
+[![CircleCI](https://circleci.com/gh/fwouts/prmonitor.svg?style=svg)](https://circleci.com/gh/fwouts/prmonitor)
+![License](https://img.shields.io/github/license/fwouts/prmonitor.svg)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/pneldbfhblmldbhmkolclpkijgnjcmng.svg)](https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng)
 [![Mozilla Add-on](https://img.shields.io/amo/v/pr-monitor.svg)](https://addons.mozilla.org/en-US/firefox/addon/pr-monitor)
 
@@ -18,10 +18,13 @@ PR Monitor is a Chrome and Firefox extension that helps you keep track of incomi
 
 ## What does it look like?
 
-Here's a real-life screenshot on Chrome:
+Here's a quick demo of PR Monitor in action:
 
 <p align="center">
-  <img src="./screenshots/v0.3.2.png" />
+  <a href="https://www.youtube.com/watch?v=kUtAhvPIg3Q" target="_blank">
+    <img src="./screencasts/v0.5.1.gif" />
+  </a>
+  <i>GIF made with <a href="https://www.producthunt.com/posts/gifski-2">Gifski 2</a></i>
 </p>
 
 ## How to install

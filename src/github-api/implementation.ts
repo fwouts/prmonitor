@@ -1,13 +1,44 @@
 import Octokit from "@octokit/rest";
 import { GitHubApi } from "./api";
 
+const ThrottledOctokit = Octokit.plugin(require("@octokit/plugin-throttling"));
+
+interface ThrottlingOptions {
+  method: string;
+  url: string;
+  request: {
+    retryCount: number;
+  };
+}
+
 export function buildGitHubApi(token: string): GitHubApi {
-  const octokit = new Octokit({
+  const octokit = new ThrottledOctokit({
     auth: `token ${token}`,
-    headers: {
-      // https://developer.github.com/v3/pulls/#list-pull-requests
-      // Enable Draft Pull Request API.
-      Accept: "application/vnd.github.shadow-cat-preview+json"
+    // https://developer.github.com/v3/pulls/#list-pull-requests
+    // Enable Draft Pull Request API.
+    previews: ["shadow-cat"],
+    throttle: {
+      onRateLimit: (retryAfterSeconds: number, options: ThrottlingOptions) => {
+        console.warn(
+          `Request quota exhausted for request ${options.method} ${options.url}`
+        );
+        // Only retry twice.
+        if (options.request.retryCount < 2) {
+          console.log(`Retrying after ${retryAfterSeconds} seconds!`);
+          return true;
+        }
+        return false;
+      },
+      onAbuseLimit: (
+        _retryAfterSeconds: number,
+        options: ThrottlingOptions
+      ) => {
+        // Does not retry, only logs a warning.
+        console.warn(
+          `Abuse detected for request ${options.method} ${options.url}`
+        );
+        return false;
+      }
     }
   });
   return {

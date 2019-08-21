@@ -1,4 +1,7 @@
 const path = require("path");
+const webpack = require("webpack");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+  .BundleAnalyzerPlugin;
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -33,7 +36,7 @@ module.exports = {
     popup: "./src/popup.tsx"
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
+    extensions: [".tsx", ".ts", ".js", ".json"]
   },
   output: {
     filename: "[name].js",
@@ -53,9 +56,11 @@ module.exports = {
       inject: true,
       chunks: ["popup"]
     }),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new CopyPlugin([
       { from: "manifest.json", to: "." },
       { from: "images", to: "images" }
-    ])
+    ]),
+    ...(process.env.BUNDLE_ANALYZER ? [new BundleAnalyzerPlugin()] : [])
   ]
 };

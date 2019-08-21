@@ -1,12 +1,9 @@
+import { Environment } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { EnrichedPullRequest } from "./enriched-pull-request";
-import { isMuted } from "./muted";
-import {
-  isReviewRequired,
-  pullRequestStatus,
-  PullRequestStatus
-} from "./status";
+import { isMuted, MutedResult } from "./muted";
+import { isReviewRequired, pullRequestState } from "./status";
 
 export enum Filter {
   /**
@@ -29,7 +26,12 @@ export enum Filter {
   /**
    * Filter that shows the user's own open pull requests.
    */
-  MINE = "mine"
+  MINE = "mine",
+
+  /**
+   * Filter that contains ignored PRs.
+   */
+  IGNORED = "ignored"
 }
 
 export type FilteredPullRequests = {
@@ -37,24 +39,36 @@ export type FilteredPullRequests = {
 };
 
 export function filterPullRequests(
+  env: Environment,
   userLogin: string,
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration
 ): FilteredPullRequests {
   const enrichedPullRequests = openPullRequests.map(pr => ({
-    status: pullRequestStatus(pr, userLogin),
+    state: pullRequestState(pr, userLogin),
     ...pr
   }));
   return {
     incoming: enrichedPullRequests.filter(
-      pr => isReviewRequired(pr.status) && !isMuted(pr, muteConfiguration)
+      pr =>
+        isReviewRequired(pr.state) &&
+        isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
-      pr => isReviewRequired(pr.status) && isMuted(pr, muteConfiguration)
+      pr =>
+        isReviewRequired(pr.state) &&
+        isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
-      pr => pr.status === PullRequestStatus.INCOMING_REVIEWED_PENDING_REPLY
+      pr =>
+        pr.state.kind === "incoming" &&
+        (!pr.state.newReviewRequested &&
+          !pr.state.newCommit &&
+          !pr.state.authorResponded)
     ),
-    mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin)
+    mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin),
+    ignored: enrichedPullRequests.filter(
+      pr => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
+    )
   };
 }

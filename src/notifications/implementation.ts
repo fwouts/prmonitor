@@ -1,6 +1,5 @@
 import { ChromeApi } from "../chrome/api";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
-import { PullRequestStatus } from "../filtering/status";
 import { Notifier } from "./api";
 
 export function buildNotifier(chromeApi: ChromeApi): Notifier {
@@ -60,28 +59,37 @@ function showNotification(
     iconUrl: "images/GitHub-Mark-120px-plus.png",
     title: getTitle(pullRequest),
     message: getMessage(pullRequest),
+    contextMessage: getContextMessage(pullRequest),
     ...(supportsRequireInteraction ? { requireInteraction: true } : {})
   });
 }
 
 function getTitle(pullRequest: EnrichedPullRequest): string {
-  switch (pullRequest.status) {
-    case PullRequestStatus.INCOMING_NEW_REVIEW_REQUESTED:
-      return "New pull request";
-    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
-      return `${pullRequest.author.login} commented`;
-    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT:
-    case PullRequestStatus.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
-      return `Pull request updated`;
-    case PullRequestStatus.OUTGOING_APPROVED:
-      return `Pull request approved`;
-    case PullRequestStatus.OUTGOING_PENDING_CHANGES:
-      return `New changes requested`;
-    default:
-      throw new Error(`Well, this should never happen.`);
+  switch (pullRequest.state.kind) {
+    case "incoming":
+      if (pullRequest.state.newReviewRequested) {
+        return "New pull request";
+      } else if (pullRequest.state.newCommit) {
+        return `Pull request updated`;
+      } else if (pullRequest.state.authorResponded) {
+        return `${pullRequest.author.login} commented`;
+      }
+      break;
+    case "outgoing":
+      if (pullRequest.state.approvedByEveryone) {
+        return `Pull request approved by everyone`;
+      } else if (pullRequest.state.changesRequested) {
+        return `New changes requested`;
+      }
+      break;
   }
+  throw new Error(`Well, this should never happen.`);
 }
 
 function getMessage(pullRequest: EnrichedPullRequest): string {
   return pullRequest.title;
+}
+
+function getContextMessage(pullRequest: EnrichedPullRequest): string {
+  return `${pullRequest.repoOwner}/${pullRequest.repoName}`;
 }

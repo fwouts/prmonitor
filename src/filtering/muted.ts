@@ -1,3 +1,4 @@
+import { Environment } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { getLastAuthorUpdateTimestamp } from "./timestamps";
@@ -5,7 +6,28 @@ import { getLastAuthorUpdateTimestamp } from "./timestamps";
 /**
  * Returns whether the pull request is muted.
  */
-export function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
+export function isMuted(
+  env: Environment,
+  pr: PullRequest,
+  muteConfiguration: MuteConfiguration
+): MutedResult {
+  const currentTime = env.getCurrentTime();
+  for (const [owner, ignoreConfiguration] of Object.entries(
+    muteConfiguration.ignored || {}
+  )) {
+    if (pr.repoOwner !== owner) {
+      continue;
+    }
+    switch (ignoreConfiguration.kind) {
+      case "ignore-only":
+        if (ignoreConfiguration.repoNames.indexOf(pr.repoName) !== -1) {
+          return MutedResult.INVISIBLE;
+        }
+        break;
+      case "ignore-all":
+        return MutedResult.INVISIBLE;
+    }
+  }
   for (const muted of muteConfiguration.mutedPullRequests) {
     if (
       muted.repo.owner === pr.repoOwner &&
@@ -17,9 +39,21 @@ export function isMuted(pr: PullRequest, muteConfiguration: MuteConfiguration) {
         case "next-update":
           const updatedSince =
             getLastAuthorUpdateTimestamp(pr) > muted.until.mutedAtTimestamp;
-          return !updatedSince;
+          return updatedSince ? MutedResult.VISIBLE : MutedResult.MUTED;
+        case "specific-time":
+          return currentTime >= muted.until.unmuteAtTimestamp
+            ? MutedResult.VISIBLE
+            : MutedResult.MUTED;
+        case "forever":
+          return MutedResult.MUTED;
       }
     }
   }
-  return false;
+  return MutedResult.VISIBLE;
+}
+
+export enum MutedResult {
+  VISIBLE,
+  MUTED,
+  INVISIBLE
 }

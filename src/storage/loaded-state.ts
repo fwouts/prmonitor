@@ -1,3 +1,5 @@
+import { PullRequestReference } from "../github-api/api";
+
 export interface LoadedState {
   /**
    * The timestamp at which we started loading the state.
@@ -32,6 +34,16 @@ export interface Repo {
   pushedAt: string;
 }
 
+export function ref(pullRequest: PullRequest): PullRequestReference {
+  return {
+    repo: {
+      owner: pullRequest.repoOwner,
+      name: pullRequest.repoName
+    },
+    number: pullRequest.pullRequestNumber
+  };
+}
+
 export interface PullRequest {
   nodeId: string;
   htmlUrl: string;
@@ -45,6 +57,7 @@ export interface PullRequest {
   };
   title: string;
   draft?: boolean;
+  mergeable?: boolean;
   /**
    * Whether a review is requested from the current user.
    */

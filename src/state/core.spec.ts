@@ -1,5 +1,6 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
-import { LoadedState, PullRequest } from "../storage/loaded-state";
+import { PullRequestReference } from "../github-api/api";
+import { LoadedState, PullRequest, ref } from "../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
@@ -494,7 +495,7 @@ describe("Core", () => {
     ]);
 
     // Mute the PR.
-    await core.mutePullRequest(pr1);
+    await core.mutePullRequest(ref(pr1), "next-update");
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
@@ -507,7 +508,7 @@ describe("Core", () => {
     ]);
 
     // Unmute the PR.
-    await core.unmutePullRequest(pr1);
+    await core.unmutePullRequest(ref(pr1));
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
@@ -529,56 +530,43 @@ describe("Core", () => {
     const core = new Core(env);
     await core.load();
 
-    // Oh well. This isn't very good, is it?
-    //
-    // We should have a date helper that we pass around so we can mock it out
-    // without replacing a global singleton with a mock. JavaScript, it's all your
-    // fault for making it too easy!
-    const nowDate = jest.fn();
-    Date.now = nowDate;
+    const pr1: PullRequestReference = {
+      repo: {
+        owner: "zenclabs",
+        name: "prmonitor"
+      },
+      number: 1
+    };
+    const pr2: PullRequestReference = {
+      repo: {
+        owner: "zenclabs",
+        name: "prmonitor"
+      },
+      number: 2
+    };
 
     // Mute two PRs (on different dates).
-    nowDate.mockReturnValue(Date.parse("1 Jan 2019"));
-    await core.mutePullRequest({
-      repoOwner: "zenclabs",
-      repoName: "prmonitor",
-      pullRequestNumber: 1
-    });
-    nowDate.mockReturnValue(Date.parse("5 Jan 2019"));
-    await core.mutePullRequest({
-      repoOwner: "zenclabs",
-      repoName: "prmonitor",
-      pullRequestNumber: 2
-    });
+    env.currentTime = 1;
+    await core.mutePullRequest(pr1, "next-update");
+    env.currentTime = 2;
+    await core.mutePullRequest(pr2, "next-update");
     // Late on, mute the first PR again
-    nowDate.mockReturnValue(Date.parse("8 Jan 2019"));
-    await core.mutePullRequest({
-      repoOwner: "zenclabs",
-      repoName: "prmonitor",
-      pullRequestNumber: 1
-    });
+    env.currentTime = 3;
+    await core.mutePullRequest(pr1, "next-update");
 
     expect(core.muteConfiguration.mutedPullRequests).toHaveLength(2);
     expect(core.muteConfiguration.mutedPullRequests[0]).toEqual({
-      number: 2,
-      repo: {
-        name: "prmonitor",
-        owner: "zenclabs"
-      },
+      ...pr2,
       until: {
         kind: "next-update",
-        mutedAtTimestamp: Date.parse("5 Jan 2019")
+        mutedAtTimestamp: 2
       }
     });
     expect(core.muteConfiguration.mutedPullRequests[1]).toEqual({
-      number: 1,
-      repo: {
-        name: "prmonitor",
-        owner: "zenclabs"
-      },
+      ...pr1,
       until: {
         kind: "next-update",
-        mutedAtTimestamp: Date.parse("8 Jan 2019")
+        mutedAtTimestamp: 3
       }
     });
   });

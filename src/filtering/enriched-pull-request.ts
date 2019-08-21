@@ -1,6 +1,6 @@
 import { PullRequest } from "../storage/loaded-state";
-import { PullRequestStatus } from "./status";
+import { PullRequestState } from "./status";
 
 export interface EnrichedPullRequest extends PullRequest {
-  status: PullRequestStatus;
+  state: PullRequestState;
 }

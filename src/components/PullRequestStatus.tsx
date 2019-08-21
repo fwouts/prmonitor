@@ -3,9 +3,13 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Badge } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
-import { PullRequestStatus as Status } from "../filtering/status";
+import {
+  IncomingState,
+  OutgoingState,
+  PullRequestState
+} from "../filtering/status";
 
-const StatusBox = styled.div`
+const StateBox = styled.div`
   padding: 0 8px;
 `;
 
@@ -59,46 +63,67 @@ const NO_REVIEWER_ASSIGNED = (
 
 export const PullRequestStatus = observer(
   ({ pullRequest }: { pullRequest: EnrichedPullRequest }) => {
-    const status = renderStatus(pullRequest.status);
-    const draft = pullRequest.draft && DRAFT;
-    if (status || draft) {
-      return (
-        <StatusBox>
-          {draft} {status}
-        </StatusBox>
-      );
+    const state = renderState(pullRequest.state);
+    if (state) {
+      return <StateBox>{state}</StateBox>;
     }
     return <></>;
   }
 );
 
-function renderStatus(status: Status) {
-  switch (status) {
-    case Status.INCOMING_NEW_REVIEW_REQUESTED:
-      return UNREVIEWED;
-    case Status.INCOMING_REVIEWED_NEW_COMMENT_BY_AUTHOR:
-      return AUTHOR_REPLIED;
-    case Status.INCOMING_REVIEWED_NEW_COMMIT:
-      return NEW_COMMIT;
-    case Status.INCOMING_REVIEWED_NEW_COMMIT_AND_NEW_COMMENT_BY_AUTHOR:
-      return (
-        <>
-          {AUTHOR_REPLIED} {NEW_COMMIT}
-        </>
-      );
-    case Status.OUTGOING_APPROVED_BY_EVERYONE:
-      return APPROVED_BY_EVERONE;
-    case Status.OUTGOING_PENDING_CHANGES:
-      return CHANGES_REQUESTED;
-    case Status.OUTGOING_PENDING_REVIEW_HAS_REVIEWERS:
-      return WAITING_FOR_REVIEW;
-    case Status.OUTGOING_PENDING_REVIEW_NO_REVIEWERS:
-      return (
-        <>
-          {WAITING_FOR_REVIEW} {NO_REVIEWER_ASSIGNED}
-        </>
-      );
+function renderState(state: PullRequestState) {
+  switch (state.kind) {
+    case "incoming":
+      return renderIncomingState(state);
+    case "outgoing":
+      return addDraftTag(state, renderOutgoingState(state));
     default:
       return null;
+  }
+}
+
+function renderIncomingState(state: IncomingState) {
+  if (state.newReviewRequested) {
+    return UNREVIEWED;
+  } else if (state.authorResponded && state.newCommit) {
+    return (
+      <>
+        {AUTHOR_REPLIED} {NEW_COMMIT}
+      </>
+    );
+  } else if (state.authorResponded) {
+    return AUTHOR_REPLIED;
+  } else if (state.newCommit) {
+    return NEW_COMMIT;
+  } else {
+    return null;
+  }
+}
+
+function renderOutgoingState(state: OutgoingState): JSX.Element {
+  if (state.approvedByEveryone) {
+    return APPROVED_BY_EVERONE;
+  } else if (state.changesRequested) {
+    return CHANGES_REQUESTED;
+  } else if (state.noReviewers) {
+    return (
+      <>
+        {WAITING_FOR_REVIEW} {NO_REVIEWER_ASSIGNED}
+      </>
+    );
+  } else {
+    return WAITING_FOR_REVIEW;
+  }
+}
+
+function addDraftTag(state: OutgoingState, otherTags: JSX.Element) {
+  if (state.draft) {
+    return (
+      <>
+        {DRAFT} {otherTags}
+      </>
+    );
+  } else {
+    return otherTags;
   }
 }

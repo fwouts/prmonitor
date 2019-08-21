@@ -57,6 +57,7 @@ export interface PullRequest {
   };
   title: string;
   draft?: boolean;
+  mergeable?: boolean;
   /**
    * Whether a review is requested from the current user.
    */

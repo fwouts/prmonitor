@@ -112,6 +112,7 @@ function pullRequestFromResponse(
     },
     title: response.title,
     draft: response.draft,
+    mergeable: details.mergeable,
     reviewRequested,
     requestedReviewers: details.requested_reviewers.map(
       reviewer => reviewer.login

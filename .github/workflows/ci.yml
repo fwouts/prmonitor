@@ -5,6 +5,7 @@ jobs:
     name: Build
     runs-on: ${{ matrix.os }}
     strategy:
+      <<: *strategy
       matrix:
         node_version: [12]
         os: [ubuntu-latest]
@@ -24,9 +25,7 @@ jobs:
     name: Test
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:
-        node_version: [12]
-        os: [ubuntu-latest]
+      <<: *strategy
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node_version }}
@@ -43,9 +42,7 @@ jobs:
     name: Lint
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:
-        node_version: [12]
-        os: [ubuntu-latest]
+      <<: *strategy
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node_version }}

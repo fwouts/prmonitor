@@ -77,7 +77,7 @@ function getTitle(pullRequest: EnrichedPullRequest): string {
       break;
     case "outgoing":
       if (pullRequest.state.approvedByEveryone) {
-        return `Pull request approved by everyone`;
+        return `Pull request approved`;
       } else if (pullRequest.state.changesRequested) {
         return `New changes requested`;
       }

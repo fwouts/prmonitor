@@ -39,7 +39,7 @@ const DRAFT = (
 
 const APPROVED_BY_EVERONE = (
   <Badge pill variant="success">
-    Approved by everyone
+    Approved
   </Badge>
 );
 

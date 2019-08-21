@@ -1,47 +1,13 @@
 on: [push]
 
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ${{ matrix.os }}
     strategy: &strategy
       matrix:
         node_version: [12]
         os: [ubuntu-latest]
-    steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v1
-        with:
-          version: ${{ matrix.node_version }}
-      - run: yarn install --frozen-lockfile
-      - name: yarn build and test
-        run: |
-          yarn build
-          yarn test
-          yarn lint:check
-  test:
-    name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      <<: *strategy
-    steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v1
-        with:
-          version: ${{ matrix.node_version }}
-      - run: yarn install --frozen-lockfile
-      - name: yarn build and test
-        run: |
-          yarn build
-          yarn test
-          yarn lint:check
-  lint:
-    name: Lint
-    runs-on: ${{ matrix.os }}
-    strategy:
-      <<: *strategy
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node_version }}

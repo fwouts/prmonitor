@@ -9,7 +9,6 @@ import {
   PullsListReviewsResponse,
   PullsSearchResponse
 } from "../../github-api/api";
-import { PullRequest } from "../../storage/loaded-state";
 import { refreshOpenPullRequests } from "./pull-requests";
 
 describe("refreshOpenPullRequests", () => {
@@ -120,30 +119,5 @@ function mockGitHubApi() {
       Promise<PullsListCommitsResponse>,
       [PullRequestReference]
     >()
-  };
-}
-
-export function createFakePullRequest(
-  repoOwner: string,
-  repoName: string,
-  pullRequestNumber: number
-): PullRequest {
-  const id = `${repoOwner}/${repoName}/${pullRequestNumber}`;
-  return {
-    nodeId: id,
-    title: id,
-    updatedAt: "5 May 2019",
-    repoOwner,
-    repoName,
-    pullRequestNumber,
-    author: {
-      login: "author",
-      avatarUrl: "http://url"
-    },
-    htmlUrl: "http://url",
-    reviewRequested: false,
-    reviews: [],
-    comments: [],
-    commits: []
   };
 }

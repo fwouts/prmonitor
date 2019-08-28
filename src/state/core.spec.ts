@@ -1,10 +1,11 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
 import { PullRequestReference } from "../github-api/api";
-import { LoadedState, PullRequest, ref } from "../storage/loaded-state";
+import { LoadedState, ref } from "../storage/loaded-state";
 import {
   MuteConfiguration,
   NOTHING_MUTED
 } from "../storage/mute-configuration";
+import { fakePullRequest } from "../testing/fake-pr";
 import { Core } from "./core";
 
 describe("Core", () => {
@@ -412,22 +413,12 @@ describe("Core", () => {
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
         openPullRequests: [
-          {
-            repoOwner: "zenclabs",
-            repoName: "prmonitor",
-            pullRequestNumber: 1,
-            nodeId: "a-pr",
-            title: "A PR",
-            author: {
-              login: "kevin",
-              avatarUrl: "http://url"
-            },
-            updatedAt: "5 May 2019",
-            htmlUrl: "http://a-pr",
-            reviewRequested: true,
-            reviews: [],
-            comments: []
-          }
+          fakePullRequest()
+            .ref("zenclabs", "prmonitor", 1)
+            .author("kevin")
+            .seenAs("fwouts")
+            .reviewRequested(["fwouts"])
+            .build()
         ]
       })
     );
@@ -438,9 +429,11 @@ describe("Core", () => {
         env.store.lastCheck.currentValue.openPullRequests
     ).toHaveLength(1);
     expect(core.unreviewedPullRequests).toHaveLength(1);
-    expect(env.notifier.notified).toEqual([["http://a-pr"]]);
+    expect(env.notifier.notified).toEqual([
+      ["http://github.com/zenclabs/prmonitor/1"]
+    ]);
     expect(env.store.notifiedPullRequests.currentValue).toEqual([
-      "http://a-pr"
+      "http://github.com/zenclabs/prmonitor/1"
     ]);
   });
 
@@ -448,38 +441,18 @@ describe("Core", () => {
     const env = buildTestingEnvironment();
     const core = new Core(env);
     env.store.token.currentValue = "valid-token";
-    const pr1: PullRequest = {
-      repoOwner: "zenclabs",
-      repoName: "prmonitor",
-      pullRequestNumber: 1,
-      nodeId: "pr-1",
-      title: "A PR",
-      author: {
-        login: "kevin",
-        avatarUrl: "http://url"
-      },
-      updatedAt: "5 May 2019",
-      htmlUrl: "http://pr-1",
-      reviewRequested: true,
-      reviews: [],
-      comments: []
-    };
-    const pr2: PullRequest = {
-      repoOwner: "zenclabs",
-      repoName: "prmonitor",
-      pullRequestNumber: 2,
-      nodeId: "pr-2",
-      title: "A PR",
-      author: {
-        login: "kevin",
-        avatarUrl: "http://url"
-      },
-      updatedAt: "5 May 2019",
-      htmlUrl: "http://pr-2",
-      reviewRequested: true,
-      reviews: [],
-      comments: []
-    };
+    const pr1 = fakePullRequest()
+      .ref("zenclabs", "prmonitor", 1)
+      .author("kevin")
+      .seenAs("fwouts")
+      .reviewRequested(["fwouts"])
+      .build();
+    const pr2 = fakePullRequest()
+      .ref("zenclabs", "prmonitor", 2)
+      .author("kevin")
+      .seenAs("fwouts")
+      .reviewRequested(["fwouts"])
+      .build();
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
       openPullRequests: [pr1, pr2]

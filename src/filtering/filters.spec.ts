@@ -1,233 +1,198 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
-import { PullRequest } from "../storage/loaded-state";
 import { NOTHING_MUTED } from "../storage/mute-configuration";
+import { fakePullRequest } from "../testing/fake-pr";
 import { Filter } from "./filters";
 import { getFilteredBucket } from "./testing";
-
-const DUMMY_PR: PullRequest = {
-  author: {
-    login: "fwouts",
-    avatarUrl: "http://url"
-  },
-  repoOwner: "zenclabs",
-  repoName: "prmonitor",
-  pullRequestNumber: 1,
-  title: "Dummy PR",
-  updatedAt: "5 May 2019",
-  htmlUrl: "https://github.com/zenclabs/prmonitor/pull/1",
-  nodeId: "fake",
-  reviewRequested: false,
-  reviews: [],
-  comments: []
-};
 
 describe("filters (incoming)", () => {
   it("is MINE for the user's own PRs", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "fwouts", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: true
-      })
+      getFilteredBucket(
+        env,
+        "fwouts",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("fwouts")
+          .reviewRequested(["kevin", "fwouts"])
+          .build()
+      )
     ).toEqual([Filter.MINE]);
   });
   it("is NOTHING when the user is not a reviewer and hasn't commented", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested([])
+          .build()
+      )
     ).toEqual([]);
   });
   it("is INCOMING when the user is a reviewer and hasn't reviewed or commented", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: true
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is INCOMING when the user is not a reviewer but had reviewed, and the author responds", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        reviews: [
-          {
-            authorLogin: "kevin",
-            state: "COMMENTED",
-            submittedAt: "2019-02-15T17:00:11Z"
-          }
-        ],
-        comments: [
-          {
-            authorLogin: "fwouts",
-            createdAt: "2019-02-16T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addReview("kevin", "COMMENTED")
+          .addComment("fwouts")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is INCOMING when the user is not a reviewer but had commented, and the author responds", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        comments: [
-          {
-            authorLogin: "kevin",
-            createdAt: "2019-02-15T17:00:11Z"
-          },
-          {
-            authorLogin: "fwouts",
-            createdAt: "2019-02-16T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addComment("kevin")
+          .addComment("fwouts")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is REVIEWED when the user has reviewed and the author hasn't responded", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        reviews: [
-          {
-            authorLogin: "kevin",
-            state: "COMMENTED",
-            submittedAt: "2019-04-15T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addComment("kevin")
+          .build()
+      )
     ).toEqual([Filter.REVIEWED]);
   });
   it("is REVIEWED when the user is a reviewer, has commented and the author hasn't responded", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: true,
-        comments: [
-          {
-            authorLogin: "kevin",
-            createdAt: "2019-04-15T17:00:11Z"
-          }
-        ],
-        // Another user posted a review after we muted.
-        reviews: [
-          {
-            authorLogin: "dries",
-            state: "CHANGES_REQUESTED",
-            submittedAt: "2019-03-18T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .addComment("kevin")
+          // Another user posted a review.
+          .addReview("dries", "CHANGES_REQUESTED")
+          .build()
+      )
     ).toEqual([Filter.REVIEWED]);
   });
   it("is INCOMING when the author responded with a comment", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        comments: [
-          {
-            authorLogin: "kevin",
-            createdAt: "2019-04-15T17:00:11Z"
-          },
-          {
-            authorLogin: "fwouts",
-            createdAt: "2019-04-16T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addComment("kevin")
+          .addComment("fwouts")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is INCOMING when the author responded with a review", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        comments: [
-          {
-            authorLogin: "kevin",
-            createdAt: "2019-04-15T17:00:11Z"
-          }
-        ],
-        reviews: [
-          {
-            authorLogin: "fwouts",
-            state: "COMMENTED",
-            submittedAt: "2019-04-16T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addComment("kevin")
+          .addReview("fwouts", "COMMENTED")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is INCOMING when the PR was previously reviewed but the author responded", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        reviews: [
-          {
-            authorLogin: "kevin",
-            state: "CHANGES_REQUESTED",
-            submittedAt: "2019-02-15T17:00:11Z"
-          }
-        ],
-        comments: [
-          {
-            authorLogin: "fwouts",
-            createdAt: "2019-02-16T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addReview("kevin", "CHANGES_REQUESTED")
+          .addComment("fwouts")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is INCOMING when the PR was approved but the author responded", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: false,
-        reviews: [
-          {
-            authorLogin: "kevin",
-            state: "APPROVED",
-            submittedAt: "2019-02-15T17:00:11Z"
-          }
-        ],
-        comments: [
-          {
-            authorLogin: "fwouts",
-            createdAt: "2019-02-16T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addReview("kevin", "APPROVED")
+          .addComment("fwouts")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is still INCOMING when there are pending review comments", () => {
     const env = buildTestingEnvironment();
     expect(
-      getFilteredBucket(env, "kevin", NOTHING_MUTED, {
-        ...DUMMY_PR,
-        reviewRequested: true,
-        reviews: [
-          {
-            authorLogin: "kevin",
-            state: "PENDING",
-            submittedAt: "2019-04-15T17:00:11Z"
-          }
-        ]
-      })
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .addReview("kevin", "PENDING")
+          .build()
+      )
     ).toEqual([Filter.INCOMING]);
   });
   it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews to", () => {
@@ -246,23 +211,18 @@ describe("filters (incoming)", () => {
               number: 1,
               until: {
                 kind: "next-update",
-                mutedAtTimestamp: new Date("2019-03-16T17:00:11Z").getTime()
+                mutedAtTimestamp: 100
               }
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true,
-          reviews: [
-            // Another user posted a review after we muted.
-            {
-              authorLogin: "dries",
-              state: "CHANGES_REQUESTED",
-              submittedAt: "2019-03-18T17:00:11Z"
-            }
-          ]
-        }
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          // Another user posted a review after we muted.
+          .addReview("dries", "CHANGES_REQUESTED", 200)
+          .build()
       )
     ).toEqual([Filter.MUTED]);
   });
@@ -288,10 +248,11 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true
-        }
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
       )
     ).toEqual([Filter.MUTED]);
   });
@@ -317,10 +278,11 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true
-        }
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
       )
     ).toEqual([Filter.INCOMING]);
   });
@@ -346,16 +308,11 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true,
-          comments: [
-            {
-              authorLogin: "kevin",
-              createdAt: new Date(100).toISOString()
-            }
-          ]
-        }
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addComment("kevin")
+          .build()
       )
     ).toEqual([Filter.REVIEWED]);
   });
@@ -379,10 +336,11 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true
-        }
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
       )
     ).toEqual([Filter.MUTED]);
   });
@@ -406,16 +364,11 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true,
-          comments: [
-            {
-              authorLogin: "kevin",
-              createdAt: new Date(100).toISOString()
-            }
-          ]
-        }
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .addComment("kevin")
+          .build()
       )
     ).toEqual([Filter.REVIEWED]);
   });
@@ -433,10 +386,12 @@ describe("filters (incoming)", () => {
             }
           }
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true
-        }
+        fakePullRequest()
+          .ref("zenclabs", "prmonitor", 1)
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
       )
     ).toEqual([Filter.IGNORED]);
   });
@@ -455,10 +410,12 @@ describe("filters (incoming)", () => {
             }
           }
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true
-        }
+        fakePullRequest()
+          .ref("zenclabs", "prmonitor", 1)
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
       )
     ).toEqual([Filter.IGNORED]);
   });
@@ -478,21 +435,18 @@ describe("filters (incoming)", () => {
               number: 1,
               until: {
                 kind: "next-update",
-                mutedAtTimestamp: new Date("2019-03-16T17:00:11Z").getTime()
+                mutedAtTimestamp: 100
               }
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true,
-          comments: [
-            {
-              authorLogin: "fwouts",
-              createdAt: "2019-03-18T17:00:11Z"
-            }
-          ]
-        }
+        fakePullRequest()
+          .ref("zenclabs", "prmonitor", 1)
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .addComment("fwouts", 200)
+          .build()
       )
     ).toEqual([Filter.INCOMING]);
   });
@@ -517,10 +471,12 @@ describe("filters (incoming)", () => {
             }
           ]
         },
-        {
-          ...DUMMY_PR,
-          reviewRequested: true
-        }
+        fakePullRequest()
+          .ref("zenclabs", "prmonitor", 1)
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
       )
     ).toEqual([Filter.INCOMING]);
   });

@@ -71,6 +71,9 @@ class FakePullRequestBuilder {
   }
 
   addReview(login: string, state: ReviewState, timestamp?: number) {
+    this._reviewerLogins = this._reviewerLogins.filter(
+      reviewer => reviewer !== login
+    );
     this._reviews.push({
       authorLogin: login,
       state,

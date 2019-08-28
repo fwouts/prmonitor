@@ -199,6 +199,7 @@ describe("pullRequestState", () => {
       pullRequestState(
         fakePullRequest()
           .author("fwouts")
+          .reviewRequested(["kevin", "dries"])
           .addReview("kevin", "CHANGES_REQUESTED")
           .addComment("fwouts")
           .addReview("kevin", "APPROVED")

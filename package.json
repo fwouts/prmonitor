@@ -8,7 +8,7 @@
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@octokit/plugin-throttling": "^2.6.0",
     "@octokit/rest": "^16.28.7",
-    "@types/lodash": "^4.14.137",
+    "@types/lodash": "^4.14.138",
     "assert-never": "^1.2.0",
     "bootstrap": "^4.3.1",
     "lodash": "^4.17.15",

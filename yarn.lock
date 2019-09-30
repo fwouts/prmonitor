@@ -1132,10 +1132,10 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
   integrity sha512-Il2DtDVRGDcqjDtE+rF8iqg1CArehSK84HZJCT7AMITlyXRBpuPhqGLDQMowraqqu1coEaimg4ZOqggt6L6L+A==
 
-"@types/lodash@^4.14.140":
-  version "4.14.140"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.140.tgz#8d2bd55e6a22221cd662bbb85969eb00ec283da6"
-  integrity sha512-OU57uYCUUv9s8lgQTYuQlL6xkttWtz8VLCJSnt8ikla9+UXqMGJ8adCprSw7egJHSHwGvFpGhfpQDtHm/NQ3Cw==
+"@types/lodash@^4.14.141":
+  version "4.14.141"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.141.tgz#d81f4d0c562abe28713406b571ffb27692a82ae6"
+  integrity sha512-v5NYIi9qEbFEUpCyikmnOYe4YlP8BMUdTcNCAquAKzu+FA7rZ1onj9x80mbnDdOW/K5bFf3Tv5kJplP33+gAbQ==
 
 "@types/minimatch@*":
   version "3.0.3"

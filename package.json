@@ -6,7 +6,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/react-fontawesome": "^0.1.5",
-    "@octokit/plugin-throttling": "^2.6.0",
+    "@octokit/plugin-throttling": "^2.7.0",
     "@octokit/rest": "^16.32.0",
     "@types/lodash": "^4.14.142",
     "assert-never": "^1.2.0",

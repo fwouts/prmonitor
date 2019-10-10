@@ -46,7 +46,7 @@ export const Popup = observer((props: PopupProps) => {
   };
 
   if (!props.core.loadedState) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (

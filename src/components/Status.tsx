@@ -39,5 +39,5 @@ export const Status = observer((props: StatusProps) => {
       </Alert>
     );
   }
-  return lastUpdated ? <Alert variant="info">{lastUpdated}</Alert> : <></>;
+  return <Alert variant="info">{lastUpdated || "Loading..."}</Alert>;
 });

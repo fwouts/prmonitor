@@ -6,6 +6,7 @@ import { Core } from "../state/core";
 import { PullRequest, ref } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
 import { IgnoredRepositories } from "./IgnoredRepositories";
+import { Loader } from "./Loader";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
@@ -43,6 +44,10 @@ export const Popup = observer((props: PopupProps) => {
   const onUnmute = (pullRequest: PullRequest) => {
     props.core.unmutePullRequest(ref(pullRequest));
   };
+
+  if (!props.core.loadedState) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -147,12 +152,8 @@ export const Popup = observer((props: PopupProps) => {
             />
           </>
         )}
-      {props.core.overallStatus !== "loading" && (
-        <>
-          <IgnoredRepositories core={props.core} />
-          <Settings core={props.core} />
-        </>
-      )}
+      <IgnoredRepositories core={props.core} />
+      <Settings core={props.core} />
     </>
   );
 });

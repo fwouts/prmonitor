@@ -49,11 +49,11 @@ export class Core {
     if (this.token !== null) {
       this.refreshing = await this.env.store.currentlyRefreshing.load();
       this.lastError = await this.env.store.lastError.load();
-      this.loadedState = await this.env.store.lastCheck.load();
       this.notifiedPullRequestUrls = new Set(
         await this.env.store.notifiedPullRequests.load()
       );
       this.muteConfiguration = await this.env.store.muteConfiguration.load();
+      this.loadedState = await this.env.store.lastCheck.load();
     } else {
       this.refreshing = false;
       this.lastError = null;

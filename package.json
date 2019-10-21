@@ -5,7 +5,7 @@
     "@emotion/styled": "^10.0.17",
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@fortawesome/react-fontawesome": "^0.1.6",
+    "@fortawesome/react-fontawesome": "^0.1.7",
     "@octokit/plugin-throttling": "^2.7.0",
     "@octokit/rest": "^16.33.1",
     "@types/lodash": "^4.14.144",

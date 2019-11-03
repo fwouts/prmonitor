@@ -45,7 +45,6 @@ export class Core {
 
   async load() {
     this.token = await this.env.store.token.load();
-    this.overallStatus = "loading";
     if (this.token !== null) {
       this.refreshing = await this.env.store.currentlyRefreshing.load();
       this.lastError = await this.env.store.lastError.load();

@@ -45,7 +45,7 @@ export const Popup = observer((props: PopupProps) => {
     props.core.unmutePullRequest(ref(pullRequest));
   };
 
-  if (!props.core.loadedState) {
+  if (props.core.overallStatus !== "loaded") {
     return <Loader />;
   }
 

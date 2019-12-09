@@ -21,7 +21,7 @@
     "react-spinners": "^0.6.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
+    "@babel/core": "^7.7.5",
     "@babel/preset-env": "^7.7.6",
     "@types/chrome": "^0.0.91",
     "@types/jest": "^24.0.23",

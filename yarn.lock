@@ -992,10 +992,10 @@
     universal-user-agent "^3.0.0"
     url-template "^2.0.8"
 
-"@octokit/plugin-throttling@^2.7.0":
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-2.7.0.tgz#ddff45c3465809799b8fde7c0f8a39e89d80a174"
-  integrity sha512-NMx7LI+eHu9tSb9U5s/OuGi/fIX7GUzfPJy00g2EJstt35Dug2cytA1P4WXxG1GSjUuZgalUfLg0G+nZKpaVpw==
+"@octokit/plugin-throttling@^2.7.1":
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-2.7.1.tgz#9cff29fdac4ac110b854587652f37e6cc39d76ac"
+  integrity sha512-08CKNFCpSpmOEAQBn6/MR8zbJgjP4+bplNUJbKlqJSNBHTO1NdsDHzBD4VeFYopOo7rBEySng4WifxNVaQ5bVw==
   dependencies:
     bottleneck "^2.15.3"
 

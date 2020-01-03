@@ -6523,10 +6523,10 @@ react-overlays@^2.1.0:
     uncontrollable "^7.0.0"
     warning "^4.0.3"
 
-react-spinners@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.7.2.tgz#0c3481c6d1c333b74a0a5b9a0d5dc4f80dc11094"
-  integrity sha512-5OR0UHczOAIn8VMDv6oeBEAgeVHQ9edxlCWkIdooNDS5pZD40+ulQwD+xyz9xhNQcfmse6N4F/XVs7sM6YW4rw==
+react-spinners@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/react-spinners/-/react-spinners-0.8.0.tgz#a64f5bc4c301f463841cf75ed67d6f64a365997c"
+  integrity sha512-xeoRNn4YlsqKaqBm0SgCrRt3sI99CGFraZbw9noD9RLKwumEJ55e9dkXjdEbZgJUmPymQCDrsazQe79DoFd9IQ==
   dependencies:
     "@emotion/core" "^10.0.15"
 

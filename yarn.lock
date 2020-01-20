@@ -1027,10 +1027,10 @@
     universal-user-agent "^3.0.0"
     url-template "^2.0.8"
 
-"@octokit/plugin-throttling@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-3.0.0.tgz#62fd39cb7ca49e00df52359333a1a774023f24d3"
-  integrity sha512-46UFCQ7TVBwddClS9H4rO/mKTmjK6P9Zs5H/Lj5VzBDDmBtC86k9PL4ygZjDo0znj5Cn8cvocUFYQBNf6El1rw==
+"@octokit/plugin-throttling@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-3.1.0.tgz#01ebe10185156ed24642560246e35e32774dd284"
+  integrity sha512-qeIwzpxiWMKOKpDZ6OAMk2eaQSHMyozqBzMTx1NoDSPbaYDFVuCgA/wTpXXPmmaUd83a5L09lakn28hXDIF9kw==
   dependencies:
     "@octokit/types" "^2.0.1"
     bottleneck "^2.15.3"

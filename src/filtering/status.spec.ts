@@ -216,5 +216,49 @@ describe("pullRequestState", () => {
       mergeable: false,
       approvedByEveryone: true
     });
+
+    expect(
+      pullRequestState(
+        fakePullRequest()
+          .author("fwouts")
+          .reviewRequested(["kevin"])
+          .addReview("kevin", "CHANGES_REQUESTED")
+          .addComment("fwouts")
+          .addReview("kevin", "APPROVED")
+          .addComment("dries")
+          .seenAs("fwouts")
+          .build(),
+        "fwouts"
+      )
+    ).toEqual({
+      kind: "outgoing",
+      draft: false,
+      noReviewers: false,
+      changesRequested: false,
+      mergeable: false,
+      approvedByEveryone: false
+    });
+
+    expect(
+      pullRequestState(
+        fakePullRequest()
+          .author("fwouts")
+          .reviewRequested(["kevin"])
+          .addReview("kevin", "CHANGES_REQUESTED")
+          .addComment("fwouts")
+          .addReview("kevin", "APPROVED")
+          .addReview("dries", "COMMENTED")
+          .seenAs("fwouts")
+          .build(),
+        "fwouts"
+      )
+    ).toEqual({
+      kind: "outgoing",
+      draft: false,
+      noReviewers: false,
+      changesRequested: false,
+      mergeable: false,
+      approvedByEveryone: false
+    });
   });
 });

@@ -63,7 +63,7 @@ function outgoingPullRequestState(
   // Keep track of the last known state of reviews left by others.
   for (const review of pr.reviews) {
     if (review.authorLogin === currentUserLogin) {
-      continue
+      continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (
@@ -86,7 +86,7 @@ function outgoingPullRequestState(
   // Ensure that anyone who commented without leaving a review is counted too.
   for (const comment of pr.comments) {
     if (comment.authorLogin === currentUserLogin) {
-      continue
+      continue;
     }
     if (!stateByUser.has(comment.authorLogin)) {
       stateByUser.set(comment.authorLogin, "COMMENTED");

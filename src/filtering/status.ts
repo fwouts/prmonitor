@@ -59,22 +59,38 @@ function outgoingPullRequestState(
     lastCommitTimestamp
   );
   const stateByUser = new Map<string, ReviewState>();
+
+  // Keep track of the last known state of reviews left by others.
   for (const review of pr.reviews) {
-    if (review.state === "COMMENTED") {
-      // A comment doesn't necessarily override a previous request for changes
-      // or an approval. Best to just ignore it?
-      continue;
+    if (review.authorLogin === currentUserLogin) {
+      continue
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (
       submittedAt < lastActionByCurrentUserTimestamp &&
       review.state === "CHANGES_REQUESTED"
     ) {
-      // This change request may not be relevant anymore.
+      // This change request may not be relevant anymore because the author has
+      // taken action.
       stateByUser.set(review.authorLogin, "PENDING");
       continue;
     }
-    stateByUser.set(review.authorLogin, review.state);
+    // Set the user's current state to the current review. If it's a comment
+    // however, we don't want to override a previous approval or request for
+    // changes.
+    if (!stateByUser.has(review.authorLogin) || review.state !== "COMMENTED") {
+      stateByUser.set(review.authorLogin, review.state);
+    }
+  }
+
+  // Ensure that anyone who commented without leaving a review is counted too.
+  for (const comment of pr.comments) {
+    if (comment.authorLogin === currentUserLogin) {
+      continue
+    }
+    if (!stateByUser.has(comment.authorLogin)) {
+      stateByUser.set(comment.authorLogin, "COMMENTED");
+    }
   }
 
   // Requested reviewers are specifically reviewers who haven't posted a review

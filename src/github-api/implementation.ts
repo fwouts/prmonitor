@@ -1,7 +1,8 @@
 import Octokit from "@octokit/rest";
+import { throttling } from "@octokit/plugin-throttling";
 import { GitHubApi } from "./api";
 
-const ThrottledOctokit = Octokit.plugin(require("@octokit/plugin-throttling"));
+const ThrottledOctokit = Octokit.plugin(throttling as any);
 
 interface ThrottlingOptions {
   method: string;

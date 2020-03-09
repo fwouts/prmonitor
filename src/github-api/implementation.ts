@@ -1,5 +1,5 @@
-import Octokit from "@octokit/rest"
-import { throttling } from '@octokit/plugin-throttling'
+import Octokit from "@octokit/rest";
+import { throttling } from "@octokit/plugin-throttling";
 import { GitHubApi } from "./api";
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);

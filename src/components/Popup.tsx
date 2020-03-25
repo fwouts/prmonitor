@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
@@ -10,6 +11,10 @@ import { Loader } from "./Loader";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
+import { Row } from "./design/Row";
+import { Link } from "./design/Link";
+import styled from "@emotion/styled";
+import { isRunningAsPopup } from "../popup-environment";
 
 export interface PopupProps {
   core: Core;
@@ -51,7 +56,17 @@ export const Popup = observer((props: PopupProps) => {
 
   return (
     <>
-      <Status core={props.core} />
+      <Row>
+        <Status core={props.core} />
+        {isRunningAsPopup() && (
+          <FullScreenLink
+            target="_blank"
+            href={`chrome-extension://${chrome.runtime.id}/index.html`}
+          >
+            <FontAwesomeIcon icon="clone" />
+          </FullScreenLink>
+        )}
+      </Row>
       {props.core.token &&
         // Don't show the list if there was an error, we're not refreshing
         // anymore (because of the error) and we don't have any loaded state.
@@ -157,3 +172,12 @@ export const Popup = observer((props: PopupProps) => {
     </>
   );
 });
+
+const FullScreenLink = styled(Link)`
+  padding: 16px;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+`;

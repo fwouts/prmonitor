@@ -2,6 +2,7 @@ import { css, Global } from "@emotion/core";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faBell } from "@fortawesome/free-solid-svg-icons/faBell";
 import { faBellSlash } from "@fortawesome/free-solid-svg-icons/faBellSlash";
+import { faClone } from "@fortawesome/free-solid-svg-icons/faClone";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -12,6 +13,7 @@ import { Core } from "./state/core";
 
 library.add(faBell);
 library.add(faBellSlash);
+library.add(faClone);
 
 const env = buildEnvironment(chromeApiSingleton);
 const core = new Core(env);
@@ -26,7 +28,7 @@ ReactDOM.render(
         body {
           background: #f6f8fc;
           color: #444;
-          margin: 0;
+          margin: 0 auto;
           padding: 8px;
           width: 600px;
           font-family: Roboto, sans-serif;

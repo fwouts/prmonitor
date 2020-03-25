@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import React from "react";
@@ -8,6 +9,10 @@ import { Link } from "./design/Link";
 export interface StatusProps {
   core: Core;
 }
+
+const StatusContainer = styled.div`
+  flex-grow: 1;
+`;
 
 export const Status = observer((props: StatusProps) => {
   let lastUpdated;
@@ -31,13 +36,19 @@ export const Status = observer((props: StatusProps) => {
       </div>
     );
   }
-  if (props.core.lastError) {
-    return (
-      <Alert variant="danger">
-        <div>Error: {props.core.lastError}</div>
-        {lastUpdated}
-      </Alert>
-    );
-  }
-  return <Alert variant="info">{lastUpdated || "Loading..."}</Alert>;
+  return (
+    <StatusContainer>
+      {props.core.lastError ? (
+        <Alert variant="danger">
+          <div>Error: {props.core.lastError}</div>
+          {lastUpdated}
+        </Alert>
+      ) : (
+        <Alert variant="info">
+          {lastUpdated ||
+            (props.core.refreshing ? "Loading..." : "Welcome to PR Monitor!")}
+        </Alert>
+      )}
+    </StatusContainer>
+  );
 });

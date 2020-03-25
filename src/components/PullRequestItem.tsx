@@ -8,6 +8,7 @@ import { PullRequest } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
 import { SmallButton } from "./design/Button";
 import { PullRequestStatus } from "./PullRequestStatus";
+import { isRunningAsPopup } from "../popup-environment";
 
 const PullRequestBox = styled.a`
   display: flex;
@@ -23,6 +24,7 @@ const PullRequestBox = styled.a`
 
   &:hover {
     background: #eef5ff;
+    text-decoration: none;
   }
 `;
 
@@ -115,7 +117,11 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
   };
 
   return (
-    <PullRequestBox key={props.pullRequest.nodeId} onClick={open}>
+    <PullRequestBox
+      key={props.pullRequest.nodeId}
+      onClick={isRunningAsPopup() ? open : undefined}
+      href={props.pullRequest.htmlUrl}
+    >
       <Info>
         <Title>
           {props.pullRequest.title}

@@ -14,7 +14,7 @@ const partialFakeChrome: RecursivePartial<ChromeApi> = {
       details: chrome.browserAction.BadgeBackgroundColorDetails
     ) {
       console.log("chrome.browserAction.setBadgeBackgroundColor", details);
-    }
+    },
   },
   runtime: {
     // Sending a message won't do anything, but we can at least log it.
@@ -30,8 +30,8 @@ const partialFakeChrome: RecursivePartial<ChromeApi> = {
         ) => void
       ) {
         console.log("chrome.runtime.onMessage.addListener", callback);
-      }
-    }
+      },
+    },
   },
   notifications: {
     create(
@@ -43,8 +43,8 @@ const partialFakeChrome: RecursivePartial<ChromeApi> = {
     onClicked: {
       addListener(callback: (notificationId: string) => void) {
         console.log("chrome.notifications.onClicked.addListener", callback);
-      }
-    }
+      },
+    },
   },
   permissions: {
     request(
@@ -57,7 +57,7 @@ const partialFakeChrome: RecursivePartial<ChromeApi> = {
     },
     getAll(callback: (permissions: chrome.permissions.Permissions) => void) {
       callback({});
-    }
+    },
   },
   storage: {
     // To simulate chrome.storage.local, we simply fall back to the localStorage API.
@@ -78,8 +78,8 @@ const partialFakeChrome: RecursivePartial<ChromeApi> = {
             return acc;
           }, {})
         );
-      }
-    }
+      },
+    },
   },
   tabs: {
     query(
@@ -90,13 +90,13 @@ const partialFakeChrome: RecursivePartial<ChromeApi> = {
     },
     create(properties: chrome.tabs.CreateProperties) {
       window.open(properties.url);
-    }
+    },
   },
   windows: {
     update(windowId: number, updateInfo: chrome.windows.UpdateInfo) {
       console.log("chrome.windows.update", windowId, updateInfo);
-    }
-  }
+    },
+  },
 };
 
 export const fakeChrome = partialFakeChrome as ChromeApi;

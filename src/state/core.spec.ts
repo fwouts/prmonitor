@@ -3,7 +3,7 @@ import { PullRequestReference } from "../github-api/api";
 import { LoadedState, ref } from "../storage/loaded-state";
 import {
   MuteConfiguration,
-  NOTHING_MUTED
+  NOTHING_MUTED,
 } from "../storage/mute-configuration";
 import { fakePullRequest } from "../testing/fake-pr";
 import { Core } from "./core";
@@ -21,7 +21,7 @@ describe("Core", () => {
     env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      openPullRequests: []
+      openPullRequests: [],
     };
     env.store.notifiedPullRequests.currentValue = ["a", "b", "c"];
     env.store.muteConfiguration.currentValue = {
@@ -29,15 +29,15 @@ describe("Core", () => {
         {
           repo: {
             owner: "zenclabs",
-            name: "prmonitor"
+            name: "prmonitor",
           },
           number: 1,
           until: {
             kind: "next-update",
-            mutedAtTimestamp: 123
-          }
-        }
-      ]
+            mutedAtTimestamp: 123,
+          },
+        },
+      ],
     };
 
     // Initialise.
@@ -62,7 +62,7 @@ describe("Core", () => {
     const state = {
       userLogin: "fwouts",
       repos: [],
-      openPullRequests: []
+      openPullRequests: [],
     };
     const notifiedPullRequestUrls = ["a", "b", "c"];
     const muteConfiguration: MuteConfiguration = {
@@ -70,15 +70,15 @@ describe("Core", () => {
         {
           repo: {
             owner: "zenclabs",
-            name: "prmonitor"
+            name: "prmonitor",
           },
           number: 1,
           until: {
             kind: "next-update",
-            mutedAtTimestamp: 123
-          }
-        }
-      ]
+            mutedAtTimestamp: 123,
+          },
+        },
+      ],
     };
     env.store.lastError.currentValue = "error";
     env.store.currentlyRefreshing.currentValue = true;
@@ -108,7 +108,7 @@ describe("Core", () => {
     expect(env.store.token.loadCount).toBe(0);
 
     env.messenger.trigger({
-      kind: "reload"
+      kind: "reload",
     });
     expect(env.store.token.loadCount).toBe(1);
   });
@@ -122,7 +122,7 @@ describe("Core", () => {
     expect(env.store.token.loadCount).toBe(0);
 
     env.messenger.trigger({
-      kind: "refresh"
+      kind: "refresh",
     });
     expect(env.store.token.loadCount).toBe(0);
   });
@@ -157,7 +157,7 @@ describe("Core", () => {
     const state = {
       userLogin: "fwouts",
       repos: [],
-      openPullRequests: []
+      openPullRequests: [],
     };
     env.store.currentlyRefreshing.currentValue = true;
     env.store.lastCheck.currentValue = state;
@@ -222,15 +222,15 @@ describe("Core", () => {
     expect(core.refreshing).toBe(false);
     expect(env.badger.updated).toEqual([
       {
-        kind: "initializing"
-      }
+        kind: "initializing",
+      },
     ]);
 
     // Refresh.
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        openPullRequests: []
+        openPullRequests: [],
       })
     );
     await core.refreshPullRequests();
@@ -240,19 +240,19 @@ describe("Core", () => {
     expect(env.store.lastError.currentValue).toBeNull();
     expect(env.badger.updated).toEqual([
       {
-        kind: "initializing"
+        kind: "initializing",
       },
       {
-        kind: "initializing"
+        kind: "initializing",
       },
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
-      }
+        unreviewedPullRequestCount: 0,
+      },
     ]);
     expect(env.messenger.sent).toEqual([
       { kind: "reload" },
-      { kind: "reload" }
+      { kind: "reload" },
     ]);
   });
 
@@ -261,7 +261,7 @@ describe("Core", () => {
     const core = new Core(env);
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      openPullRequests: []
+      openPullRequests: [],
     };
     env.store.token.currentValue = "valid-token";
 
@@ -271,15 +271,15 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
-      }
+        unreviewedPullRequestCount: 0,
+      },
     ]);
 
     // Refresh.
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        openPullRequests: []
+        openPullRequests: [],
       })
     );
     await core.refreshPullRequests();
@@ -290,20 +290,20 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
+        unreviewedPullRequestCount: 0,
       },
       {
         kind: "reloading",
-        unreviewedPullRequestCount: 0
+        unreviewedPullRequestCount: 0,
       },
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
-      }
+        unreviewedPullRequestCount: 0,
+      },
     ]);
     expect(env.messenger.sent).toEqual([
       { kind: "reload" },
-      { kind: "reload" }
+      { kind: "reload" },
     ]);
   });
 
@@ -318,15 +318,15 @@ describe("Core", () => {
     expect(core.refreshing).toBe(false);
     expect(env.badger.updated).toEqual([
       {
-        kind: "error"
-      }
+        kind: "error",
+      },
     ]);
 
     // Refresh.
     env.githubLoader.mockReturnValue(
       Promise.resolve<LoadedState>({
         userLogin: "fwouts",
-        openPullRequests: []
+        openPullRequests: [],
       })
     );
     await core.refreshPullRequests();
@@ -336,19 +336,19 @@ describe("Core", () => {
     expect(env.store.lastError.currentValue).toBeNull();
     expect(env.badger.updated).toEqual([
       {
-        kind: "error"
+        kind: "error",
       },
       {
-        kind: "error"
+        kind: "error",
       },
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
-      }
+        unreviewedPullRequestCount: 0,
+      },
     ]);
     expect(env.messenger.sent).toEqual([
       { kind: "reload" },
-      { kind: "reload" }
+      { kind: "reload" },
     ]);
   });
 
@@ -357,7 +357,7 @@ describe("Core", () => {
     const core = new Core(env);
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      openPullRequests: []
+      openPullRequests: [],
     };
     env.store.token.currentValue = "valid-token";
 
@@ -367,8 +367,8 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
-      }
+        unreviewedPullRequestCount: 0,
+      },
     ]);
 
     // Refresh.
@@ -383,19 +383,19 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 0
+        unreviewedPullRequestCount: 0,
       },
       {
         kind: "reloading",
-        unreviewedPullRequestCount: 0
+        unreviewedPullRequestCount: 0,
       },
       {
-        kind: "error"
-      }
+        kind: "error",
+      },
     ]);
     expect(env.messenger.sent).toEqual([
       { kind: "reload" },
-      { kind: "reload" }
+      { kind: "reload" },
     ]);
   });
 
@@ -418,8 +418,8 @@ describe("Core", () => {
             .author("kevin")
             .seenAs("fwouts")
             .reviewRequested(["fwouts"])
-            .build()
-        ]
+            .build(),
+        ],
       })
     );
     await core.refreshPullRequests();
@@ -430,10 +430,10 @@ describe("Core", () => {
     ).toHaveLength(1);
     expect(core.unreviewedPullRequests).toHaveLength(1);
     expect(env.notifier.notified).toEqual([
-      ["http://github.com/zenclabs/prmonitor/1"]
+      ["http://github.com/zenclabs/prmonitor/1"],
     ]);
     expect(env.store.notifiedPullRequests.currentValue).toEqual([
-      "http://github.com/zenclabs/prmonitor/1"
+      "http://github.com/zenclabs/prmonitor/1",
     ]);
   });
 
@@ -455,7 +455,7 @@ describe("Core", () => {
       .build();
     env.store.lastCheck.currentValue = {
       userLogin: "fwouts",
-      openPullRequests: [pr1, pr2]
+      openPullRequests: [pr1, pr2],
     };
 
     // Initialise.
@@ -463,8 +463,8 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 2
-      }
+        unreviewedPullRequestCount: 2,
+      },
     ]);
 
     // Mute the PR.
@@ -472,12 +472,12 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 2
+        unreviewedPullRequestCount: 2,
       },
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 1
-      }
+        unreviewedPullRequestCount: 1,
+      },
     ]);
 
     // Unmute the PR.
@@ -485,16 +485,16 @@ describe("Core", () => {
     expect(env.badger.updated).toEqual([
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 2
+        unreviewedPullRequestCount: 2,
       },
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 1
+        unreviewedPullRequestCount: 1,
       },
       {
         kind: "loaded",
-        unreviewedPullRequestCount: 2
-      }
+        unreviewedPullRequestCount: 2,
+      },
     ]);
   });
 
@@ -506,16 +506,16 @@ describe("Core", () => {
     const pr1: PullRequestReference = {
       repo: {
         owner: "zenclabs",
-        name: "prmonitor"
+        name: "prmonitor",
       },
-      number: 1
+      number: 1,
     };
     const pr2: PullRequestReference = {
       repo: {
         owner: "zenclabs",
-        name: "prmonitor"
+        name: "prmonitor",
       },
-      number: 2
+      number: 2,
     };
 
     // Mute two PRs (on different dates).
@@ -532,15 +532,15 @@ describe("Core", () => {
       ...pr2,
       until: {
         kind: "next-update",
-        mutedAtTimestamp: 2
-      }
+        mutedAtTimestamp: 2,
+      },
     });
     expect(core.muteConfiguration.mutedPullRequests[1]).toEqual({
       ...pr1,
       until: {
         kind: "next-update",
-        mutedAtTimestamp: 3
-      }
+        mutedAtTimestamp: 3,
+      },
     });
   });
 });

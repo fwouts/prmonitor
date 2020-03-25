@@ -6,7 +6,7 @@ import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import {
   IncomingState,
   OutgoingState,
-  PullRequestState
+  PullRequestState,
 } from "../filtering/status";
 
 const StateBox = styled.div`

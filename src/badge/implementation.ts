@@ -5,16 +5,16 @@ export function buildBadger(chromeApi: ChromeApi): Badger {
   return {
     update(state) {
       updateBadge(chromeApi, state);
-    }
+    },
   };
 }
 
 function updateBadge(chromeApi: ChromeApi, state: BadgeState) {
   chromeApi.browserAction.setBadgeText({
-    text: badgeLabel(state)
+    text: badgeLabel(state),
   });
   chromeApi.browserAction.setBadgeBackgroundColor({
-    color: badgeColor(state)
+    color: badgeColor(state),
   });
 }
 

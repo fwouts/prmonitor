@@ -12,7 +12,7 @@ export function buildTabOpener(
       const lastRequestTimestamp = await store.lastRequestForTabsPermission.load();
       if (lastRequestTimestamp !== null) {
         // We requested the permission before already. Let's not be persistent.
-        chromeApi.permissions.getAll(permissions => {
+        chromeApi.permissions.getAll((permissions) => {
           const granted = permissions.permissions
             ? permissions.permissions.indexOf("tabs") !== -1
             : false;
@@ -22,14 +22,14 @@ export function buildTabOpener(
         await store.lastRequestForTabsPermission.save(getCurrentTime());
         chromeApi.permissions.request(
           {
-            permissions: ["tabs"]
+            permissions: ["tabs"],
           },
-          granted => {
+          (granted) => {
             openTab(chromeApi, pullRequestUrl, granted);
           }
         );
       }
-    }
+    },
   };
 }
 
@@ -39,25 +39,25 @@ function openTab(
   permissionGranted: boolean
 ) {
   if (permissionGranted) {
-    chromeApi.tabs.query({}, tabs => {
-      const existingTab = tabs.find(tab =>
+    chromeApi.tabs.query({}, (tabs) => {
+      const existingTab = tabs.find((tab) =>
         tab.url ? tab.url.startsWith(pullRequestUrl) : false
       );
       if (existingTab) {
         chromeApi.tabs.highlight({
           windowId: existingTab.windowId,
-          tabs: existingTab.index
+          tabs: existingTab.index,
         });
         chromeApi.windows.update(existingTab.windowId, { focused: true });
       } else {
         chromeApi.tabs.create({
-          url: pullRequestUrl
+          url: pullRequestUrl,
         });
       }
     });
   } else {
     chromeApi.tabs.create({
-      url: pullRequestUrl
+      url: pullRequestUrl,
     });
   }
 }

@@ -3,7 +3,7 @@ import { userPreviouslyReviewed } from "./reviewed";
 import {
   getLastAuthorCommentTimestamp,
   getLastCommitTimestamp,
-  getLastReviewOrCommentTimestamp
+  getLastReviewOrCommentTimestamp,
 } from "./timestamps";
 
 /**
@@ -18,7 +18,7 @@ export function pullRequestState(
   }
   if (!pr.reviewRequested && !userPreviouslyReviewed(pr, currentUserLogin)) {
     return {
-      kind: "not-involved"
+      kind: "not-involved",
     };
   }
   return incomingPullRequestState(pr, currentUserLogin);
@@ -41,7 +41,7 @@ function incomingPullRequestState(
     kind: "incoming",
     newReviewRequested: !hasReviewed,
     authorResponded: hasReviewed && hasNewCommentByAuthor,
-    newCommit: hasReviewed && hasNewCommit
+    newCommit: hasReviewed && hasNewCommit,
   };
 }
 
@@ -107,7 +107,7 @@ function outgoingPullRequestState(
     noReviewers: stateByUser.size === 0,
     changesRequested: states.has("CHANGES_REQUESTED"),
     mergeable: pr.mergeable === true,
-    approvedByEveryone: states.has("APPROVED") && states.size === 1
+    approvedByEveryone: states.has("APPROVED") && states.size === 1,
   };
 }
 

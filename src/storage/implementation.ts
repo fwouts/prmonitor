@@ -2,7 +2,7 @@ import { ChromeApi } from "../chrome/api";
 import { Store } from "./api";
 import {
   chromeValueStorage,
-  chromeValueStorageWithDefault
+  chromeValueStorageWithDefault,
 } from "./internal/chrome-value-storage";
 import { LoadedState } from "./loaded-state";
 import { NOTHING_MUTED } from "./mute-configuration";
@@ -30,6 +30,6 @@ export function buildStore(chromeApi: ChromeApi): Store {
     lastRequestForTabsPermission: chromeValueStorage<number>(
       chromeApi,
       "lastRequestForTabsPermission"
-    )
+    ),
   };
 }

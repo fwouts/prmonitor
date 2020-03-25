@@ -1,13 +1,13 @@
 import {
   IssuesListCommentsResponse,
   PullsGetResponse,
-  PullsListCommitsResponse
+  PullsListCommitsResponse,
 } from "@octokit/rest";
 import {
   GetAuthenticatedUserResponse,
   PullRequestReference,
   PullsListReviewsResponse,
-  PullsSearchResponse
+  PullsSearchResponse,
 } from "../../github-api/api";
 import { refreshOpenPullRequests } from "./pull-requests";
 
@@ -21,7 +21,7 @@ describe("refreshOpenPullRequests", () => {
 
   it("loads pull requests from all three queries", async () => {
     const githubApi = mockGitHubApi();
-    githubApi.searchPullRequests.mockImplementation(async query => {
+    githubApi.searchPullRequests.mockImplementation(async (query) => {
       if (query.startsWith("author:")) {
         return [
           {
@@ -35,9 +35,9 @@ describe("refreshOpenPullRequests", () => {
             draft: false,
             user: {
               login: "author",
-              avatar_url: "http://avatar"
-            }
-          }
+              avatar_url: "http://avatar",
+            },
+          },
         ];
       } else if (query.startsWith("commenter:")) {
         return [
@@ -52,9 +52,9 @@ describe("refreshOpenPullRequests", () => {
             draft: false,
             user: {
               login: "someone",
-              avatar_url: "http://avatar"
-            }
-          }
+              avatar_url: "http://avatar",
+            },
+          },
         ];
       } else if (query.startsWith("review-requested:")) {
         return [
@@ -69,9 +69,9 @@ describe("refreshOpenPullRequests", () => {
             draft: false,
             user: {
               login: "someone",
-              avatar_url: "http://avatar"
-            }
-          }
+              avatar_url: "http://avatar",
+            },
+          },
         ];
       } else {
         throw new Error(
@@ -81,7 +81,7 @@ describe("refreshOpenPullRequests", () => {
     });
     githubApi.loadPullRequestDetails.mockReturnValue(
       Promise.resolve(({
-        requested_reviewers: []
+        requested_reviewers: [],
       } as unknown) as PullsGetResponse)
     );
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
@@ -93,8 +93,8 @@ describe("refreshOpenPullRequests", () => {
       [`review-requested:author is:open archived:false`],
       [`commenter:author -review-requested:author is:open archived:false`],
       [
-        `author:author -commenter:author -review-requested:author is:open archived:false`
-      ]
+        `author:author -commenter:author -review-requested:author is:open archived:false`,
+      ],
     ]);
   });
 });
@@ -118,6 +118,6 @@ function mockGitHubApi() {
     loadCommits: jest.fn<
       Promise<PullsListCommitsResponse>,
       [PullRequestReference]
-    >()
+    >(),
   };
 }

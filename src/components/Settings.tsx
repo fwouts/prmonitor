@@ -31,7 +31,7 @@ export const Settings = observer((props: SettingsProps) => {
   const [state, setState] = useState<{
     editing: boolean | "default";
   }>({
-    editing: "default"
+    editing: "default",
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +45,7 @@ export const Settings = observer((props: SettingsProps) => {
 
   const openForm = () => {
     setState({
-      editing: true
+      editing: true,
     });
   };
 
@@ -59,13 +59,13 @@ export const Settings = observer((props: SettingsProps) => {
       .setNewToken(token)
       .then(() => console.log("GitHub API token updated."));
     setState({
-      editing: false
+      editing: false,
     });
   };
 
   const cancelForm = () => {
     setState({
-      editing: false
+      editing: false,
     });
   };
 

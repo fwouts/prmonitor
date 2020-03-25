@@ -18,6 +18,6 @@ export function buildEnvironment(chromeApi: ChromeApi): Environment {
     messenger: buildMessenger(chromeApi),
     tabOpener: buildTabOpener(chromeApi, store, getCurrentTime),
     getCurrentTime,
-    isOnline: () => navigator.onLine
+    isOnline: () => navigator.onLine,
   };
 }

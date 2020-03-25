@@ -41,7 +41,7 @@ export const IgnoredRepositories = observer((props: { core: Core }) => {
                 >{`${owner}/*`}</Link>
               </Item>
             ) : (
-              config.repoNames.map(repo => (
+              config.repoNames.map((repo) => (
                 <Item key={`${owner}/${repo}`}>
                   <Remove
                     onClick={() =>

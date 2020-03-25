@@ -26,7 +26,7 @@ export interface PopupState {
 
 export const Popup = observer((props: PopupProps) => {
   const [state, setState] = useState<PopupState>({
-    currentFilter: Filter.INCOMING
+    currentFilter: Filter.INCOMING,
   });
 
   const onOpenAll = () => {

@@ -39,7 +39,7 @@ export const PullRequestList = observer((props: PullRequestListProps) => (
       <Paragraph>{props.emptyMessage}</Paragraph>
     ) : (
       <>
-        {props.pullRequests.map(pullRequest => (
+        {props.pullRequests.map((pullRequest) => (
           <PullRequestItem
             key={pullRequest.nodeId}
             pullRequest={pullRequest}

@@ -17,6 +17,6 @@ async function load(token: string): Promise<LoadedState> {
   });
   return {
     userLogin: user.login,
-    openPullRequests: sorted
+    openPullRequests: sorted,
   };
 }

@@ -5,7 +5,7 @@ import { PullRequestReference, RepoReference } from "../github-api/api";
 
 export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: [],
-  ignored: {}
+  ignored: {},
 };
 
 export interface MuteConfiguration {
@@ -33,13 +33,13 @@ export function addMute(
     // Remove any previous mute of this PR.
     mutedPullRequests: [
       ...config.mutedPullRequests.filter(
-        pr =>
+        (pr) =>
           pr.repo.owner !== pullRequest.repo.owner ||
           pr.repo.name !== pullRequest.repo.name ||
           pr.number !== pullRequest.number
-      )
+      ),
     ],
-    ignored: cloneDeep(config.ignored || {})
+    ignored: cloneDeep(config.ignored || {}),
   };
   // Add the new mute.
   switch (muteType) {
@@ -48,8 +48,8 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "next-update",
-          mutedAtTimestamp: env.getCurrentTime()
-        }
+          mutedAtTimestamp: env.getCurrentTime(),
+        },
       });
       break;
     case "1-hour":
@@ -57,16 +57,16 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "specific-time",
-          unmuteAtTimestamp: env.getCurrentTime() + 3600 * 1000
-        }
+          unmuteAtTimestamp: env.getCurrentTime() + 3600 * 1000,
+        },
       });
       break;
     case "forever":
       muteConfiguration.mutedPullRequests.push({
         ...pullRequest,
         until: {
-          kind: "forever"
-        }
+          kind: "forever",
+        },
       });
       break;
     case "repo":
@@ -77,13 +77,13 @@ export function addMute(
       } else {
         muteConfiguration.ignored[pullRequest.repo.owner] = {
           kind: "ignore-only",
-          repoNames: [pullRequest.repo.name]
+          repoNames: [pullRequest.repo.name],
         };
       }
       break;
     case "owner":
       muteConfiguration.ignored[pullRequest.repo.owner] = {
-        kind: "ignore-all"
+        kind: "ignore-all",
       };
       break;
     default:
@@ -98,12 +98,12 @@ export function removePullRequestMute(
 ): MuteConfiguration {
   return {
     mutedPullRequests: config.mutedPullRequests.filter(
-      pr =>
+      (pr) =>
         pr.repo.owner !== pullRequest.repo.owner ||
         pr.repo.name !== pullRequest.repo.name ||
         pr.number !== pullRequest.number
     ),
-    ignored: config.ignored || {}
+    ignored: config.ignored || {},
   };
 }
 
@@ -115,7 +115,7 @@ export function removeOwnerMute(
   delete ignored[owner];
   return {
     ...config,
-    ignored
+    ignored,
   };
 }
 
@@ -132,7 +132,7 @@ export function removeRepositoryMute(
         break;
       case "ignore-only":
         ownerConfig.repoNames = ownerConfig.repoNames.filter(
-          repoName => repoName !== repo.name
+          (repoName) => repoName !== repo.name
         );
         if (ownerConfig.repoNames.length === 0) {
           delete ignored[repo.owner];
@@ -142,7 +142,7 @@ export function removeRepositoryMute(
   }
   return {
     ...config,
-    ignored
+    ignored,
   };
 }
 

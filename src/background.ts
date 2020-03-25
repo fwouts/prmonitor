@@ -68,9 +68,9 @@ function refreshRegulary(
   triggerRefresh: () => Promise<void>
 ) {
   chromeApi.alarms.create({
-    periodInMinutes: 3
+    periodInMinutes: 3,
   });
-  chromeApi.alarms.onAlarm.addListener(alarm => {
+  chromeApi.alarms.onAlarm.addListener((alarm) => {
     console.debug("Alarm triggered", alarm);
     triggerRefresh().catch(console.error);
   });
@@ -83,7 +83,7 @@ function refreshOnDemand(
   messenger: CrossScriptMessenger,
   triggerRefresh: () => Promise<void>
 ) {
-  messenger.listen(message => {
+  messenger.listen((message) => {
     console.debug("Message received", message);
     if (message.kind === "refresh") {
       triggerRefresh().catch(console.error);

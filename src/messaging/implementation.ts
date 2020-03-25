@@ -8,6 +8,6 @@ export function buildMessenger(chromeApi: ChromeApi): CrossScriptMessenger {
     },
     send(message) {
       chromeApi.runtime.sendMessage(message);
-    }
+    },
   };
 }

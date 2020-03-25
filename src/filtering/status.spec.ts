@@ -16,7 +16,7 @@ describe("pullRequestState", () => {
       kind: "incoming",
       newReviewRequested: true,
       newCommit: false,
-      authorResponded: false
+      authorResponded: false,
     });
 
     expect(
@@ -33,7 +33,7 @@ describe("pullRequestState", () => {
       kind: "incoming",
       newReviewRequested: false,
       newCommit: false,
-      authorResponded: true
+      authorResponded: true,
     });
 
     expect(
@@ -50,7 +50,7 @@ describe("pullRequestState", () => {
       kind: "incoming",
       newReviewRequested: false,
       newCommit: true,
-      authorResponded: false
+      authorResponded: false,
     });
 
     expect(
@@ -68,7 +68,7 @@ describe("pullRequestState", () => {
       kind: "incoming",
       newReviewRequested: false,
       newCommit: true,
-      authorResponded: true
+      authorResponded: true,
     });
 
     expect(
@@ -84,7 +84,7 @@ describe("pullRequestState", () => {
       kind: "incoming",
       newReviewRequested: false,
       newCommit: false,
-      authorResponded: false
+      authorResponded: false,
     });
 
     expect(
@@ -100,7 +100,7 @@ describe("pullRequestState", () => {
       kind: "incoming",
       newReviewRequested: false,
       newCommit: false,
-      authorResponded: false
+      authorResponded: false,
     });
   });
 
@@ -115,17 +115,14 @@ describe("pullRequestState", () => {
         "fwouts"
       )
     ).toEqual({
-      kind: "not-involved"
+      kind: "not-involved",
     });
   });
 
   test("outgoing", () => {
     expect(
       pullRequestState(
-        fakePullRequest()
-          .author("fwouts")
-          .seenAs("fwouts")
-          .build(),
+        fakePullRequest().author("fwouts").seenAs("fwouts").build(),
         "fwouts"
       )
     ).toEqual({
@@ -134,16 +131,12 @@ describe("pullRequestState", () => {
       noReviewers: true,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false
+      approvedByEveryone: false,
     });
 
     expect(
       pullRequestState(
-        fakePullRequest()
-          .author("fwouts")
-          .draft()
-          .seenAs("fwouts")
-          .build(),
+        fakePullRequest().author("fwouts").draft().seenAs("fwouts").build(),
         "fwouts"
       )
     ).toEqual({
@@ -152,7 +145,7 @@ describe("pullRequestState", () => {
       noReviewers: true,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false
+      approvedByEveryone: false,
     });
 
     expect(
@@ -170,7 +163,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false
+      approvedByEveryone: false,
     });
 
     expect(
@@ -192,7 +185,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: true,
-      approvedByEveryone: false
+      approvedByEveryone: false,
     });
 
     expect(
@@ -214,7 +207,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: true
+      approvedByEveryone: true,
     });
 
     expect(
@@ -236,7 +229,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false
+      approvedByEveryone: false,
     });
 
     expect(
@@ -258,7 +251,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false
+      approvedByEveryone: false,
     });
   });
 });

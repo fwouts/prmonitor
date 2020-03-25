@@ -4,7 +4,7 @@ import {
   Commit,
   PullRequest,
   Review,
-  ReviewState
+  ReviewState,
 } from "../storage/loaded-state";
 
 export function fakePullRequest() {
@@ -17,9 +17,9 @@ class FakePullRequestBuilder {
   private _ref: PullRequestReference = {
     repo: {
       owner: "zenclabs",
-      name: "prmonitor"
+      name: "prmonitor",
     },
-    number: 1
+    number: 1,
   };
   private _reviewerLogins: string[] = [];
   private _comments: Comment[] = [];
@@ -65,19 +65,19 @@ class FakePullRequestBuilder {
   addComment(login: string, timestamp?: number) {
     this._comments.push({
       authorLogin: login,
-      createdAt: this.time(timestamp)
+      createdAt: this.time(timestamp),
     });
     return this;
   }
 
   addReview(login: string, state: ReviewState, timestamp?: number) {
     this._reviewerLogins = this._reviewerLogins.filter(
-      reviewer => reviewer !== login
+      (reviewer) => reviewer !== login
     );
     this._reviews.push({
       authorLogin: login,
       state,
-      submittedAt: this.time(timestamp)
+      submittedAt: this.time(timestamp),
     });
     return this;
   }
@@ -85,7 +85,7 @@ class FakePullRequestBuilder {
   addCommit(timestamp?: number) {
     this._commits.push({
       authorLogin: this._author,
-      createdAt: this.time(timestamp)
+      createdAt: this.time(timestamp),
     });
     return this;
   }
@@ -94,7 +94,7 @@ class FakePullRequestBuilder {
     return {
       author: {
         login: this._author,
-        avatarUrl: ""
+        avatarUrl: "",
       },
       title: "PR",
       repoOwner: this._ref.repo.owner,
@@ -109,7 +109,7 @@ class FakePullRequestBuilder {
       requestedReviewers: this._reviewerLogins,
       comments: this._comments,
       reviews: this._reviews,
-      commits: this._commits
+      commits: this._commits,
     };
   }
 

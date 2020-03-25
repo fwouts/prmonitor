@@ -7,14 +7,14 @@ describe("repoWasPushedAfter", () => {
       predicate({
         owner: "test",
         name: "test",
-        pushedAt: "2012-03-15T17:00:11Z"
+        pushedAt: "2012-03-15T17:00:11Z",
       })
     ).toBe(true);
     expect(
       predicate({
         owner: "test",
         name: "test",
-        pushedAt: "2052-03-15T17:00:11Z"
+        pushedAt: "2052-03-15T17:00:11Z",
       })
     ).toBe(true);
   });
@@ -25,14 +25,14 @@ describe("repoWasPushedAfter", () => {
       predicate({
         owner: "test",
         name: "test",
-        pushedAt: "2010-03-15T17:00:11Z"
+        pushedAt: "2010-03-15T17:00:11Z",
       })
     ).toBe(false);
     expect(
       predicate({
         owner: "test",
         name: "test",
-        pushedAt: "2020-03-15T17:00:11Z"
+        pushedAt: "2020-03-15T17:00:11Z",
       })
     ).toBe(true);
   });

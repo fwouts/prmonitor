@@ -13,11 +13,11 @@ export function buildNotifier(chromeApi: ChromeApi): Notifier {
     },
     registerClickListener(clickListener: (pullRequestUrl: string) => void) {
       // Notification IDs are always pull request URLs (see below).
-      chromeApi.notifications.onClicked.addListener(notificationId => {
+      chromeApi.notifications.onClicked.addListener((notificationId) => {
         clickListener(notificationId);
         chromeApi.notifications.clear(notificationId);
       });
-    }
+    },
   };
 }
 
@@ -60,7 +60,7 @@ function showNotification(
     title: getTitle(pullRequest),
     message: getMessage(pullRequest),
     contextMessage: getContextMessage(pullRequest),
-    ...(supportsRequireInteraction ? { requireInteraction: true } : {})
+    ...(supportsRequireInteraction ? { requireInteraction: true } : {}),
   });
 }
 

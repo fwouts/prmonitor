@@ -38,9 +38,9 @@ export function ref(pullRequest: PullRequest): PullRequestReference {
   return {
     repo: {
       owner: pullRequest.repoOwner,
-      name: pullRequest.repoName
+      name: pullRequest.repoName,
     },
-    number: pullRequest.pullRequestNumber
+    number: pullRequest.pullRequestNumber,
   };
 }
 

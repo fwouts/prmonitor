@@ -206,15 +206,15 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
                 kind: "next-update",
-                mutedAtTimestamp: 100
-              }
-            }
-          ]
+                mutedAtTimestamp: 100,
+              },
+            },
+          ],
         },
         fakePullRequest()
           .author("fwouts")
@@ -238,15 +238,15 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
                 kind: "specific-time",
-                unmuteAtTimestamp: 100
-              }
-            }
-          ]
+                unmuteAtTimestamp: 100,
+              },
+            },
+          ],
         },
         fakePullRequest()
           .author("fwouts")
@@ -268,15 +268,15 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
                 kind: "specific-time",
-                unmuteAtTimestamp: 100
-              }
-            }
-          ]
+                unmuteAtTimestamp: 100,
+              },
+            },
+          ],
         },
         fakePullRequest()
           .author("fwouts")
@@ -298,15 +298,15 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
                 kind: "specific-time",
-                unmuteAtTimestamp: 100
-              }
-            }
-          ]
+                unmuteAtTimestamp: 100,
+              },
+            },
+          ],
         },
         fakePullRequest()
           .author("fwouts")
@@ -327,14 +327,14 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
-                kind: "forever"
-              }
-            }
-          ]
+                kind: "forever",
+              },
+            },
+          ],
         },
         fakePullRequest()
           .author("fwouts")
@@ -355,14 +355,14 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
-                kind: "forever"
-              }
-            }
-          ]
+                kind: "forever",
+              },
+            },
+          ],
         },
         fakePullRequest()
           .author("fwouts")
@@ -382,9 +382,9 @@ describe("filters (incoming)", () => {
           mutedPullRequests: [],
           ignored: {
             zenclabs: {
-              kind: "ignore-all"
-            }
-          }
+              kind: "ignore-all",
+            },
+          },
         },
         fakePullRequest()
           .ref("zenclabs", "prmonitor", 1)
@@ -406,9 +406,9 @@ describe("filters (incoming)", () => {
           ignored: {
             zenclabs: {
               kind: "ignore-only",
-              repoNames: ["prmonitor"]
-            }
-          }
+              repoNames: ["prmonitor"],
+            },
+          },
         },
         fakePullRequest()
           .ref("zenclabs", "prmonitor", 1)
@@ -430,15 +430,15 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "zenclabs",
-                name: "prmonitor"
+                name: "prmonitor",
               },
               number: 1,
               until: {
                 kind: "next-update",
-                mutedAtTimestamp: 100
-              }
-            }
-          ]
+                mutedAtTimestamp: 100,
+              },
+            },
+          ],
         },
         fakePullRequest()
           .ref("zenclabs", "prmonitor", 1)
@@ -461,15 +461,15 @@ describe("filters (incoming)", () => {
             {
               repo: {
                 owner: "other",
-                name: "other"
+                name: "other",
               },
               number: 1,
               until: {
                 kind: "next-update",
-                mutedAtTimestamp: new Date("2019-03-16T17:00:11Z").getTime()
-              }
-            }
-          ]
+                mutedAtTimestamp: new Date("2019-03-16T17:00:11Z").getTime(),
+              },
+            },
+          ],
         },
         fakePullRequest()
           .ref("zenclabs", "prmonitor", 1)

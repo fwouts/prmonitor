@@ -4,7 +4,7 @@ import { Notifier, NotifierClickListener } from "../../notifications/api";
 import { LoadedState } from "../../storage/loaded-state";
 import {
   MuteConfiguration,
-  NOTHING_MUTED
+  NOTHING_MUTED,
 } from "../../storage/mute-configuration";
 
 export function buildTestingEnvironment() {
@@ -30,7 +30,7 @@ export function buildTestingEnvironment() {
     getCurrentTime: () => self.currentTime,
     isOnline: () => self.online,
     online: true,
-    currentTime: 0
+    currentTime: 0,
   };
   return self;
 }
@@ -43,7 +43,7 @@ function fakeStore() {
     muteConfiguration: fakeStorage<MuteConfiguration>(NOTHING_MUTED),
     notifiedPullRequests: fakeStorage<string[]>([]),
     token: fakeStorage<string | null>(null),
-    lastRequestForTabsPermission: fakeStorage<number | null>(null)
+    lastRequestForTabsPermission: fakeStorage<number | null>(null),
   };
 }
 
@@ -59,7 +59,7 @@ function fakeStorage<T>(defaultValue: T) {
     save: async (value: T) => {
       self.saveCount++;
       self.currentValue = value;
-    }
+    },
   };
   return self;
 }
@@ -69,11 +69,11 @@ function fakeNotifier() {
   const listeners: NotifierClickListener[] = [];
   const notifier: Notifier = {
     notify(unreviewedPullRequests) {
-      notified.push(unreviewedPullRequests.map(pr => pr.htmlUrl));
+      notified.push(unreviewedPullRequests.map((pr) => pr.htmlUrl));
     },
     registerClickListener(clickListener) {
       listeners.push(clickListener);
-    }
+    },
   };
   return {
     ...notifier,
@@ -82,7 +82,7 @@ function fakeNotifier() {
       for (const listener of listeners) {
         listener(notificationId);
       }
-    }
+    },
   };
 }
 
@@ -91,11 +91,11 @@ function fakeBadger() {
   const badger: Badger = {
     update(state) {
       updated.push(state);
-    }
+    },
   };
   return {
     ...badger,
-    updated
+    updated,
   };
 }
 
@@ -108,7 +108,7 @@ function fakeMessenger() {
     },
     send(message) {
       sent.push(message);
-    }
+    },
   };
   return {
     ...messenger,
@@ -117,7 +117,7 @@ function fakeMessenger() {
       for (const listener of listeners) {
         listener(message);
       }
-    }
+    },
   };
 }
 
@@ -127,6 +127,6 @@ function fakeTabOpener() {
     openedUrls,
     async openPullRequest(pullRequestUrl: string) {
       openedUrls.push(pullRequestUrl);
-    }
+    },
   };
 }

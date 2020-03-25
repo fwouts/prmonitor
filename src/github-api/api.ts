@@ -2,7 +2,7 @@ import {
   IssuesListCommentsResponse,
   PullsGetResponse,
   PullsListCommitsResponse,
-  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem
+  PullsListReviewsResponseItem as IncompletePullsListReviewsResponseItem,
 } from "@octokit/rest";
 import { ReviewState } from "../storage/loaded-state";
 

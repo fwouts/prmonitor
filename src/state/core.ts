@@ -5,7 +5,7 @@ import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import {
   Filter,
   FilteredPullRequests,
-  filterPullRequests
+  filterPullRequests,
 } from "../filtering/filters";
 import { PullRequestReference, RepoReference } from "../github-api/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
@@ -16,7 +16,7 @@ import {
   NOTHING_MUTED,
   removeOwnerMute,
   removePullRequestMute,
-  removeRepositoryMute
+  removeRepositoryMute,
 } from "../storage/mute-configuration";
 
 export class Core {
@@ -32,13 +32,13 @@ export class Core {
 
   constructor(env: Environment) {
     this.env = env;
-    this.env.messenger.listen(message => {
+    this.env.messenger.listen((message) => {
       console.debug("Message received", message);
       if (message.kind === "reload") {
         this.load();
       }
     });
-    this.env.notifier.registerClickListener(url =>
+    this.env.notifier.registerClickListener((url) =>
       this.openPullRequest(url).catch(console.error)
     );
   }
@@ -93,11 +93,11 @@ export class Core {
       const startRefreshTimestamp = this.env.getCurrentTime();
       await this.saveLoadedState({
         startRefreshTimestamp,
-        ...(await this.env.githubLoader(this.token, this.loadedState))
+        ...(await this.env.githubLoader(this.token, this.loadedState)),
       });
       const notifyAboutPullRequests = [
         ...(this.unreviewedPullRequests || []),
-        ...(this.actionRequiredOwnPullRequests || [])
+        ...(this.actionRequiredOwnPullRequests || []),
       ];
       await this.env.notifier.notify(
         notifyAboutPullRequests,
@@ -172,7 +172,7 @@ export class Core {
   get actionRequiredOwnPullRequests(): EnrichedPullRequest[] | null {
     return this.filteredPullRequests
       ? this.filteredPullRequests[Filter.MINE].filter(
-          pr =>
+          (pr) =>
             pr.state.kind === "outgoing" &&
             (pr.state.approvedByEveryone || pr.state.changesRequested)
         )
@@ -180,7 +180,7 @@ export class Core {
   }
 
   private async saveNotifiedPullRequests(pullRequests: PullRequest[]) {
-    this.notifiedPullRequestUrls = new Set(pullRequests.map(p => p.htmlUrl));
+    this.notifiedPullRequestUrls = new Set(pullRequests.map((p) => p.htmlUrl));
     await this.env.store.notifiedPullRequests.save(
       Array.from(this.notifiedPullRequestUrls)
     );
@@ -211,21 +211,21 @@ export class Core {
     const unreviewedPullRequests = this.unreviewedPullRequests;
     if (this.lastError || !this.token) {
       badgeState = {
-        kind: "error"
+        kind: "error",
       };
     } else if (!unreviewedPullRequests) {
       badgeState = {
-        kind: "initializing"
+        kind: "initializing",
       };
     } else if (this.refreshing) {
       badgeState = {
         kind: "reloading",
-        unreviewedPullRequestCount: unreviewedPullRequests.length
+        unreviewedPullRequestCount: unreviewedPullRequests.length,
       };
     } else {
       badgeState = {
         kind: "loaded",
-        unreviewedPullRequestCount: unreviewedPullRequests.length
+        unreviewedPullRequestCount: unreviewedPullRequests.length,
       };
     }
     this.env.badger.update(badgeState);
@@ -233,7 +233,7 @@ export class Core {
 
   triggerBackgroundRefresh() {
     this.env.messenger.send({
-      kind: "refresh"
+      kind: "refresh",
     });
 
     // Note: this is a hack in place because outside of a Chrome extension (ie
@@ -246,7 +246,7 @@ export class Core {
 
   private triggerReload() {
     this.env.messenger.send({
-      kind: "reload"
+      kind: "reload",
     });
   }
 }

@@ -15,7 +15,7 @@ export function chromeValueStorage<T>(
     },
     save(value: T | null) {
       return saveToStorage<T>(chromeApi, key, value);
-    }
+    },
   };
 }
 
@@ -35,7 +35,7 @@ export function chromeValueStorageWithDefault<T>(
     },
     save(value: T | null) {
       return saveToStorage<T>(chromeApi, key, value);
-    }
+    },
   };
 }
 
@@ -43,8 +43,8 @@ function loadFromStorage<T>(
   chromeApi: ChromeApi,
   key: string
 ): Promise<T | null> {
-  return new Promise<T | null>(resolve => {
-    chromeApi.storage.local.get([key], dict => {
+  return new Promise<T | null>((resolve) => {
+    chromeApi.storage.local.get([key], (dict) => {
       let result;
       try {
         result = JSON.parse(dict[key]);
@@ -65,10 +65,10 @@ function saveToStorage<T>(
   key: string,
   value: T | null
 ): Promise<void> {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     chromeApi.storage.local.set(
       {
-        [key]: JSON.stringify(value)
+        [key]: JSON.stringify(value),
       },
       resolve
     );

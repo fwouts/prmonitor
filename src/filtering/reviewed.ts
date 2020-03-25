@@ -8,7 +8,8 @@ export function userPreviouslyReviewed(
   currentUserLogin: string
 ): boolean {
   return (
-    (pr.comments || []).findIndex(r => r.authorLogin === currentUserLogin) !==
-      -1 || pr.reviews.findIndex(r => r.authorLogin === currentUserLogin) !== -1
+    (pr.comments || []).findIndex((r) => r.authorLogin === currentUserLogin) !==
+      -1 ||
+    pr.reviews.findIndex((r) => r.authorLogin === currentUserLogin) !== -1
   );
 }

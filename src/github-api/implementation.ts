@@ -39,8 +39,8 @@ export function buildGitHubApi(token: string): GitHubApi {
           `Abuse detected for request ${options.method} ${options.url}`
         );
         return false;
-      }
-    }
+      },
+    },
   });
   return {
     async loadAuthenticatedUser() {
@@ -50,7 +50,7 @@ export function buildGitHubApi(token: string): GitHubApi {
     searchPullRequests(query) {
       return octokit.paginate(
         octokit.search.issuesAndPullRequests.endpoint.merge({
-          q: `is:pr ${query}`
+          q: `is:pr ${query}`,
         })
       );
     },
@@ -58,7 +58,7 @@ export function buildGitHubApi(token: string): GitHubApi {
       const response = await octokit.pulls.get({
         owner: pr.repo.owner,
         repo: pr.repo.name,
-        pull_number: pr.number
+        pull_number: pr.number,
       });
       return response.data;
     },
@@ -67,7 +67,7 @@ export function buildGitHubApi(token: string): GitHubApi {
         octokit.pulls.listReviews.endpoint.merge({
           owner: pr.repo.owner,
           repo: pr.repo.name,
-          pull_number: pr.number
+          pull_number: pr.number,
         })
       );
     },
@@ -76,7 +76,7 @@ export function buildGitHubApi(token: string): GitHubApi {
         octokit.issues.listComments.endpoint.merge({
           owner: pr.repo.owner,
           repo: pr.repo.name,
-          issue_number: pr.number
+          issue_number: pr.number,
         })
       );
     },
@@ -85,9 +85,9 @@ export function buildGitHubApi(token: string): GitHubApi {
         octokit.pulls.listCommits.endpoint.merge({
           owner: pr.repo.owner,
           repo: pr.repo.name,
-          pull_number: pr.number
+          pull_number: pr.number,
         })
       );
-    }
+    },
   };
 }

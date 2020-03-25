@@ -55,5 +55,5 @@ export function isMuted(
 export enum MutedResult {
   VISIBLE,
   MUTED,
-  INVISIBLE
+  INVISIBLE,
 }

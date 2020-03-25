@@ -11,36 +11,36 @@ module.exports = {
       {
         include: [path.resolve(__dirname, "src")],
         loader: "babel-loader",
-        test: /\.js$/
+        test: /\.js$/,
       },
       {
         test: /\.tsx?$/,
         use: "ts-loader",
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,
         use: [
           {
-            loader: "style-loader"
+            loader: "style-loader",
           },
           {
-            loader: "css-loader"
-          }
-        ]
-      }
-    ]
+            loader: "css-loader",
+          },
+        ],
+      },
+    ],
   },
   entry: {
     background: "./src/background.ts",
-    popup: "./src/popup.tsx"
+    popup: "./src/popup.tsx",
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".json"]
+    extensions: [".tsx", ".ts", ".js", ".json"],
   },
   output: {
     filename: "[name].js",
-    publicPath: "/"
+    publicPath: "/",
   },
   mode: "development",
   devServer: {
@@ -48,19 +48,19 @@ module.exports = {
     compress: true,
     watchContentBase: true,
     hot: true,
-    port: 9000
+    port: 9000,
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup.html"),
       inject: true,
-      chunks: ["popup"]
+      chunks: ["popup"],
     }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new CopyPlugin([
       { from: "manifest.json", to: "." },
-      { from: "images", to: "images" }
+      { from: "images", to: "images" },
     ]),
-    ...(process.env.BUNDLE_ANALYZER ? [new BundleAnalyzerPlugin()] : [])
-  ]
+    ...(process.env.BUNDLE_ANALYZER ? [new BundleAnalyzerPlugin()] : []),
+  ],
 };

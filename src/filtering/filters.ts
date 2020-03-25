@@ -31,7 +31,7 @@ export enum Filter {
   /**
    * Filter that contains ignored PRs.
    */
-  IGNORED = "ignored"
+  IGNORED = "ignored",
 }
 
 export type FilteredPullRequests = {
@@ -44,31 +44,31 @@ export function filterPullRequests(
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration
 ): FilteredPullRequests {
-  const enrichedPullRequests = openPullRequests.map(pr => ({
+  const enrichedPullRequests = openPullRequests.map((pr) => ({
     state: pullRequestState(pr, userLogin),
-    ...pr
+    ...pr,
   }));
   return {
     incoming: enrichedPullRequests.filter(
-      pr =>
+      (pr) =>
         isReviewRequired(pr.state) &&
         isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
-      pr =>
+      (pr) =>
         isReviewRequired(pr.state) &&
         isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
-      pr =>
+      (pr) =>
         pr.state.kind === "incoming" &&
         !pr.state.newReviewRequested &&
         !pr.state.newCommit &&
         !pr.state.authorResponded
     ),
-    mine: enrichedPullRequests.filter(pr => pr.author.login === userLogin),
+    mine: enrichedPullRequests.filter((pr) => pr.author.login === userLogin),
     ignored: enrichedPullRequests.filter(
-      pr => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
-    )
+      (pr) => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
+    ),
   };
 }

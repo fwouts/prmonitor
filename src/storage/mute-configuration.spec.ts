@@ -5,40 +5,40 @@ import {
   MuteConfiguration,
   removeOwnerMute,
   removePullRequestMute,
-  removeRepositoryMute
+  removeRepositoryMute,
 } from "./mute-configuration";
 
 const FAKE_CURRENT_TIME = 3;
 
 const REPO: RepoReference = {
   owner: "zenclabs",
-  name: "prmonitor"
+  name: "prmonitor",
 };
 
 const PR: PullRequestReference = {
   repo: REPO,
-  number: 1
+  number: 1,
 };
 
 const OTHER_PR_SAME_REPO: PullRequestReference = {
   repo: REPO,
-  number: 2
+  number: 2,
 };
 
 const OTHER_PR_DIFFERENT_REPO: PullRequestReference = {
   repo: {
     owner: "zenclabs",
-    name: "spot"
+    name: "spot",
   },
-  number: 1
+  number: 1,
 };
 
 const OTHER_PR_DIFFERENT_OWNER: PullRequestReference = {
   repo: {
     owner: "fwouts",
-    name: "prmonitor"
+    name: "prmonitor",
   },
-  number: 1
+  number: 1,
 };
 
 describe("MuteConfiguration", () => {
@@ -52,11 +52,11 @@ describe("MuteConfiguration", () => {
             ...PR,
             until: {
               kind: "next-update",
-              mutedAtTimestamp: FAKE_CURRENT_TIME
-            }
-          }
+              mutedAtTimestamp: FAKE_CURRENT_TIME,
+            },
+          },
         ],
-        ignored: {}
+        ignored: {},
       });
     });
     test("1-hour", () => {
@@ -68,11 +68,11 @@ describe("MuteConfiguration", () => {
             ...PR,
             until: {
               kind: "specific-time",
-              unmuteAtTimestamp: FAKE_CURRENT_TIME + 3600 * 1000
-            }
-          }
+              unmuteAtTimestamp: FAKE_CURRENT_TIME + 3600 * 1000,
+            },
+          },
         ],
-        ignored: {}
+        ignored: {},
       });
     });
     test("forever", () => {
@@ -83,11 +83,11 @@ describe("MuteConfiguration", () => {
           {
             ...PR,
             until: {
-              kind: "forever"
-            }
-          }
+              kind: "forever",
+            },
+          },
         ],
-        ignored: {}
+        ignored: {},
       });
     });
     test("repo", () => {
@@ -98,9 +98,9 @@ describe("MuteConfiguration", () => {
         ignored: {
           zenclabs: {
             kind: "ignore-only",
-            repoNames: ["prmonitor"]
-          }
-        }
+            repoNames: ["prmonitor"],
+          },
+        },
       });
     });
     test("owner", () => {
@@ -110,9 +110,9 @@ describe("MuteConfiguration", () => {
         mutedPullRequests: [],
         ignored: {
           zenclabs: {
-            kind: "ignore-all"
-          }
-        }
+            kind: "ignore-all",
+          },
+        },
       });
     });
     it("does not duplicate", () => {
@@ -129,11 +129,11 @@ describe("MuteConfiguration", () => {
             ...PR,
             until: {
               kind: "specific-time",
-              unmuteAtTimestamp: 3600001
-            }
-          }
+              unmuteAtTimestamp: 3600001,
+            },
+          },
         ],
-        ignored: {}
+        ignored: {},
       });
 
       // One hour is elapsed.
@@ -149,11 +149,11 @@ describe("MuteConfiguration", () => {
             ...PR,
             until: {
               kind: "next-update",
-              mutedAtTimestamp: 4000000
-            }
-          }
+              mutedAtTimestamp: 4000000,
+            },
+          },
         ],
-        ignored: {}
+        ignored: {},
       });
     });
   });
@@ -168,35 +168,35 @@ describe("MuteConfiguration", () => {
                 ...PR,
                 until: {
                   kind: "next-update",
-                  mutedAtTimestamp: 1
-                }
+                  mutedAtTimestamp: 1,
+                },
               },
               {
                 ...OTHER_PR_SAME_REPO,
                 until: {
-                  kind: "forever"
-                }
+                  kind: "forever",
+                },
               },
               {
                 ...OTHER_PR_DIFFERENT_REPO,
                 until: {
-                  kind: "forever"
-                }
+                  kind: "forever",
+                },
               },
               {
                 ...PR,
                 until: {
-                  kind: "forever"
-                }
+                  kind: "forever",
+                },
               },
               {
                 ...OTHER_PR_DIFFERENT_OWNER,
                 until: {
-                  kind: "forever"
-                }
-              }
+                  kind: "forever",
+                },
+              },
             ],
-            ignored: {}
+            ignored: {},
           },
           PR
         )
@@ -205,29 +205,29 @@ describe("MuteConfiguration", () => {
           {
             ...OTHER_PR_SAME_REPO,
             until: {
-              kind: "forever"
-            }
+              kind: "forever",
+            },
           },
           {
             ...OTHER_PR_DIFFERENT_REPO,
             until: {
-              kind: "forever"
-            }
+              kind: "forever",
+            },
           },
           {
             ...OTHER_PR_DIFFERENT_OWNER,
             until: {
-              kind: "forever"
-            }
-          }
+              kind: "forever",
+            },
+          },
         ],
-        ignored: {}
+        ignored: {},
       });
     });
     it("does not fail when empty", () => {
       expect(removePullRequestMute(createEmptyConfig(), PR)).toEqual({
         mutedPullRequests: [],
-        ignored: {}
+        ignored: {},
       });
     });
   });
@@ -240,13 +240,13 @@ describe("MuteConfiguration", () => {
             mutedPullRequests: [],
             ignored: {
               zenclabs: {
-                kind: "ignore-all"
+                kind: "ignore-all",
               },
               fwouts: {
                 kind: "ignore-only",
-                repoNames: ["codetree"]
-              }
-            }
+                repoNames: ["codetree"],
+              },
+            },
           },
           "zenclabs"
         )
@@ -255,9 +255,9 @@ describe("MuteConfiguration", () => {
         ignored: {
           fwouts: {
             kind: "ignore-only",
-            repoNames: ["codetree"]
-          }
-        }
+            repoNames: ["codetree"],
+          },
+        },
       });
     });
     it("removes when ignore-only", () => {
@@ -268,13 +268,13 @@ describe("MuteConfiguration", () => {
             ignored: {
               zenclabs: {
                 kind: "ignore-only",
-                repoNames: ["prmonitor"]
+                repoNames: ["prmonitor"],
               },
               fwouts: {
                 kind: "ignore-only",
-                repoNames: ["codetree"]
-              }
-            }
+                repoNames: ["codetree"],
+              },
+            },
           },
           "zenclabs"
         )
@@ -283,22 +283,22 @@ describe("MuteConfiguration", () => {
         ignored: {
           fwouts: {
             kind: "ignore-only",
-            repoNames: ["codetree"]
-          }
-        }
+            repoNames: ["codetree"],
+          },
+        },
       });
     });
     it("does not fail when empty", () => {
       expect(
         removeOwnerMute(
           {
-            mutedPullRequests: []
+            mutedPullRequests: [],
           },
           "zenclabs"
         )
       ).toEqual({
         mutedPullRequests: [],
-        ignored: {}
+        ignored: {},
       });
     });
   });
@@ -312,13 +312,13 @@ describe("MuteConfiguration", () => {
             ignored: {
               zenclabs: {
                 kind: "ignore-only",
-                repoNames: ["spot", "prmonitor"]
+                repoNames: ["spot", "prmonitor"],
               },
               fwouts: {
                 kind: "ignore-only",
-                repoNames: ["codetree"]
-              }
-            }
+                repoNames: ["codetree"],
+              },
+            },
           },
           REPO
         )
@@ -327,13 +327,13 @@ describe("MuteConfiguration", () => {
         ignored: {
           zenclabs: {
             kind: "ignore-only",
-            repoNames: ["spot"]
+            repoNames: ["spot"],
           },
           fwouts: {
             kind: "ignore-only",
-            repoNames: ["codetree"]
-          }
-        }
+            repoNames: ["codetree"],
+          },
+        },
       });
     });
     it("removes ignore configuration when no more ignored repositories", () => {
@@ -344,9 +344,9 @@ describe("MuteConfiguration", () => {
             ignored: {
               fwouts: {
                 kind: "ignore-only",
-                repoNames: ["codetree"]
-              }
-            }
+                repoNames: ["codetree"],
+              },
+            },
           },
           REPO
         )
@@ -355,9 +355,9 @@ describe("MuteConfiguration", () => {
         ignored: {
           fwouts: {
             kind: "ignore-only",
-            repoNames: ["codetree"]
-          }
-        }
+            repoNames: ["codetree"],
+          },
+        },
       });
     });
     it("defaults to removing when ignore-all", () => {
@@ -367,13 +367,13 @@ describe("MuteConfiguration", () => {
             mutedPullRequests: [],
             ignored: {
               zenclabs: {
-                kind: "ignore-all"
+                kind: "ignore-all",
               },
               fwouts: {
                 kind: "ignore-only",
-                repoNames: ["codetree"]
-              }
-            }
+                repoNames: ["codetree"],
+              },
+            },
           },
           REPO
         )
@@ -382,22 +382,22 @@ describe("MuteConfiguration", () => {
         ignored: {
           fwouts: {
             kind: "ignore-only",
-            repoNames: ["codetree"]
-          }
-        }
+            repoNames: ["codetree"],
+          },
+        },
       });
     });
     it("does not fail when empty", () => {
       expect(
         removeRepositoryMute(
           {
-            mutedPullRequests: []
+            mutedPullRequests: [],
           },
           REPO
         )
       ).toEqual({
         mutedPullRequests: [],
-        ignored: {}
+        ignored: {},
       });
     });
   });
@@ -405,6 +405,6 @@ describe("MuteConfiguration", () => {
 
 function createEmptyConfig(): MuteConfiguration {
   return {
-    mutedPullRequests: []
+    mutedPullRequests: [],
   };
 }

@@ -3,13 +3,13 @@ import {
   GitHubApi,
   PullRequestReference,
   PullsSearchResponseItem,
-  RepoReference
+  RepoReference,
 } from "../../github-api/api";
 import {
   Comment,
   Commit,
   PullRequest,
-  Review
+  Review,
 } from "../../storage/loaded-state";
 
 /**
@@ -35,11 +35,13 @@ export async function refreshOpenPullRequests(
     `author:${userLogin} -commenter:${userLogin} -review-requested:${userLogin} is:open archived:false`
   );
   return Promise.all([
-    ...reviewRequestedPullRequests.map(pr =>
+    ...reviewRequestedPullRequests.map((pr) =>
       updateCommentsAndReviews(githubApi, pr, true)
     ),
-    ...commentedPullRequests.map(pr => updateCommentsAndReviews(githubApi, pr)),
-    ...ownPullRequests.map(pr => updateCommentsAndReviews(githubApi, pr))
+    ...commentedPullRequests.map((pr) =>
+      updateCommentsAndReviews(githubApi, pr)
+    ),
+    ...ownPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr)),
   ]);
 }
 
@@ -51,34 +53,34 @@ async function updateCommentsAndReviews(
   const repo = extractRepo(rawPullRequest);
   const pr: PullRequestReference = {
     repo,
-    number: rawPullRequest.number
+    number: rawPullRequest.number,
   };
   const [
     freshPullRequestDetails,
     freshReviews,
     freshComments,
-    freshCommits
+    freshCommits,
   ] = await Promise.all([
     githubApi.loadPullRequestDetails(pr),
-    githubApi.loadReviews(pr).then(reviews =>
-      reviews.map(review => ({
+    githubApi.loadReviews(pr).then((reviews) =>
+      reviews.map((review) => ({
         authorLogin: review.user.login,
         state: review.state,
-        submittedAt: review.submitted_at
+        submittedAt: review.submitted_at,
       }))
     ),
-    githubApi.loadComments(pr).then(comments =>
-      comments.map(comment => ({
+    githubApi.loadComments(pr).then((comments) =>
+      comments.map((comment) => ({
         authorLogin: comment.user.login,
-        createdAt: comment.created_at
+        createdAt: comment.created_at,
       }))
     ),
-    githubApi.loadCommits(pr).then(commits =>
-      commits.map(commit => ({
+    githubApi.loadCommits(pr).then((commits) =>
+      commits.map((commit) => ({
         authorLogin: commit.author ? commit.author.login : "",
-        createdAt: commit.commit.author.date
+        createdAt: commit.commit.author.date,
       }))
-    )
+    ),
   ]);
   return pullRequestFromResponse(
     rawPullRequest,
@@ -108,18 +110,18 @@ function pullRequestFromResponse(
     updatedAt: response.updated_at,
     author: {
       login: response.user.login,
-      avatarUrl: response.user.avatar_url
+      avatarUrl: response.user.avatar_url,
     },
     title: response.title,
     draft: response.draft,
     mergeable: details.mergeable,
     reviewRequested,
     requestedReviewers: details.requested_reviewers.map(
-      reviewer => reviewer.login
+      (reviewer) => reviewer.login
     ),
     reviews,
     comments,
-    commits
+    commits,
   };
 }
 
@@ -130,6 +132,6 @@ function extractRepo(response: PullsSearchResponseItem): RepoReference {
   }
   return {
     owner: urlParts[urlParts.length - 2],
-    name: urlParts[urlParts.length - 1]
+    name: urlParts[urlParts.length - 1],
   };
 }

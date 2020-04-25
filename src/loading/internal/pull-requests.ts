@@ -26,13 +26,13 @@ export async function refreshOpenPullRequests(
   // Note: each query should specifically exclude the previous ones so we don't end up having
   // to deduplicate PRs across lists.
   const reviewRequestedPullRequests = await githubApi.searchPullRequests(
-    `review-requested:${userLogin} is:open archived:false`
+    `review-requested:${userLogin} -author:${userLogin} is:open archived:false`
   );
   const commentedPullRequests = await githubApi.searchPullRequests(
-    `commenter:${userLogin} -review-requested:${userLogin} is:open archived:false`
+    `commenter:${userLogin} -author:${userLogin} -review-requested:${userLogin} is:open archived:false`
   );
   const ownPullRequests = await githubApi.searchPullRequests(
-    `author:${userLogin} -commenter:${userLogin} -review-requested:${userLogin} is:open archived:false`
+    `author:${userLogin} is:open archived:false`
   );
   return Promise.all([
     ...reviewRequestedPullRequests.map((pr) =>

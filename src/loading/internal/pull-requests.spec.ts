@@ -87,14 +87,14 @@ describe("refreshOpenPullRequests", () => {
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));
     githubApi.loadReviews.mockReturnValue(Promise.resolve([]));
     githubApi.loadCommits.mockReturnValue(Promise.resolve([]));
-    const result = await refreshOpenPullRequests(githubApi, "author");
+    const result = await refreshOpenPullRequests(githubApi, "fwouts");
     expect(result).toHaveLength(3);
     expect(githubApi.searchPullRequests.mock.calls).toEqual([
-      [`review-requested:author is:open archived:false`],
-      [`commenter:author -review-requested:author is:open archived:false`],
+      [`review-requested:fwouts -author:fwouts is:open archived:false`],
       [
-        `author:author -commenter:author -review-requested:author is:open archived:false`,
+        `commenter:fwouts -author:fwouts -review-requested:fwouts is:open archived:false`,
       ],
+      [`author:fwouts is:open archived:false`],
     ]);
   });
 });

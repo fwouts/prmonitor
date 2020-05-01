@@ -14,6 +14,7 @@ interface ThrottlingOptions {
 
 export function buildGitHubApi(token: string): GitHubApi {
   const octokit = new ThrottledOctokit({
+    baseUrl: 'https://api.github.<my domain>.com',
     auth: `token ${token}`,
     // https://developer.github.com/v3/pulls/#list-pull-requests
     // Enable Draft Pull Request API.

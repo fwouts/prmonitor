@@ -226,6 +226,35 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.MUTED]);
   });
+  it("is MUTED when the PR is muted until not draft and the PR is still a draft", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        {
+          mutedPullRequests: [
+            {
+              repo: {
+                owner: "zenclabs",
+                name: "prmonitor",
+              },
+              number: 1,
+              until: {
+                kind: "not-draft",
+              },
+            },
+          ],
+        },
+        fakePullRequest()
+          .draft()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .build()
+      )
+    ).toEqual([Filter.MUTED]);
+  });
   it("is MUTED when the PR is muted until a specific time that hasn't been reached yet", () => {
     const env = buildTestingEnvironment();
     env.currentTime = 50;
@@ -446,6 +475,34 @@ describe("filters (incoming)", () => {
           .seenAs("kevin")
           .reviewRequested(["kevin"])
           .addComment("fwouts", 200)
+          .build()
+      )
+    ).toEqual([Filter.INCOMING]);
+  });
+  it("is INCOMING when the PR was muted until not draft and the PR is no longer a draft", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        {
+          mutedPullRequests: [
+            {
+              repo: {
+                owner: "zenclabs",
+                name: "prmonitor",
+              },
+              number: 1,
+              until: {
+                kind: "not-draft",
+              },
+            },
+          ],
+        },
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
           .build()
       )
     ).toEqual([Filter.INCOMING]);

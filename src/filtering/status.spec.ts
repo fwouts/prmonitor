@@ -14,6 +14,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "incoming",
+      draft: false,
       newReviewRequested: true,
       newCommit: false,
       authorResponded: false,
@@ -31,6 +32,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "incoming",
+      draft: false,
       newReviewRequested: false,
       newCommit: false,
       authorResponded: true,
@@ -48,6 +50,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "incoming",
+      draft: false,
       newReviewRequested: false,
       newCommit: true,
       authorResponded: false,
@@ -66,6 +69,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "incoming",
+      draft: false,
       newReviewRequested: false,
       newCommit: true,
       authorResponded: true,
@@ -82,6 +86,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "incoming",
+      draft: false,
       newReviewRequested: false,
       newCommit: false,
       authorResponded: false,
@@ -98,6 +103,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "incoming",
+      draft: false,
       newReviewRequested: false,
       newCommit: false,
       authorResponded: false,
@@ -116,6 +122,7 @@ describe("pullRequestState", () => {
       )
     ).toEqual({
       kind: "not-involved",
+      draft: false,
     });
   });
 

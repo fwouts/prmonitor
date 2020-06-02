@@ -19,6 +19,7 @@ export function pullRequestState(
   if (!pr.reviewRequested && !userPreviouslyReviewed(pr, currentUserLogin)) {
     return {
       kind: "not-involved",
+      draft: pr.draft === true,
     };
   }
   return incomingPullRequestState(pr, currentUserLogin);
@@ -39,6 +40,7 @@ function incomingPullRequestState(
   const hasReviewed = lastReviewOrCommentFromCurrentUser > 0;
   return {
     kind: "incoming",
+    draft: pr.draft === true,
     newReviewRequested: !hasReviewed,
     authorResponded: hasReviewed && hasNewCommentByAuthor,
     newCommit: hasReviewed && hasNewCommit,
@@ -121,6 +123,11 @@ export interface IncomingState {
   kind: "incoming";
 
   /**
+   * True if the PR is a draft.
+   */
+  draft: boolean;
+
+  /**
    * True if a review has been requested from the user, but they haven't
    * submitted any review or comments on the PR yet.
    */
@@ -145,6 +152,11 @@ export interface IncomingState {
  */
 export interface NotInvolvedState {
   kind: "not-involved";
+
+  /**
+   * True if the PR is a draft.
+   */
+  draft: boolean;
 }
 
 /**

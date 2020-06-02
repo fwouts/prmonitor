@@ -13,138 +13,120 @@ const StateBox = styled.div`
   padding: 0 8px;
 `;
 
+const SpacedBadge = styled(Badge)`
+  margin-right: 4px;
+`;
+
 const UNREVIEWED = (
-  <Badge pill variant="danger">
+  <SpacedBadge pill variant="danger" key="unreviewed">
     Unreviewed
-  </Badge>
+  </SpacedBadge>
 );
 
 const AUTHOR_REPLIED = (
-  <Badge pill variant="secondary">
+  <SpacedBadge pill variant="secondary" key="author-replied">
     Author replied
-  </Badge>
+  </SpacedBadge>
 );
 
 const NEW_COMMIT = (
-  <Badge pill variant="primary">
+  <SpacedBadge pill variant="primary" key="new-commit">
     New commit
-  </Badge>
+  </SpacedBadge>
 );
 
 const DRAFT = (
-  <Badge pill variant="dark">
+  <SpacedBadge pill variant="dark" key="draft">
     Draft
-  </Badge>
+  </SpacedBadge>
 );
 
 const MERGEABLE = (
-  <Badge pill variant="success">
+  <SpacedBadge pill variant="success" key="mergeable">
     Mergeable
-  </Badge>
+  </SpacedBadge>
 );
 
 const APPROVED_BY_EVERONE = (
-  <Badge pill variant="success">
+  <SpacedBadge pill variant="success" key="approved-by-everyone">
     Approved by everyone
-  </Badge>
+  </SpacedBadge>
 );
 
 const CHANGES_REQUESTED = (
-  <Badge pill variant="warning">
+  <SpacedBadge pill variant="warning" key="changes-requested">
     Changes requested
-  </Badge>
+  </SpacedBadge>
 );
 
 const WAITING_FOR_REVIEW = (
-  <Badge pill variant="info">
+  <SpacedBadge pill variant="info" key="waiting-for-review">
     Waiting for review
-  </Badge>
+  </SpacedBadge>
 );
 
 const NO_REVIEWER_ASSIGNED = (
-  <Badge pill variant="light">
+  <SpacedBadge pill variant="light" key="no-reviewer-assigned">
     No reviewer assigned
-  </Badge>
+  </SpacedBadge>
 );
 
 export const PullRequestStatus = observer(
   ({ pullRequest }: { pullRequest: EnrichedPullRequest }) => {
-    const state = renderState(pullRequest.state);
-    if (state) {
-      return <StateBox>{state}</StateBox>;
+    const badges = getBadges(pullRequest.state);
+    if (badges.length > 0) {
+      return <StateBox>{badges}</StateBox>;
     }
     return <></>;
   }
 );
 
-function renderState(state: PullRequestState) {
+function getBadges(state: PullRequestState): JSX.Element[] {
+  const badges: JSX.Element[] = [];
+  if (state.draft) {
+    badges.push(DRAFT);
+  }
   switch (state.kind) {
     case "incoming":
-      return renderIncomingState(state);
+      badges.push(...getIncomingStateBadges(state));
+      break;
     case "outgoing":
-      return addDraftTag(
-        state,
-        addMergeableTag(state, renderOutgoingState(state))
-      );
+      badges.push(...getOutgoingStateBadges(state));
+      break;
     default:
-      return null;
+    // Do nothing.
   }
+  return badges;
 }
 
-function renderIncomingState(state: IncomingState) {
+function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   if (state.newReviewRequested) {
-    return UNREVIEWED;
-  } else if (state.authorResponded && state.newCommit) {
-    return (
-      <>
-        {AUTHOR_REPLIED} {NEW_COMMIT}
-      </>
-    );
-  } else if (state.authorResponded) {
-    return AUTHOR_REPLIED;
-  } else if (state.newCommit) {
-    return NEW_COMMIT;
-  } else {
-    return null;
+    return [UNREVIEWED];
   }
+  const badges: JSX.Element[] = [];
+  if (state.authorResponded) {
+    badges.push(AUTHOR_REPLIED);
+  }
+  if (state.newCommit) {
+    badges.push(NEW_COMMIT);
+  }
+  return badges;
 }
 
-function renderOutgoingState(state: OutgoingState): JSX.Element {
-  if (state.approvedByEveryone) {
-    return APPROVED_BY_EVERONE;
-  } else if (state.changesRequested) {
-    return CHANGES_REQUESTED;
-  } else if (state.noReviewers) {
-    return (
-      <>
-        {WAITING_FOR_REVIEW} {NO_REVIEWER_ASSIGNED}
-      </>
-    );
-  } else {
-    return WAITING_FOR_REVIEW;
-  }
-}
-
-function addMergeableTag(state: OutgoingState, otherTags: JSX.Element) {
+function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
+  const badges: JSX.Element[] = [];
   if (state.mergeable) {
-    return (
-      <>
-        {MERGEABLE} {otherTags}
-      </>
-    );
-  } else {
-    return otherTags;
+    badges.push(MERGEABLE);
   }
-}
-
-function addDraftTag(state: OutgoingState, otherTags: JSX.Element) {
-  if (state.draft) {
-    return (
-      <>
-        {DRAFT} {otherTags}
-      </>
-    );
+  if (state.approvedByEveryone) {
+    badges.push(APPROVED_BY_EVERONE);
+  } else if (state.changesRequested) {
+    badges.push(CHANGES_REQUESTED);
   } else {
-    return otherTags;
+    badges.push(WAITING_FOR_REVIEW);
+    if (state.noReviewers) {
+      badges.push(NO_REVIEWER_ASSIGNED);
+    }
   }
+  return badges;
 }

@@ -52,6 +52,14 @@ export function addMute(
         },
       });
       break;
+    case "not-draft":
+      muteConfiguration.mutedPullRequests.push({
+        ...pullRequest,
+        until: {
+          kind: "not-draft",
+        },
+      });
+      break;
     case "1-hour":
       muteConfiguration.mutedPullRequests.push({
         ...pullRequest,
@@ -146,7 +154,13 @@ export function removeRepositoryMute(
   };
 }
 
-export type MuteType = "next-update" | "1-hour" | "forever" | "repo" | "owner";
+export type MuteType =
+  | "next-update"
+  | "1-hour"
+  | "not-draft"
+  | "forever"
+  | "repo"
+  | "owner";
 
 export interface MutedPullRequest {
   repo: {
@@ -159,6 +173,7 @@ export interface MutedPullRequest {
 
 export type MutedUntil =
   | MutedUntilNextUpdateByAuthor
+  | MutedUntilNotDraft
   | MutedUntilSpecificTime
   | MutedForever;
 
@@ -171,6 +186,10 @@ export interface MutedUntilNextUpdateByAuthor {
    * Any update by the author after this timestamp will make the PR re-appear.
    */
   mutedAtTimestamp: number;
+}
+
+export interface MutedUntilNotDraft {
+  kind: "not-draft";
 }
 
 export interface MutedUntilSpecificTime {

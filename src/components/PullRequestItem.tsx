@@ -4,11 +4,11 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Dropdown } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
+import { isRunningAsPopup } from "../popup-environment";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
 import { SmallButton } from "./design/Button";
 import { PullRequestStatus } from "./PullRequestStatus";
-import { isRunningAsPopup } from "../popup-environment";
 
 const PullRequestBox = styled.a`
   display: flex;
@@ -137,6 +137,11 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
                 <Dropdown.Item onSelect={createMuteHandler("next-update")}>
                   Mute until next update by author
                 </Dropdown.Item>
+                {props.pullRequest.draft && (
+                  <Dropdown.Item onSelect={createMuteHandler("not-draft")}>
+                    Mute until not draft
+                  </Dropdown.Item>
+                )}
                 <Dropdown.Item onSelect={createMuteHandler("1-hour")}>
                   Mute for 1 hour
                 </Dropdown.Item>

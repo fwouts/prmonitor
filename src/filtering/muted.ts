@@ -40,6 +40,8 @@ export function isMuted(
           const updatedSince =
             getLastAuthorUpdateTimestamp(pr) > muted.until.mutedAtTimestamp;
           return updatedSince ? MutedResult.VISIBLE : MutedResult.MUTED;
+        case "not-draft":
+          return pr.draft ? MutedResult.MUTED : MutedResult.VISIBLE;
         case "specific-time":
           return currentTime >= muted.until.unmuteAtTimestamp
             ? MutedResult.VISIBLE

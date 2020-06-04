@@ -6,6 +6,7 @@ import { PullRequestReference, RepoReference } from "../github-api/api";
 export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: [],
   ignored: {},
+  ignoreNewCommits: false,
 };
 
 export interface MuteConfiguration {
@@ -21,6 +22,8 @@ export interface MuteConfiguration {
   ignored?: {
     [owner: string]: IgnoreConfiguration;
   };
+
+  ignoreNewCommits?: boolean;
 }
 
 export function addMute(

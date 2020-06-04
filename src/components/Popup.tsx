@@ -1,20 +1,20 @@
+import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
 import { Filter } from "../filtering/filters";
+import { isRunningAsPopup } from "../popup-environment";
 import { Core } from "../state/core";
 import { PullRequest, ref } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
+import { Link } from "./design/Link";
+import { Row } from "./design/Row";
 import { IgnoredRepositories } from "./IgnoredRepositories";
 import { Loader } from "./Loader";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
-import { Row } from "./design/Row";
-import { Link } from "./design/Link";
-import styled from "@emotion/styled";
-import { isRunningAsPopup } from "../popup-environment";
 
 export interface PopupProps {
   core: Core;
@@ -48,6 +48,10 @@ export const Popup = observer((props: PopupProps) => {
 
   const onUnmute = (pullRequest: PullRequest) => {
     props.core.unmutePullRequest(ref(pullRequest));
+  };
+
+  const onToggleNewCommitsNotification = () => {
+    props.core.toggleNewCommitsNotificationSetting();
   };
 
   if (props.core.overallStatus !== "loaded") {
@@ -160,6 +164,12 @@ export const Popup = observer((props: PopupProps) => {
                   ? "allow-unmuting"
                   : "none"
               }
+              newCommitsNotificationToggled={
+                state.currentFilter === Filter.INCOMING
+                  ? !props.core.muteConfiguration.ignoreNewCommits
+                  : null
+              }
+              onToggleNewCommitsNotification={onToggleNewCommitsNotification}
               onOpenAll={onOpenAll}
               onOpen={onOpen}
               onMute={onMute}

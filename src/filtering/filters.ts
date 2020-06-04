@@ -48,15 +48,16 @@ export function filterPullRequests(
     state: pullRequestState(pr, userLogin),
     ...pr,
   }));
+  const ignoreNewCommits = !!muteConfiguration.ignoreNewCommits;
   return {
     incoming: enrichedPullRequests.filter(
       (pr) =>
-        isReviewRequired(pr.state) &&
+        isReviewRequired(pr.state, ignoreNewCommits) &&
         isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
       (pr) =>
-        isReviewRequired(pr.state) &&
+        isReviewRequired(pr.state, ignoreNewCommits) &&
         isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(

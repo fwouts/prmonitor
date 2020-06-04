@@ -81,8 +81,18 @@ const InlineDropdown = styled(Dropdown)`
   margin: 0 8px;
 
   .dropdown-menu {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
+
+  .dropdown-item {
+    padding: 4px 16px 3px 36px;
+  }
+`;
+
+const Icon = styled(FontAwesomeIcon)`
+  position: absolute;
+  margin-left: -24px;
+  margin-top: 2px;
 `;
 
 export interface PullRequestItemProps {
@@ -137,20 +147,25 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
                 <Dropdown.Item
                   onSelect={createMuteHandler("next-comment-by-author")}
                 >
+                  <Icon icon="reply" />
                   Mute until next comment by author
                 </Dropdown.Item>
                 <Dropdown.Item onSelect={createMuteHandler("next-update")}>
-                  Mute until next update by author
+                  <Icon icon="podcast" />
+                  Mute until any update by author
                 </Dropdown.Item>
                 {props.pullRequest.draft && (
                   <Dropdown.Item onSelect={createMuteHandler("not-draft")}>
+                    <Icon icon="pen" />
                     Mute until not draft
                   </Dropdown.Item>
                 )}
                 <Dropdown.Item onSelect={createMuteHandler("1-hour")}>
+                  <Icon icon="clock" />
                   Mute for 1 hour
                 </Dropdown.Item>
                 <Dropdown.Item onSelect={createMuteHandler("forever")}>
+                  <Icon icon="ban" />
                   Mute forever
                 </Dropdown.Item>
                 <Dropdown.Item onSelect={createMuteHandler("repo")}>

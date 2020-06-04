@@ -195,7 +195,7 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.INCOMING]);
   });
-  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews to", () => {
+  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(
@@ -222,6 +222,36 @@ describe("filters (incoming)", () => {
           .reviewRequested(["kevin"])
           // Another user posted a review after we muted.
           .addReview("dries", "CHANGES_REQUESTED", 200)
+          .build()
+      )
+    ).toEqual([Filter.MUTED]);
+  });
+  it("is MUTED when the PR is muted until next comment and the author added commits but did not add new comments or reviews", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        {
+          mutedPullRequests: [
+            {
+              repo: {
+                owner: "zenclabs",
+                name: "prmonitor",
+              },
+              number: 1,
+              until: {
+                kind: "next-comment-by-author",
+                mutedAtTimestamp: 100,
+              },
+            },
+          ],
+        },
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .addCommit(300)
           .build()
       )
     ).toEqual([Filter.MUTED]);
@@ -448,7 +478,7 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.IGNORED]);
   });
-  it("is INCOMING when the PR was muted but the author added comments since muting", () => {
+  it("is INCOMING when the PR was muted until next update but the author added comments since muting", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(
@@ -464,6 +494,68 @@ describe("filters (incoming)", () => {
               number: 1,
               until: {
                 kind: "next-update",
+                mutedAtTimestamp: 100,
+              },
+            },
+          ],
+        },
+        fakePullRequest()
+          .ref("zenclabs", "prmonitor", 1)
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .addComment("fwouts", 200)
+          .build()
+      )
+    ).toEqual([Filter.INCOMING]);
+  });
+  it("is INCOMING when the PR was muted until next update but the author added commits since muting", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        {
+          mutedPullRequests: [
+            {
+              repo: {
+                owner: "zenclabs",
+                name: "prmonitor",
+              },
+              number: 1,
+              until: {
+                kind: "next-update",
+                mutedAtTimestamp: 100,
+              },
+            },
+          ],
+        },
+        fakePullRequest()
+          .ref("zenclabs", "prmonitor", 1)
+          .author("fwouts")
+          .seenAs("kevin")
+          .reviewRequested(["kevin"])
+          .addCommit(200)
+          .build()
+      )
+    ).toEqual([Filter.INCOMING]);
+  });
+  it("is INCOMING when the PR was muted until next comment but the author added comments since muting", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        {
+          mutedPullRequests: [
+            {
+              repo: {
+                owner: "zenclabs",
+                name: "prmonitor",
+              },
+              number: 1,
+              until: {
+                kind: "next-comment-by-author",
                 mutedAtTimestamp: 100,
               },
             },

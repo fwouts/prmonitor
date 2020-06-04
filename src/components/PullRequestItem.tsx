@@ -134,6 +134,11 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
                 <FontAwesomeIcon icon="bell-slash" />
               </Dropdown.Toggle>
               <Dropdown.Menu>
+                <Dropdown.Item
+                  onSelect={createMuteHandler("next-comment-by-author")}
+                >
+                  Mute until next comment by author
+                </Dropdown.Item>
                 <Dropdown.Item onSelect={createMuteHandler("next-update")}>
                   Mute until next update by author
                 </Dropdown.Item>

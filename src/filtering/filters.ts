@@ -64,7 +64,7 @@ export function filterPullRequests(
       (pr) =>
         pr.state.kind === "incoming" &&
         !pr.state.newReviewRequested &&
-        !pr.state.newCommit &&
+        (!pr.state.newCommit || ignoreNewCommits) &&
         !pr.state.authorResponded
     ),
     mine: enrichedPullRequests.filter((pr) => pr.author.login === userLogin),

@@ -192,9 +192,14 @@ export interface OutgoingState {
   approvedByEveryone: boolean;
 }
 
-export function isReviewRequired(state: PullRequestState) {
+export function isReviewRequired(
+  state: PullRequestState,
+  ignoreNewCommits: boolean
+) {
   return (
     state.kind === "incoming" &&
-    (state.newReviewRequested || state.authorResponded || state.newCommit)
+    (state.newReviewRequested ||
+      state.authorResponded ||
+      (!ignoreNewCommits && state.newCommit))
   );
 }

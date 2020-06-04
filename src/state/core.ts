@@ -147,6 +147,14 @@ export class Core {
     this.updateBadge();
   }
 
+  async toggleNewCommitsNotificationSetting() {
+    await this.saveMuteConfiguration({
+      ...this.muteConfiguration,
+      ignoreNewCommits: !this.muteConfiguration.ignoreNewCommits,
+    });
+    this.updateBadge();
+  }
+
   @computed
   get filteredPullRequests(): FilteredPullRequests | null {
     const lastCheck = this.loadedState;

@@ -120,14 +120,14 @@ async function updateCommentsAndReviews(
   const [freshReviews, freshComments, freshCommits] = await Promise.all([
     githubApi.loadReviews(pr).then(reviews =>
       reviews.map(review => ({
-        authorLogin: review.user.login,
+        authorLogin: review.user ? review.user.login : '',
         state: review.state,
         submittedAt: review.submitted_at
       }))
     ),
     githubApi.loadComments(pr).then(comments =>
       comments.map(comment => ({
-        authorLogin: comment.user.login,
+        authorLogin: comment.user ? comment.user.login : '',
         createdAt: comment.created_at
       }))
     ),

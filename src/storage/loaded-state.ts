@@ -55,6 +55,11 @@ export interface PullRequest {
     login: string;
     avatarUrl: string;
   };
+  changeSummary: {
+    changedFiles: number;
+    additions: number;
+    deletions: number;
+  };
   title: string;
   draft?: boolean;
   mergeable?: boolean;

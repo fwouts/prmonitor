@@ -39,13 +39,32 @@ const Title = styled.div`
   padding: 8px;
 `;
 
-const Repo = styled.div`
+const ContextSummary = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.9em;
-  color: #555;
   padding: 8px;
+`;
+
+const ChangeSummary = styled.span`
+  margin-left: 8px;
+`;
+
+const LinesAdded = styled.span`
+  color: #22863a;
+`;
+
+const LinesDeleted = styled.span`
+  color: #cb2431;
+`;
+
+const ChangedFiles = styled.span`
+  color: #555;
+`;
+
+const Repo = styled.span`
+  color: #555;
 `;
 
 const AuthorWidth = "80px";
@@ -186,10 +205,19 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
           )}
         </Title>
         <PullRequestStatus pullRequest={props.pullRequest} />
-        <Repo>
-          {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
-          {props.pullRequest.pullRequestNumber})
-        </Repo>
+        <ContextSummary>
+          <Repo>
+            {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
+            {props.pullRequest.pullRequestNumber})
+          </Repo>
+          {props.pullRequest.changeSummary && (
+            <ChangeSummary>
+              <LinesAdded>+{props.pullRequest.changeSummary.additions}</LinesAdded>
+              <LinesDeleted>-{props.pullRequest.changeSummary.deletions}</LinesDeleted>
+              <ChangedFiles>@{props.pullRequest.changeSummary.changedFiles}</ChangedFiles>
+            </ChangeSummary>
+          )}
+        </ContextSummary>
       </Info>
       <AuthorBox title={props.pullRequest.author.login}>
         {props.pullRequest.author && (

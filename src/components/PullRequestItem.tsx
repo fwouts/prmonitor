@@ -212,9 +212,15 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
           </Repo>
           {props.pullRequest.changeSummary && (
             <ChangeSummary>
-              <LinesAdded>+{props.pullRequest.changeSummary.additions}</LinesAdded>
-              <LinesDeleted>-{props.pullRequest.changeSummary.deletions}</LinesDeleted>
-              <ChangedFiles>@{props.pullRequest.changeSummary.changedFiles}</ChangedFiles>
+              <LinesAdded>
+                +{props.pullRequest.changeSummary.additions}
+              </LinesAdded>
+              <LinesDeleted>
+                -{props.pullRequest.changeSummary.deletions}
+              </LinesDeleted>
+              <ChangedFiles>
+                @{props.pullRequest.changeSummary.changedFiles}
+              </ChangedFiles>
             </ChangeSummary>
           )}
         </ContextSummary>

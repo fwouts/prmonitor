@@ -112,6 +112,11 @@ function pullRequestFromResponse(
       login: response.user.login,
       avatarUrl: response.user.avatar_url,
     },
+    changeSummary: {
+      changedFiles: details.changed_files,
+      additions: details.additions,
+      deletions: details.deletions,
+    },
     title: response.title,
     draft: response.draft,
     mergeable: details.mergeable,

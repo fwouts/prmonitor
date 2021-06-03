@@ -96,6 +96,11 @@ class FakePullRequestBuilder {
         login: this._author,
         avatarUrl: "",
       },
+      changeSummary: {
+        changedFiles: 5,
+        additions: 100,
+        deletions: 50,
+      },
       title: "PR",
       repoOwner: this._ref.repo.owner,
       repoName: this._ref.repo.name,

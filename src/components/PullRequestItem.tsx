@@ -210,19 +210,25 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
             {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
             {props.pullRequest.pullRequestNumber})
           </Repo>
-          {props.pullRequest.changeSummary && (
-            <ChangeSummary>
-              <LinesAdded>
-                +{props.pullRequest.changeSummary.additions}
-              </LinesAdded>
-              <LinesDeleted>
-                -{props.pullRequest.changeSummary.deletions}
-              </LinesDeleted>
-              <ChangedFiles>
-                @{props.pullRequest.changeSummary.changedFiles}
-              </ChangedFiles>
-            </ChangeSummary>
-          )}
+          {props.pullRequest.changeSummary &&
+            (() => {
+              const adds = props.pullRequest.changeSummary.additions;
+              const dels = props.pullRequest.changeSummary.deletions;
+              const files = props.pullRequest.changeSummary.changedFiles;
+              return (
+                <ChangeSummary
+                  title={`${adds} line${
+                    adds == 1 ? "" : "s"
+                  } added, ${dels} line${
+                    dels == 1 ? "" : "s"
+                  } removed, ${files} file${files == 1 ? "" : "s"} changed`}
+                >
+                  <LinesAdded>+{adds}</LinesAdded>
+                  <LinesDeleted>-{dels}</LinesDeleted>
+                  <ChangedFiles>@{files}</ChangedFiles>
+                </ChangeSummary>
+              );
+            })()}
         </ContextSummary>
       </Info>
       <AuthorBox title={props.pullRequest.author.login}>

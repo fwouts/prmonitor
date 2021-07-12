@@ -155,6 +155,23 @@ export class Core {
     this.updateBadge();
   }
 
+  async toggleOnlyDirectRequestsSetting() {
+    const newOnlyDirectRequests = !this.muteConfiguration.onlyDirectRequests;
+    await this.saveMuteConfiguration({
+      ...this.muteConfiguration,
+      onlyDirectRequests: newOnlyDirectRequests,
+    });
+    this.updateBadge();
+  }
+
+  async onChangeWhitelistedTeamsSetting(teams: string[]) {
+    await this.saveMuteConfiguration({
+      ...this.muteConfiguration,
+      whitelistedTeams: teams,
+    });
+    this.updateBadge();
+  }
+
   @computed
   get filteredPullRequests(): FilteredPullRequests | null {
     const lastCheck = this.loadedState;

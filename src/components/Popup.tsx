@@ -54,6 +54,15 @@ export const Popup = observer((props: PopupProps) => {
     props.core.toggleNewCommitsNotificationSetting();
   };
 
+  const onToggleOnlyDirectRequests = () => {
+    props.core.toggleOnlyDirectRequestsSetting();
+  };
+
+  const onChangeWhitelistedTeams = (teamsText: string) => {
+    const teams = teamsText.split(",").map((s) => s.trim());
+    props.core.onChangeWhitelistedTeamsSetting(teams);
+  };
+
   if (props.core.overallStatus !== "loaded") {
     return <Loader />;
   }
@@ -169,7 +178,23 @@ export const Popup = observer((props: PopupProps) => {
                   ? !props.core.muteConfiguration.ignoreNewCommits
                   : null
               }
+              onlyDirectRequestsToggled={
+                state.currentFilter === Filter.INCOMING
+                  ? !!props.core.muteConfiguration.onlyDirectRequests
+                  : null
+              }
+              whitelistedTeams={
+                state.currentFilter === Filter.INCOMING
+                  ? props.core.muteConfiguration.whitelistedTeams || []
+                  : []
+              }
+              userLogin={
+                (props.core.loadedState && props.core.loadedState.userLogin) ||
+                undefined
+              }
               onToggleNewCommitsNotification={onToggleNewCommitsNotification}
+              onToggleOnlyDirectRequests={onToggleOnlyDirectRequests}
+              onChangeWhitelistedTeams={onChangeWhitelistedTeams}
               onOpenAll={onOpenAll}
               onOpen={onOpen}
               onMute={onMute}

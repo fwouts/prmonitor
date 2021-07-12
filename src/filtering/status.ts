@@ -44,6 +44,8 @@ function incomingPullRequestState(
     newReviewRequested: !hasReviewed,
     authorResponded: hasReviewed && hasNewCommentByAuthor,
     newCommit: hasReviewed && hasNewCommit,
+    directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
+    teams: pr.requestedTeams || [],
   };
 }
 
@@ -144,6 +146,16 @@ export interface IncomingState {
    * previously submitted by the user.
    */
   newCommit: boolean;
+
+  /**
+   * True if a review has been requested for the current user, and not just included indirectly via a team.
+   */
+  directlyAdded: boolean;
+
+  /**
+   * List of team names requested.
+   */
+  teams: string[];
 }
 
 /**
@@ -194,12 +206,19 @@ export interface OutgoingState {
 
 export function isReviewRequired(
   state: PullRequestState,
-  ignoreNewCommits: boolean
+  ignoreNewCommits: boolean,
+  onlyDirectRequests: boolean,
+  whitelistedTeams: string[]
 ) {
-  return (
+  const inWhitelistedTeams =
     state.kind === "incoming" &&
+    state.teams.some((team) => whitelistedTeams.includes(team));
+  const v =
+    state.kind === "incoming" &&
+    (!onlyDirectRequests || state.directlyAdded || inWhitelistedTeams) &&
     (state.newReviewRequested ||
       state.authorResponded ||
-      (!ignoreNewCommits && state.newCommit))
-  );
+      (!ignoreNewCommits && state.newCommit));
+
+  return v;
 }

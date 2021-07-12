@@ -72,6 +72,7 @@ export interface PullRequest {
    */
   // TODO: Make this required in September 2019.
   requestedReviewers?: string[];
+  requestedTeams?: string[];
   reviews: Review[];
   comments: Comment[];
   commits?: Commit[];

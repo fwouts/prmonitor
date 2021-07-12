@@ -7,6 +7,8 @@ export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: [],
   ignored: {},
   ignoreNewCommits: false,
+  onlyDirectRequests: false,
+  whitelistedTeams: [],
 };
 
 export interface MuteConfiguration {
@@ -24,6 +26,10 @@ export interface MuteConfiguration {
   };
 
   ignoreNewCommits?: boolean;
+
+  onlyDirectRequests?: boolean;
+
+  whitelistedTeams?: string[];
 }
 
 export function addMute(

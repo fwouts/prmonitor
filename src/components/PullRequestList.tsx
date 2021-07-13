@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
 import React, { useRef, useState } from "react";
-import { Button } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
 import { Link } from "./design/Link";
+import { LargeButton } from "./design/Button";
 import { Paragraph } from "./design/Paragraph";
 import { Loader } from "./Loader";
 import { PullRequestItem } from "./PullRequestItem";
@@ -118,12 +118,12 @@ export const PullRequestList = observer((props: PullRequestListProps) => {
                   value={whitelistedTeams}
                   onInput={handleWhitelistedTeamsChange}
                 ></WhitelistedTeamsInput>
-                <Button
+                <LargeButton
                   disabled={whitelistedTeams === defaultWhitelistedTeams}
                   onClick={handleApplyWhitelistedTeamsChange}
                 >
                   Apply
-                </Button>
+                </LargeButton>
               </div>
             )}
           </div>

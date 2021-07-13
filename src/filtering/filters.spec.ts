@@ -279,7 +279,7 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.INCOMING]);
   });
-  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews", () => {
+  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews [reviewer-direct-requested]", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(
@@ -310,38 +310,7 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.MUTED]);
   });
-  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews", () => {
-    const env = buildTestingEnvironment();
-    expect(
-      getFilteredBucket(
-        env,
-        "kevin",
-        {
-          mutedPullRequests: [
-            {
-              repo: {
-                owner: "zenclabs",
-                name: "prmonitor",
-              },
-              number: 1,
-              until: {
-                kind: "next-update",
-                mutedAtTimestamp: 100,
-              },
-            },
-          ],
-        },
-        fakePullRequest()
-          .author("fwouts")
-          .seenAs("kevin")
-          .reviewRequested(["kevin"])
-          // Another user posted a review after we muted.
-          .addReview("dries", "CHANGES_REQUESTED", 200)
-          .build()
-      )
-    ).toEqual([Filter.MUTED]);
-  });
-  it("is MUTED when the PR is muted until next comment and the author added commits but did not add new comments or reviews", () => {
+  it("is MUTED when the PR is muted until next comment and the author added commits but did not add new comments or reviews [reviewer-team-requested]", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(

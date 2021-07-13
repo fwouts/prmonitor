@@ -59,7 +59,10 @@ export const Popup = observer((props: PopupProps) => {
   };
 
   const onChangeWhitelistedTeams = (teamsText: string) => {
-    const teams = teamsText.split(",").map((s) => s.trim()).filter((s) => s.length);
+    const teams = teamsText
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length);
     props.core.onChangeWhitelistedTeamsSetting(teams);
   };
 

@@ -54,7 +54,7 @@ export const PullRequestList = observer((props: PullRequestListProps) => (
           checked={props.newCommitsNotificationToggled}
           onChange={props.onToggleNewCommitsNotification}
         />
-        Notify me of new commits
+        Include new commits
       </NewCommitsToggle>
     )}
     {props.pullRequests === null ? (

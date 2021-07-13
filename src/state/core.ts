@@ -150,7 +150,7 @@ export class Core {
   async toggleNewCommitsNotificationSetting() {
     await this.saveMuteConfiguration({
       ...this.muteConfiguration,
-      ignoreNewCommits: !this.muteConfiguration.ignoreNewCommits,
+      notifyNewCommits: !this.muteConfiguration.notifyNewCommits,
     });
     this.updateBadge();
   }

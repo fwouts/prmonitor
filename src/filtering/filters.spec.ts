@@ -78,7 +78,7 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.INCOMING]);
   });
-  it("is INCOMING when the user is in a reviewer team, but only wants whitelisted teams", () => {
+  it("is NOTHING when the user is in a reviewer team, but only wants whitelisted teams", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(

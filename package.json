@@ -13,7 +13,7 @@
     "bootstrap": "^4.4.1",
     "lodash": "^4.17.15",
     "mobx": "^5.15.4",
-    "mobx-react-lite": "^2.0.6",
+    "mobx-react-lite": "^2.2.2",
     "moment": "^2.24.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",

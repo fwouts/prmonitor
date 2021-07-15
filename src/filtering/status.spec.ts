@@ -18,6 +18,31 @@ describe("pullRequestState", () => {
       newReviewRequested: true,
       newCommit: false,
       authorResponded: false,
+      directlyAdded: true,
+      teams: [],
+    });
+
+    expect(
+      pullRequestState(
+        fakePullRequest()
+          .author("kevin")
+          .seenAs("fwouts")
+          .teams({
+            team: ["fwouts"],
+            "out-team": ["dries"],
+          })
+          .reviewRequested([], ["team"])
+          .build(),
+        "fwouts"
+      )
+    ).toEqual({
+      kind: "incoming",
+      draft: false,
+      newReviewRequested: true,
+      newCommit: false,
+      authorResponded: false,
+      directlyAdded: false,
+      teams: ["team"],
     });
 
     expect(
@@ -36,6 +61,8 @@ describe("pullRequestState", () => {
       newReviewRequested: false,
       newCommit: false,
       authorResponded: true,
+      directlyAdded: false,
+      teams: [],
     });
 
     expect(
@@ -54,6 +81,8 @@ describe("pullRequestState", () => {
       newReviewRequested: false,
       newCommit: true,
       authorResponded: false,
+      directlyAdded: false,
+      teams: [],
     });
 
     expect(
@@ -73,6 +102,8 @@ describe("pullRequestState", () => {
       newReviewRequested: false,
       newCommit: true,
       authorResponded: true,
+      directlyAdded: false,
+      teams: [],
     });
 
     expect(
@@ -90,6 +121,8 @@ describe("pullRequestState", () => {
       newReviewRequested: false,
       newCommit: false,
       authorResponded: false,
+      directlyAdded: false,
+      teams: [],
     });
 
     expect(
@@ -107,6 +140,8 @@ describe("pullRequestState", () => {
       newReviewRequested: false,
       newCommit: false,
       authorResponded: false,
+      directlyAdded: false,
+      teams: [],
     });
   });
 
@@ -117,6 +152,24 @@ describe("pullRequestState", () => {
           .author("kevin")
           .seenAs("fwouts")
           .reviewRequested(["dries"])
+          .build(),
+        "fwouts"
+      )
+    ).toEqual({
+      kind: "not-involved",
+      draft: false,
+    });
+
+    expect(
+      pullRequestState(
+        fakePullRequest()
+          .author("kevin")
+          .seenAs("fwouts")
+          .teams({
+            team: ["fwouts"],
+            "out-team": ["dries"],
+          })
+          .reviewRequested([], ["out-team"])
           .build(),
         "fwouts"
       )

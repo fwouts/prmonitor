@@ -12,10 +12,14 @@ const Button = styled.button`
   outline: none !important;
   font-size: 1em;
 
-  &:hover {
+  &:hover:enabled {
     background-color: #2ee59d;
     box-shadow: 0px 5px 10px rgba(46, 229, 157, 0.4);
     color: #fff;
+  }
+
+  &:disabled {
+    color: #999;
   }
 `;
 

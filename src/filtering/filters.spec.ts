@@ -1,8 +1,18 @@
 import { buildTestingEnvironment } from "../environment/testing/fake";
-import { NOTHING_MUTED } from "../storage/mute-configuration";
+import {
+  MuteConfiguration,
+  NOTHING_MUTED,
+} from "../storage/mute-configuration";
 import { fakePullRequest } from "../testing/fake-pr";
 import { Filter } from "./filters";
 import { getFilteredBucket } from "./testing";
+
+const DIRECT_REQUEST_UNMUTED: MuteConfiguration = {
+  ...NOTHING_MUTED,
+
+  onlyDirectRequests: true,
+  whitelistedTeams: ["whitelisted-team"],
+};
 
 describe("filters (incoming)", () => {
   it("is MINE for the user's own PRs", () => {
@@ -46,6 +56,61 @@ describe("filters (incoming)", () => {
           .author("fwouts")
           .seenAs("kevin")
           .reviewRequested(["kevin"])
+          .build()
+      )
+    ).toEqual([Filter.INCOMING]);
+  });
+  it("is INCOMING when the user is in a reviewer team and hasn't reviewed or commented", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .teams({
+            team: ["kevin"],
+          })
+          .reviewRequested([], ["team"])
+          .build()
+      )
+    ).toEqual([Filter.INCOMING]);
+  });
+  it("is NOTHING when the user is in a reviewer team, but only wants whitelisted teams", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        DIRECT_REQUEST_UNMUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .teams({
+            team: ["kevin"],
+          })
+          .reviewRequested([], ["team"])
+          .build()
+      )
+    ).toEqual([]);
+  });
+  it("is INCOMING when the user is in a reviewer team, but only wants whitelisted teams", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        DIRECT_REQUEST_UNMUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .teams({
+            team: ["kevin"],
+            "whitelisted-team": ["kevin"],
+          })
+          .reviewRequested([], ["whitelisted-team"])
           .build()
       )
     ).toEqual([Filter.INCOMING]);
@@ -195,7 +260,26 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.INCOMING]);
   });
-  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews", () => {
+  it("is still INCOMING when there are pending review comments, and reviewer in reviewer team", () => {
+    const env = buildTestingEnvironment();
+    expect(
+      getFilteredBucket(
+        env,
+        "kevin",
+        NOTHING_MUTED,
+        fakePullRequest()
+          .author("fwouts")
+          .seenAs("kevin")
+          .teams({
+            team: ["kevin"],
+          })
+          .reviewRequested([], ["team"])
+          .addReview("kevin", "PENDING")
+          .build()
+      )
+    ).toEqual([Filter.INCOMING]);
+  });
+  it("is MUTED when the PR is muted until next update and the author did not add new comments or reviews [reviewer-direct-requested]", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(
@@ -226,7 +310,7 @@ describe("filters (incoming)", () => {
       )
     ).toEqual([Filter.MUTED]);
   });
-  it("is MUTED when the PR is muted until next comment and the author added commits but did not add new comments or reviews", () => {
+  it("is MUTED when the PR is muted until next comment and the author added commits but did not add new comments or reviews [reviewer-team-requested]", () => {
     const env = buildTestingEnvironment();
     expect(
       getFilteredBucket(
@@ -250,7 +334,10 @@ describe("filters (incoming)", () => {
         fakePullRequest()
           .author("fwouts")
           .seenAs("kevin")
-          .reviewRequested(["kevin"])
+          .teams({
+            team: ["kevin"],
+          })
+          .reviewRequested([], ["team"])
           .addCommit(300)
           .build()
       )

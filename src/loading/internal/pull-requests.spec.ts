@@ -82,6 +82,7 @@ describe("refreshOpenPullRequests", () => {
     githubApi.loadPullRequestDetails.mockReturnValue(
       Promise.resolve(({
         requested_reviewers: [],
+        requested_teams: [],
       } as unknown) as PullsGetResponse)
     );
     githubApi.loadComments.mockReturnValue(Promise.resolve([]));

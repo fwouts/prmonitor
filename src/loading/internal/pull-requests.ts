@@ -124,6 +124,7 @@ function pullRequestFromResponse(
     requestedReviewers: details.requested_reviewers.map(
       (reviewer) => reviewer.login
     ),
+    requestedTeams: details.requested_teams.map((team) => team.name),
     reviews,
     comments,
     commits,

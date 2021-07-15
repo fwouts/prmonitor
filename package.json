@@ -18,7 +18,7 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",
     "react-dom": "^16.13.1",
-    "react-spinners": "^0.8.1"
+    "react-spinners": "^0.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

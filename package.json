@@ -42,7 +42,7 @@
     "jest": "^25.4.0",
     "prettier": "^2.0.5",
     "style-loader": "^1.1.4",
-    "ts-jest": "^25.4.0",
+    "ts-jest": "^25.5.1",
     "ts-loader": "^7.0.1",
     "typescript": "^3.8.3",
     "webpack": "^4.43.0",

@@ -57,10 +57,12 @@ module.exports = {
       chunks: ["popup"],
     }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new CopyPlugin([
-      { from: "manifest.json", to: "." },
-      { from: "images", to: "images" },
-    ]),
+    new CopyPlugin({
+      patterns: [
+        { from: "manifest.json", to: "." },
+        { from: "images", to: "images" },
+      ],
+    }),
     ...(process.env.BUNDLE_ANALYZER ? [new BundleAnalyzerPlugin()] : []),
   ],
 };

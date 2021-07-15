@@ -72,7 +72,7 @@ function getTitle(pullRequest: EnrichedPullRequest): string {
       } else if (pullRequest.state.newCommit) {
         return `Pull request updated`;
       } else if (pullRequest.state.authorResponded) {
-        return `${pullRequest.author.login} commented`;
+        return `${pullRequest.author?.login || "unknown"} commented`;
       }
       break;
     case "outgoing":

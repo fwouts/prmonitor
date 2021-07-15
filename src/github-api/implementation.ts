@@ -1,5 +1,5 @@
-import Octokit from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
+import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);
@@ -13,7 +13,7 @@ interface ThrottlingOptions {
 }
 
 export function buildGitHubApi(token: string): GitHubApi {
-  const octokit = new ThrottledOctokit({
+  const octokit: Octokit = new ThrottledOctokit({
     auth: `token ${token}`,
     // https://developer.github.com/v3/pulls/#list-pull-requests
     // Enable Draft Pull Request API.

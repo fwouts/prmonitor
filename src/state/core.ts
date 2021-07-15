@@ -1,4 +1,4 @@
-import { computed, observable } from "mobx";
+import { computed, makeObservable, observable } from "mobx";
 import { BadgeState } from "../badge/api";
 import { Environment } from "../environment/api";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
@@ -31,6 +31,7 @@ export class Core {
   @observable lastError: string | null = null;
 
   constructor(env: Environment) {
+    makeObservable(this);
     this.env = env;
     this.env.messenger.listen((message) => {
       console.debug("Message received", message);

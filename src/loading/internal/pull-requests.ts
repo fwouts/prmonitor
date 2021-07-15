@@ -1,15 +1,16 @@
-import { PullsGetResponse } from "@octokit/rest";
+import { RestEndpointMethodTypes } from "@octokit/rest";
 import {
   GitHubApi,
   PullRequestReference,
-  PullsSearchResponseItem,
   RepoReference,
 } from "../../github-api/api";
+import { nonEmptyItems } from "../../helpers";
 import {
   Comment,
   Commit,
   PullRequest,
   Review,
+  ReviewState,
 } from "../../storage/loaded-state";
 
 /**
@@ -47,7 +48,7 @@ export async function refreshOpenPullRequests(
 
 async function updateCommentsAndReviews(
   githubApi: GitHubApi,
-  rawPullRequest: PullsSearchResponseItem,
+  rawPullRequest: RestEndpointMethodTypes["search"]["issuesAndPullRequests"]["response"]["data"]["items"][number],
   isReviewRequested = false
 ): Promise<PullRequest> {
   const repo = extractRepo(rawPullRequest);
@@ -65,7 +66,7 @@ async function updateCommentsAndReviews(
     githubApi.loadReviews(pr).then((reviews) =>
       reviews.map((review) => ({
         authorLogin: review.user ? review.user.login : "",
-        state: review.state,
+        state: review.state as ReviewState,
         submittedAt: review.submitted_at,
       }))
     ),
@@ -78,7 +79,7 @@ async function updateCommentsAndReviews(
     githubApi.loadCommits(pr).then((commits) =>
       commits.map((commit) => ({
         authorLogin: commit.author ? commit.author.login : "",
-        createdAt: commit.commit.author.date,
+        createdAt: commit.commit.author?.date,
       }))
     ),
   ]);
@@ -93,8 +94,8 @@ async function updateCommentsAndReviews(
 }
 
 function pullRequestFromResponse(
-  response: PullsSearchResponseItem,
-  details: PullsGetResponse,
+  response: RestEndpointMethodTypes["search"]["issuesAndPullRequests"]["response"]["data"]["items"][number],
+  details: RestEndpointMethodTypes["pulls"]["get"]["response"]["data"],
   reviews: Review[],
   comments: Comment[],
   commits: Commit[],
@@ -108,7 +109,7 @@ function pullRequestFromResponse(
     repoName: repo.name,
     pullRequestNumber: response.number,
     updatedAt: response.updated_at,
-    author: {
+    author: response.user && {
       login: response.user.login,
       avatarUrl: response.user.avatar_url,
     },
@@ -119,19 +120,23 @@ function pullRequestFromResponse(
     },
     title: response.title,
     draft: response.draft,
-    mergeable: details.mergeable,
+    mergeable: details.mergeable || false,
     reviewRequested,
-    requestedReviewers: details.requested_reviewers.map(
-      (reviewer) => reviewer.login
+    requestedReviewers: nonEmptyItems(
+      details.requested_reviewers?.map((reviewer) => reviewer?.login)
     ),
-    requestedTeams: details.requested_teams.map((team) => team.name),
+    requestedTeams: nonEmptyItems(
+      details.requested_teams?.map((team) => team?.name)
+    ),
     reviews,
     comments,
     commits,
   };
 }
 
-function extractRepo(response: PullsSearchResponseItem): RepoReference {
+function extractRepo(
+  response: RestEndpointMethodTypes["search"]["issuesAndPullRequests"]["response"]["data"]["items"][number]
+): RepoReference {
   const urlParts = response.repository_url.split("/");
   if (urlParts.length < 2) {
     throw new Error(`Unexpected repository_url: ${response.repository_url}`);

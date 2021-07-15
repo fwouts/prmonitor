@@ -12,9 +12,11 @@ import { Link } from "./design/Link";
 import { Row } from "./design/Row";
 import { IgnoredRepositories } from "./IgnoredRepositories";
 import { Loader } from "./Loader";
+import { NewCommitsToggle } from "./NewCommitsToggle";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
+import { WhitelistedTeams } from "./WhitelistedTeams";
 
 export interface PopupProps {
   core: Core;
@@ -159,6 +161,31 @@ export const Popup = observer((props: PopupProps) => {
               />
             </Tabs>
             <PullRequestList
+              header={
+                state.currentFilter === Filter.INCOMING && (
+                  <>
+                    <WhitelistedTeams
+                      onlyDirectRequestsToggled={
+                        !!props.core.muteConfiguration.onlyDirectRequests
+                      }
+                      whitelistedTeams={
+                        props.core.muteConfiguration.whitelistedTeams || []
+                      }
+                      userLogin={
+                        props.core.loadedState
+                          ? props.core.loadedState.userLogin
+                          : undefined
+                      }
+                      onToggleOnlyDirectRequests={onToggleOnlyDirectRequests}
+                      onChangeWhitelistedTeams={onChangeWhitelistedTeams}
+                    />
+                    <NewCommitsToggle
+                      toggled={!!props.core.muteConfiguration.notifyNewCommits}
+                      onToggle={onToggleNewCommitsNotification}
+                    />
+                  </>
+                )
+              }
               pullRequests={
                 props.core.filteredPullRequests
                   ? props.core.filteredPullRequests[state.currentFilter]
@@ -176,28 +203,6 @@ export const Popup = observer((props: PopupProps) => {
                   ? "allow-unmuting"
                   : "none"
               }
-              newCommitsNotificationToggled={
-                state.currentFilter === Filter.INCOMING
-                  ? !!props.core.muteConfiguration.notifyNewCommits
-                  : null
-              }
-              onlyDirectRequestsToggled={
-                state.currentFilter === Filter.INCOMING
-                  ? !!props.core.muteConfiguration.onlyDirectRequests
-                  : null
-              }
-              whitelistedTeams={
-                state.currentFilter === Filter.INCOMING
-                  ? props.core.muteConfiguration.whitelistedTeams || []
-                  : []
-              }
-              userLogin={
-                (props.core.loadedState && props.core.loadedState.userLogin) ||
-                undefined
-              }
-              onToggleNewCommitsNotification={onToggleNewCommitsNotification}
-              onToggleOnlyDirectRequests={onToggleOnlyDirectRequests}
-              onChangeWhitelistedTeams={onChangeWhitelistedTeams}
               onOpenAll={onOpenAll}
               onOpen={onOpen}
               onMute={onMute}

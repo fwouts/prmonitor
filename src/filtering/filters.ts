@@ -48,7 +48,7 @@ export function filterPullRequests(
     state: pullRequestState(pr, userLogin),
     ...pr,
   }));
-  const ignoreNewCommits = !!muteConfiguration.ignoreNewCommits;
+  const notifyNewCommits = !!muteConfiguration.notifyNewCommits;
   const onlyDirectRequests = !!muteConfiguration.onlyDirectRequests;
   const whitelistedTeams = muteConfiguration.whitelistedTeams || [];
   return {
@@ -56,7 +56,7 @@ export function filterPullRequests(
       (pr) =>
         isReviewRequired(
           pr.state,
-          ignoreNewCommits,
+          notifyNewCommits,
           onlyDirectRequests,
           whitelistedTeams
         ) && isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
@@ -65,7 +65,7 @@ export function filterPullRequests(
       (pr) =>
         isReviewRequired(
           pr.state,
-          ignoreNewCommits,
+          notifyNewCommits,
           onlyDirectRequests,
           whitelistedTeams
         ) && isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
@@ -74,7 +74,7 @@ export function filterPullRequests(
       (pr) =>
         pr.state.kind === "incoming" &&
         !pr.state.newReviewRequested &&
-        (!pr.state.newCommit || ignoreNewCommits) &&
+        (!pr.state.newCommit || !notifyNewCommits) &&
         !pr.state.authorResponded
     ),
     mine: enrichedPullRequests.filter((pr) => pr.author.login === userLogin),

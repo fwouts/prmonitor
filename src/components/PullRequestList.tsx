@@ -4,8 +4,8 @@ import React, { useRef, useState } from "react";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
-import { Link } from "./design/Link";
 import { LargeButton } from "./design/Button";
+import { Link } from "./design/Link";
 import { Paragraph } from "./design/Paragraph";
 import { Loader } from "./Loader";
 import { PullRequestItem } from "./PullRequestItem";
@@ -79,16 +79,16 @@ export const PullRequestList = observer((props: PullRequestListProps) => {
     defaultWhitelistedTeams
   );
   const inputRef = useRef<HTMLInputElement>(null);
-  const handleWhitelistedTeamsChange = (evt: any) => {
-    evt.preventDefault();
+  const handleWhitelistedTeamsChange = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!inputRef.current) {
       return;
     }
 
     setWhitelistedTeams(inputRef.current.value);
   };
-  const handleApplyWhitelistedTeamsChange = (evt: any) => {
-    evt.preventDefault();
+  const handleApplyWhitelistedTeamsChange = (e: React.FormEvent) => {
+    e.preventDefault();
     props.onChangeWhitelistedTeams &&
       props.onChangeWhitelistedTeams(whitelistedTeams);
   };
@@ -136,7 +136,7 @@ export const PullRequestList = observer((props: PullRequestListProps) => {
             checked={props.newCommitsNotificationToggled}
             onChange={props.onToggleNewCommitsNotification}
           />
-          Notify me of new commits
+          Include new commits
         </NewCommitsToggle>
       )}
       {props.pullRequests === null ? (

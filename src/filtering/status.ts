@@ -206,7 +206,7 @@ export interface OutgoingState {
 
 export function isReviewRequired(
   state: PullRequestState,
-  ignoreNewCommits: boolean,
+  notifyNewCommits: boolean,
   onlyDirectRequests: boolean,
   whitelistedTeams: string[]
 ) {
@@ -218,7 +218,7 @@ export function isReviewRequired(
     (!onlyDirectRequests || state.directlyAdded || inWhitelistedTeams) &&
     (state.newReviewRequested ||
       state.authorResponded ||
-      (!ignoreNewCommits && state.newCommit));
+      (notifyNewCommits && state.newCommit));
 
   return v;
 }

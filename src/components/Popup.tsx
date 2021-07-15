@@ -166,7 +166,7 @@ export const Popup = observer((props: PopupProps) => {
               }
               newCommitsNotificationToggled={
                 state.currentFilter === Filter.INCOMING
-                  ? !props.core.muteConfiguration.ignoreNewCommits
+                  ? !!props.core.muteConfiguration.notifyNewCommits
                   : null
               }
               onToggleNewCommitsNotification={onToggleNewCommitsNotification}

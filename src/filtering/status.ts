@@ -194,12 +194,12 @@ export interface OutgoingState {
 
 export function isReviewRequired(
   state: PullRequestState,
-  ignoreNewCommits: boolean
+  notifyNewCommits: boolean
 ) {
   return (
     state.kind === "incoming" &&
     (state.newReviewRequested ||
       state.authorResponded ||
-      (!ignoreNewCommits && state.newCommit))
+      (notifyNewCommits && state.newCommit))
   );
 }

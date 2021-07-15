@@ -48,23 +48,23 @@ export function filterPullRequests(
     state: pullRequestState(pr, userLogin),
     ...pr,
   }));
-  const ignoreNewCommits = !!muteConfiguration.ignoreNewCommits;
+  const notifyNewCommits = !!muteConfiguration.notifyNewCommits;
   return {
     incoming: enrichedPullRequests.filter(
       (pr) =>
-        isReviewRequired(pr.state, ignoreNewCommits) &&
+        isReviewRequired(pr.state, notifyNewCommits) &&
         isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
       (pr) =>
-        isReviewRequired(pr.state, ignoreNewCommits) &&
+        isReviewRequired(pr.state, notifyNewCommits) &&
         isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
       (pr) =>
         pr.state.kind === "incoming" &&
         !pr.state.newReviewRequested &&
-        (!pr.state.newCommit || ignoreNewCommits) &&
+        (!pr.state.newCommit || !notifyNewCommits) &&
         !pr.state.authorResponded
     ),
     mine: enrichedPullRequests.filter((pr) => pr.author.login === userLogin),

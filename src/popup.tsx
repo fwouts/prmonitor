@@ -1,4 +1,4 @@
-import { css, Global } from "@emotion/core";
+import { css, Global } from "@emotion/react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faBan } from "@fortawesome/free-solid-svg-icons/faBan";
 import { faBell } from "@fortawesome/free-solid-svg-icons/faBell";

@@ -9,6 +9,9 @@ export function getLastUpdateTimestamp(pr: PullRequest) {
     prTimestamp = Math.max(prTimestamp, new Date(comment.createdAt).getTime());
   }
   for (const review of pr.reviews) {
+    if (!review.submittedAt) {
+      continue;
+    }
     prTimestamp = Math.max(prTimestamp, new Date(review.submittedAt).getTime());
   }
   return prTimestamp;
@@ -22,6 +25,9 @@ export function getLastAuthorUpdateTimestamp(pr: PullRequest): number {
 }
 
 export function getLastAuthorCommentTimestamp(pr: PullRequest): number {
+  if (!pr.author) {
+    return 0;
+  }
   return getLastReviewOrCommentTimestamp(pr, pr.author.login);
 }
 
@@ -34,6 +40,9 @@ export function getLastReviewOrCommentTimestamp(
     if (review.state === "PENDING") {
       // Ignore pending reviews (we don't want a user to think that they've submitted their
       // review when they didn't yet).
+      continue;
+    }
+    if (!review.submittedAt) {
       continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();
@@ -53,6 +62,9 @@ export function getLastReviewOrCommentTimestamp(
 export function getLastCommitTimestamp(pr: PullRequest): number {
   let lastCommitTime = 0;
   for (const commit of pr.commits || []) {
+    if (!commit.createdAt) {
+      continue;
+    }
     const createdAt = new Date(commit.createdAt).getTime();
     lastCommitTime = Math.max(lastCommitTime, createdAt);
   }

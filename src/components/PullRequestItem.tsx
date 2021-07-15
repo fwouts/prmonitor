@@ -231,12 +231,14 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
             })()}
         </ContextSummary>
       </Info>
-      <AuthorBox title={props.pullRequest.author.login}>
-        {props.pullRequest.author && (
-          <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
-        )}
-        <AuthorLogin>{props.pullRequest.author.login}</AuthorLogin>
-      </AuthorBox>
+      {props.pullRequest.author && (
+        <AuthorBox title={props.pullRequest.author.login}>
+          {props.pullRequest.author && (
+            <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
+          )}
+          <AuthorLogin>{props.pullRequest.author.login}</AuthorLogin>
+        </AuthorBox>
+      )}
     </PullRequestBox>
   );
 });

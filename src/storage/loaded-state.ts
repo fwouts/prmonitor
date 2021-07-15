@@ -54,7 +54,7 @@ export interface PullRequest {
   author: {
     login: string;
     avatarUrl: string;
-  };
+  } | null;
   changeSummary: {
     changedFiles: number;
     additions: number;
@@ -86,12 +86,12 @@ export interface Comment {
 export interface Review {
   authorLogin: string;
   state: ReviewState;
-  submittedAt: string;
+  submittedAt?: string;
 }
 
 export interface Commit {
   authorLogin: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export type ReviewState =

@@ -97,9 +97,7 @@ export const Popup = observer((props: PopupProps) => {
             <Tabs
               id="popup-tabs"
               activeKey={state.currentFilter}
-              onSelect={(key: string) =>
-                setState({ currentFilter: key as Filter })
-              }
+              onSelect={(key) => setState({ currentFilter: key as Filter })}
             >
               <Tab
                 title={
@@ -107,6 +105,7 @@ export const Popup = observer((props: PopupProps) => {
                     Incoming PRs{" "}
                     {props.core.filteredPullRequests && (
                       <Badge
+                        pill
                         variant={
                           props.core.filteredPullRequests.incoming.length > 0
                             ? "danger"

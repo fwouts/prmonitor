@@ -13,7 +13,7 @@ export function pullRequestState(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestState {
-  if (pr.author.login === currentUserLogin) {
+  if (pr.author?.login === currentUserLogin) {
     return outgoingPullRequestState(pr, currentUserLogin);
   }
   if (!pr.reviewRequested && !userPreviouslyReviewed(pr, currentUserLogin)) {
@@ -53,10 +53,8 @@ function outgoingPullRequestState(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestState {
-  const lastReviewOrCommentFromCurrentUserTimestamp = getLastReviewOrCommentTimestamp(
-    pr,
-    currentUserLogin
-  );
+  const lastReviewOrCommentFromCurrentUserTimestamp =
+    getLastReviewOrCommentTimestamp(pr, currentUserLogin);
   const lastCommitTimestamp = getLastCommitTimestamp(pr);
   const lastActionByCurrentUserTimestamp = Math.max(
     lastReviewOrCommentFromCurrentUserTimestamp,
@@ -66,7 +64,7 @@ function outgoingPullRequestState(
 
   // Keep track of the last known state of reviews left by others.
   for (const review of pr.reviews) {
-    if (review.authorLogin === currentUserLogin) {
+    if (review.authorLogin === currentUserLogin || !review.submittedAt) {
       continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();

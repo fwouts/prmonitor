@@ -77,7 +77,7 @@ export function filterPullRequests(
         (!pr.state.newCommit || !notifyNewCommits) &&
         !pr.state.authorResponded
     ),
-    mine: enrichedPullRequests.filter((pr) => pr.author.login === userLogin),
+    mine: enrichedPullRequests.filter((pr) => pr.author?.login === userLogin),
     ignored: enrichedPullRequests.filter(
       (pr) => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
     ),

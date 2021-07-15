@@ -16,9 +16,7 @@ export interface GitHubApi {
   /**
    * Returns the full list of pull requests matching a given query.
    */
-  searchPullRequests(
-    query: string
-  ): Promise<
+  searchPullRequests(query: string): Promise<
     // Note: There might be a more efficient way to represent this type.
     PaginationResults<
       GetResponseDataTypeFromEndpointMethod<

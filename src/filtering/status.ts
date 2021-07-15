@@ -53,10 +53,8 @@ function outgoingPullRequestState(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestState {
-  const lastReviewOrCommentFromCurrentUserTimestamp = getLastReviewOrCommentTimestamp(
-    pr,
-    currentUserLogin
-  );
+  const lastReviewOrCommentFromCurrentUserTimestamp =
+    getLastReviewOrCommentTimestamp(pr, currentUserLogin);
   const lastCommitTimestamp = getLastCommitTimestamp(pr);
   const lastActionByCurrentUserTimestamp = Math.max(
     lastReviewOrCommentFromCurrentUserTimestamp,

@@ -23,7 +23,7 @@ export class Core {
   private readonly env: Environment;
 
   @observable overallStatus: "loading" | "loaded" = "loading";
-  @observable refreshing: boolean = false;
+  @observable refreshing = false;
   @observable token: string | null = null;
   @observable loadedState: LoadedState | null = null;
   @observable muteConfiguration = NOTHING_MUTED;

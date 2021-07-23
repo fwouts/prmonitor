@@ -26,7 +26,7 @@
     "@octokit/core": "^3.5.1",
     "@types/chrome": "^0.0.148",
     "@types/jest": "^26.0.24",
-    "@types/node": "^16.4.0",
+    "@types/node": "^16.4.1",
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
     "@typescript-eslint/eslint-plugin": "^4.28.4",

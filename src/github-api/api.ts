@@ -62,9 +62,9 @@ export interface GitHubApi {
   /**
    * Returns the full list of commits for a pull request.
    */
-  loadApprovalStatus(
+  loadPullRequestStatus(
     pr: PullRequestReference
-  ): Promise<ApprovalStatus>;
+  ): Promise<PullRequestStatus>;
 }
 
 export type CheckStatus =
@@ -72,7 +72,7 @@ export type CheckStatus =
   | "SUCCESS"
   | "FAILURE"
 
-export interface ApprovalStatus {
+export interface PullRequestStatus {
   reviewDecision: ReviewState,
   checkStatus?: CheckStatus,
 }

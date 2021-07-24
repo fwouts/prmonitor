@@ -1,8 +1,8 @@
 import { RestEndpointMethodTypes } from "@octokit/rest";
 import {
-  ApprovalStatus,
   GitHubApi,
   PullRequestReference,
+  PullRequestStatus,
   RepoReference,
 } from "../../github-api/api";
 import { nonEmptyItems } from "../../helpers";
@@ -57,7 +57,7 @@ async function updateCommentsAndReviews(
     repo,
     number: rawPullRequest.number,
   };
-  const [freshPullRequestDetails, freshReviews, freshComments, freshCommits, approvalStatus] =
+  const [freshPullRequestDetails, freshReviews, freshComments, freshCommits, pullRequestStatus] =
     await Promise.all([
       githubApi.loadPullRequestDetails(pr),
       githubApi.loadReviews(pr).then((reviews) =>
@@ -79,7 +79,7 @@ async function updateCommentsAndReviews(
           createdAt: commit.commit.author?.date,
         }))
       ),
-      githubApi.loadApprovalStatus(pr),
+      githubApi.loadPullRequestStatus(pr),
 
     ]);
 
@@ -90,7 +90,7 @@ async function updateCommentsAndReviews(
     freshComments,
     freshCommits,
     isReviewRequested,
-    approvalStatus,
+    pullRequestStatus,
   );
 }
 
@@ -101,7 +101,7 @@ function pullRequestFromResponse(
   comments: Comment[],
   commits: Commit[],
   reviewRequested: boolean,
-  approvalStatus: ApprovalStatus,
+  status: PullRequestStatus,
 ): PullRequest {
   const repo = extractRepo(response);
   return {
@@ -133,8 +133,8 @@ function pullRequestFromResponse(
     reviews,
     comments,
     commits,
-    reviewDecision: approvalStatus.reviewDecision,
-    checkStatus: approvalStatus.checkStatus,
+    reviewDecision: status.reviewDecision,
+    checkStatus: status.checkStatus,
   };
 }
 

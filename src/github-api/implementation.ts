@@ -5,6 +5,7 @@ import { GraphQLClient, gql } from 'graphql-request'
 
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);
+const graphQLEndpoint = 'https://api.github.com/graphql'
 
 interface ThrottlingOptions {
   method: string;
@@ -44,6 +45,13 @@ export function buildGitHubApi(token: string): GitHubApi {
       },
     },
   });
+
+  const graphQLClient = new GraphQLClient(graphQLEndpoint, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
   return {
     async loadAuthenticatedUser() {
       const response = await octokit.users.getAuthenticated({});
@@ -91,39 +99,31 @@ export function buildGitHubApi(token: string): GitHubApi {
         })
       );
     },
-    loadApprovalStatus(pr) {
-      const endpoint = 'https://api.github.com/graphql'
-      const graphQLClient = new GraphQLClient(endpoint, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    loadPullRequestStatus(pr) {
       const query = gql`
-      query {
-        repository(owner: "${pr.repo.owner}", name: "${pr.repo.name}") {
-          pullRequest(number: ${pr.number}) {
-            checksUrl
-            reviewDecision
-            state
-            commits(last: 1) {
-              nodes {
-                commit {
-                  statusCheckRollup {
-                    state
+        query {
+          repository(owner: "${pr.repo.owner}", name: "${pr.repo.name}") {
+            pullRequest(number: ${pr.number}) {
+              reviewDecision
+              commits(last: 1) {
+                nodes {
+                  commit {
+                    statusCheckRollup {
+                      state
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
       `;
 
-      return graphQLClient.request(query).then((data) => {
-        const result = data.repository.pullRequest;
-        console.log('loadApproval', pr, result);
+      return graphQLClient.request(query).then((response) => {
+        const result = response.repository.pullRequest;
         const reviewDecision = result.reviewDecision;
-        let checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
+        const checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
+        // FIXME
         console.log('loadApproval', pr, reviewDecision, checkStatus);
         return {
           reviewDecision,

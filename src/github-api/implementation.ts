@@ -100,18 +100,16 @@ export function buildGitHubApi(token: string): GitHubApi {
       })
       const query = gql`
       query {
-        organization(login: "${pr.repo.owner}") {
-          repository(name: "${pr.repo.name}") {
-            pullRequest(number: ${pr.number}) {
-              checksUrl
-              reviewDecision
-              state
-              commits(last: 1) {
-                nodes {
-                  commit {
-                    statusCheckRollup {
-                      state
-                    }
+        repository(owner: "${pr.repo.owner}", name: "${pr.repo.name}") {
+          pullRequest(number: ${pr.number}) {
+            checksUrl
+            reviewDecision
+            state
+            commits(last: 1) {
+              nodes {
+                commit {
+                  statusCheckRollup {
+                    state
                   }
                 }
               }
@@ -122,7 +120,7 @@ export function buildGitHubApi(token: string): GitHubApi {
       `;
 
       return graphQLClient.request(query).then((data) => {
-        const result = data.organization.repository.pullRequest;
+        const result = data.repository.pullRequest;
         console.log('loadApproval', pr, result);
         const reviewDecision = result.reviewDecision;
         let checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;

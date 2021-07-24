@@ -154,6 +154,11 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
     case "FAILURE":
       badges.push(CHECK_STATUS_FAILED);
       break;
+
+    case "ERROR":
+    case "EXPECTED":
+      // TODO: Add badges if needed.
+      break;
   }
 
   if (state.mergeable) {

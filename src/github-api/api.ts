@@ -1,7 +1,6 @@
 import { PaginationResults } from "@octokit/plugin-paginate-rest/dist-types/types";
 import { Octokit } from "@octokit/rest";
 import { GetResponseDataTypeFromEndpointMethod } from "@octokit/types";
-import { ReviewState } from "../storage/loaded-state";
 
 /**
  * A simple wrapper around GitHub's API.
@@ -67,13 +66,22 @@ export interface GitHubApi {
   ): Promise<PullRequestStatus>;
 }
 
+// Ref: https://docs.github.com/en/graphql/reference/enums#pullrequestreviewdecision
+export type ReviewDecision =
+  | "APPROVED"
+  | "CHANGES_REQUESTED"
+  | "REVIEW_REQUIRED";
+
+// Ref: https://docs.github.com/en/graphql/reference/enums#statusstate
 export type CheckStatus =
+  | "ERROR"
+  | "EXPECTED"
+  | "FAILURE"
   | "PENDING"
   | "SUCCESS"
-  | "FAILURE"
 
 export interface PullRequestStatus {
-  reviewDecision: ReviewState,
+  reviewDecision: ReviewDecision,
   checkStatus?: CheckStatus,
 }
 

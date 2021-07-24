@@ -8,6 +8,7 @@ import {
   OutgoingState,
   PullRequestState,
 } from "../filtering/status";
+import { CheckStatus } from "../github-api/api";
 
 const StateBox = styled.div`
   padding: 0 8px;
@@ -115,19 +116,30 @@ function getBadges(state: PullRequestState): JSX.Element[] {
   return badges;
 }
 
-function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
-  const badges: JSX.Element[] = [];
-  switch (state.checkStatus) {
+function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
+  switch (checkStatus) {
     case "PENDING":
-      badges.push(CHECK_STATUS_PENDING);
+      return [CHECK_STATUS_PENDING];
       break;
     case "SUCCESS":
-      badges.push(CHECK_STATUS_PASSED);
+      return [CHECK_STATUS_PASSED];
       break;
     case "FAILURE":
-      badges.push(CHECK_STATUS_FAILED);
+      return [CHECK_STATUS_FAILED];
       break;
+
+    case "ERROR":
+    case "EXPECTED":
+    default:
+      // TODO: Add badges if needed.
+      return [];
   }
+}
+
+function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
+  const badges: JSX.Element[] = [];
+  badges.push(...getCheckStatusBadge(state.checkStatus));
+
   if (state.newReviewRequested) {
     badges.push(UNREVIEWED);
     return badges;
@@ -144,22 +156,7 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
 
 function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
-  switch (state.checkStatus) {
-    case "PENDING":
-      badges.push(CHECK_STATUS_PENDING);
-      break;
-    case "SUCCESS":
-      badges.push(CHECK_STATUS_PASSED);
-      break;
-    case "FAILURE":
-      badges.push(CHECK_STATUS_FAILED);
-      break;
-
-    case "ERROR":
-    case "EXPECTED":
-      // TODO: Add badges if needed.
-      break;
-  }
+  badges.push(...getCheckStatusBadge(state.checkStatus));
 
   if (state.mergeable) {
     badges.push(MERGEABLE);

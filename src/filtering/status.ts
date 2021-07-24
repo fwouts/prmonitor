@@ -1,3 +1,4 @@
+import { CheckStatus } from "../github-api/api";
 import { PullRequest, ReviewState } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
@@ -110,6 +111,7 @@ function outgoingPullRequestState(
     changesRequested: states.has("CHANGES_REQUESTED"),
     mergeable: pr.mergeable === true,
     approvedByEveryone: states.has("APPROVED") && states.size === 1,
+    checkStatus: pr.checkStatus,
   };
 }
 
@@ -200,6 +202,8 @@ export interface OutgoingState {
    * True if the PR was approved by all reviewers.
    */
   approvedByEveryone: boolean;
+
+  checkStatus?: CheckStatus;
 }
 
 export function isReviewRequired(

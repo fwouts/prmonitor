@@ -1,5 +1,6 @@
 import { RestEndpointMethodTypes } from "@octokit/rest";
 import {
+  ApprovalStatus,
   GitHubApi,
   PullRequestReference,
   RepoReference,
@@ -56,7 +57,7 @@ async function updateCommentsAndReviews(
     repo,
     number: rawPullRequest.number,
   };
-  const [freshPullRequestDetails, freshReviews, freshComments, freshCommits] =
+  const [freshPullRequestDetails, freshReviews, freshComments, freshCommits, approvalStatus] =
     await Promise.all([
       githubApi.loadPullRequestDetails(pr),
       githubApi.loadReviews(pr).then((reviews) =>
@@ -78,8 +79,9 @@ async function updateCommentsAndReviews(
           createdAt: commit.commit.author?.date,
         }))
       ),
+      githubApi.loadApprovalStatus(pr),
+
     ]);
-  githubApi.loadApproval(pr);
 
   return pullRequestFromResponse(
     rawPullRequest,
@@ -87,7 +89,8 @@ async function updateCommentsAndReviews(
     freshReviews,
     freshComments,
     freshCommits,
-    isReviewRequested
+    isReviewRequested,
+    approvalStatus,
   );
 }
 
@@ -97,7 +100,8 @@ function pullRequestFromResponse(
   reviews: Review[],
   comments: Comment[],
   commits: Commit[],
-  reviewRequested: boolean
+  reviewRequested: boolean,
+  approvalStatus: ApprovalStatus,
 ): PullRequest {
   const repo = extractRepo(response);
   return {
@@ -129,6 +133,8 @@ function pullRequestFromResponse(
     reviews,
     comments,
     commits,
+    reviewDecision: approvalStatus.reviewDecision,
+    checkStatus: approvalStatus.checkStatus,
   };
 }
 

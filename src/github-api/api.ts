@@ -1,6 +1,7 @@
 import { PaginationResults } from "@octokit/plugin-paginate-rest/dist-types/types";
 import { Octokit } from "@octokit/rest";
 import { GetResponseDataTypeFromEndpointMethod } from "@octokit/types";
+import { ReviewState } from "../storage/loaded-state";
 
 /**
  * A simple wrapper around GitHub's API.
@@ -61,9 +62,18 @@ export interface GitHubApi {
   /**
    * Returns the full list of commits for a pull request.
    */
-  loadApproval(
+  loadApprovalStatus(
     pr: PullRequestReference
-  ): void;
+  ): Promise<ApprovalStatus>;
+}
+
+export type CheckStatus =
+  | "SUCCESS"
+  | "FAILURE"
+
+export interface ApprovalStatus {
+  reviewDecision: ReviewState,
+  checkStatus?: CheckStatus,
 }
 
 export interface RepoReference {

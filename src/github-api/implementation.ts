@@ -91,7 +91,7 @@ export function buildGitHubApi(token: string): GitHubApi {
         })
       );
     },
-    loadApproval(pr) {
+    loadApprovalStatus(pr) {
       const endpoint = 'https://api.github.com/graphql'
       const graphQLClient = new GraphQLClient(endpoint, {
         headers: {
@@ -121,15 +121,17 @@ export function buildGitHubApi(token: string): GitHubApi {
       }
       `;
 
-      graphQLClient.request(query).then((data) => {
+      return graphQLClient.request(query).then((data) => {
         const result = data.organization.repository.pullRequest;
         console.log('loadApproval', pr, result);
         const reviewDecision = result.reviewDecision;
-        const checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
+        let checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
         console.log('loadApproval', pr, reviewDecision, checkStatus);
-      })
-
-      return null;
+        return {
+          reviewDecision,
+          checkStatus,
+        }
+      });
     }
   };
 }

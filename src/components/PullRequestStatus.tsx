@@ -53,6 +53,17 @@ const APPROVED_BY_EVERONE = (
   </SpacedBadge>
 );
 
+const CHECK_STATUS_PASSED = (
+  <SpacedBadge pill variant="success" key="check-status-passed">
+    Checks Pass
+  </SpacedBadge>
+);
+const CHECK_STATUS_FAILED = (
+  <SpacedBadge pill variant="danger" key="check-status-passed">
+    Checks Fail
+  </SpacedBadge>
+);
+
 const CHANGES_REQUESTED = (
   <SpacedBadge pill variant="warning" key="changes-requested">
     Changes requested
@@ -115,6 +126,15 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
 
 function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
+  switch (state.checkStatus) {
+    case "SUCCESS":
+      badges.push(CHECK_STATUS_PASSED);
+      break;
+    case "FAILURE":
+      badges.push(CHECK_STATUS_FAILED);
+      break;
+  }
+
   if (state.mergeable) {
     badges.push(MERGEABLE);
   }
@@ -128,5 +148,6 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
       badges.push(NO_REVIEWER_ASSIGNED);
     }
   }
+
   return badges;
 }

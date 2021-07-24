@@ -123,8 +123,6 @@ export function buildGitHubApi(token: string): GitHubApi {
         const result = response.repository.pullRequest;
         const reviewDecision = result.reviewDecision;
         const checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
-        // FIXME
-        console.log('loadApproval', pr, reviewDecision, checkStatus);
         return {
           reviewDecision,
           checkStatus,

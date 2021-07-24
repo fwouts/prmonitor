@@ -148,7 +148,6 @@ export interface IncomingState {
    */
   newCommit: boolean;
 
-  checkStatus?: CheckStatus;
 
   /**
    * True if a review has been requested for the current user, and not just included indirectly via a team.
@@ -159,6 +158,11 @@ export interface IncomingState {
    * List of team names requested.
    */
   teams: string[];
+
+  /**
+   * Current check status of tests.
+   */
+  checkStatus?: CheckStatus;
 }
 
 /**
@@ -206,6 +210,9 @@ export interface OutgoingState {
    */
   approvedByEveryone: boolean;
 
+  /**
+   * Current check status of tests.
+   */
   checkStatus?: CheckStatus;
 }
 

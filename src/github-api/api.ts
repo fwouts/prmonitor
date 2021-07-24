@@ -58,8 +58,9 @@ export interface GitHubApi {
   ): Promise<
     GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listCommits"]>
   >;
+
   /**
-   * Returns the full list of commits for a pull request.
+   * Returns the current status fields for a pull request.
    */
   loadPullRequestStatus(pr: PullRequestReference): Promise<PullRequestStatus>;
 }

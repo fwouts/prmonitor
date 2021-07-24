@@ -68,6 +68,7 @@ export interface GitHubApi {
 }
 
 export type CheckStatus =
+  | "PENDING"
   | "SUCCESS"
   | "FAILURE"
 

@@ -63,6 +63,11 @@ const CHECK_STATUS_FAILED = (
     Checks Fail
   </SpacedBadge>
 );
+const CHECK_STATUS_PENDING = (
+  <SpacedBadge pill variant="warning" key="check-status-passed">
+    Checks Pending
+  </SpacedBadge>
+);
 
 const CHANGES_REQUESTED = (
   <SpacedBadge pill variant="warning" key="changes-requested">
@@ -111,10 +116,23 @@ function getBadges(state: PullRequestState): JSX.Element[] {
 }
 
 function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
-  if (state.newReviewRequested) {
-    return [UNREVIEWED];
-  }
   const badges: JSX.Element[] = [];
+  switch (state.checkStatus) {
+    case "PENDING":
+      badges.push(CHECK_STATUS_PENDING);
+      break;
+    case "SUCCESS":
+      badges.push(CHECK_STATUS_PASSED);
+      break;
+    case "FAILURE":
+      badges.push(CHECK_STATUS_FAILED);
+      break;
+  }
+  if (state.newReviewRequested) {
+    badges.push(UNREVIEWED);
+    return badges;
+  }
+
   if (state.authorResponded) {
     badges.push(AUTHOR_REPLIED);
   }
@@ -127,6 +145,9 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
 function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
   switch (state.checkStatus) {
+    case "PENDING":
+      badges.push(CHECK_STATUS_PENDING);
+      break;
     case "SUCCESS":
       badges.push(CHECK_STATUS_PASSED);
       break;

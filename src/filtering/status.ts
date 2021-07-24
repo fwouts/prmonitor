@@ -47,6 +47,7 @@ function incomingPullRequestState(
     newCommit: hasReviewed && hasNewCommit,
     directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
     teams: pr.requestedTeams || [],
+    checkStatus: pr.checkStatus,
   };
 }
 
@@ -146,6 +147,8 @@ export interface IncomingState {
    * previously submitted by the user.
    */
   newCommit: boolean;
+
+  checkStatus?: CheckStatus;
 
   /**
    * True if a review has been requested for the current user, and not just included indirectly via a team.

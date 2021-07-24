@@ -1,6 +1,8 @@
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
+import { GraphQLClient, gql } from 'graphql-request'
+
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);
 
@@ -89,5 +91,45 @@ export function buildGitHubApi(token: string): GitHubApi {
         })
       );
     },
+    loadApproval(pr) {
+      const endpoint = 'https://api.github.com/graphql'
+      const graphQLClient = new GraphQLClient(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      const query = gql`
+      query {
+        organization(login: "${pr.repo.owner}") {
+          repository(name: "${pr.repo.name}") {
+            pullRequest(number: ${pr.number}) {
+              checksUrl
+              reviewDecision
+              state
+              commits(last: 1) {
+                nodes {
+                  commit {
+                    statusCheckRollup {
+                      state
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      `;
+
+      graphQLClient.request(query).then((data) => {
+        const result = data.organization.repository.pullRequest;
+        console.log('loadApproval', pr, result);
+        const reviewDecision = result.reviewDecision;
+        const checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
+        console.log('loadApproval', pr, reviewDecision, checkStatus);
+      })
+
+      return null;
+    }
   };
 }

@@ -79,6 +79,8 @@ async function updateCommentsAndReviews(
         }))
       ),
     ]);
+  githubApi.loadApproval(pr);
+
   return pullRequestFromResponse(
     rawPullRequest,
     freshPullRequestDetails,

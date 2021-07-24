@@ -58,6 +58,12 @@ export interface GitHubApi {
   ): Promise<
     GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listCommits"]>
   >;
+  /**
+   * Returns the full list of commits for a pull request.
+   */
+  loadApproval(
+    pr: PullRequestReference
+  ): void;
 }
 
 export interface RepoReference {

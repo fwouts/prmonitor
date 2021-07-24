@@ -1,4 +1,8 @@
-import { CheckStatus, PullRequestReference, ReviewDecision } from "../github-api/api";
+import {
+  CheckStatus,
+  PullRequestReference,
+  ReviewDecision,
+} from "../github-api/api";
 
 export interface LoadedState {
   /**

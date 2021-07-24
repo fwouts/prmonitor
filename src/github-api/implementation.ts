@@ -1,11 +1,10 @@
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
-import { GraphQLClient, gql } from 'graphql-request'
-
+import { GraphQLClient, gql } from "graphql-request";
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);
-const graphQLEndpoint = 'https://api.github.com/graphql'
+const graphQLEndpoint = "https://api.github.com/graphql";
 
 interface ThrottlingOptions {
   method: string;
@@ -50,7 +49,7 @@ export function buildGitHubApi(token: string): GitHubApi {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
   return {
     async loadAuthenticatedUser() {
@@ -122,12 +121,13 @@ export function buildGitHubApi(token: string): GitHubApi {
       return graphQLClient.request(query).then((response) => {
         const result = response.repository.pullRequest;
         const reviewDecision = result.reviewDecision;
-        const checkStatus = result.commits.nodes[0].commit.statusCheckRollup?.state;
+        const checkStatus =
+          result.commits.nodes[0].commit.statusCheckRollup?.state;
         return {
           reviewDecision,
           checkStatus,
-        }
+        };
       });
-    }
+    },
   };
 }

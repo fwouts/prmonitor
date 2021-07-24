@@ -61,9 +61,7 @@ export interface GitHubApi {
   /**
    * Returns the full list of commits for a pull request.
    */
-  loadPullRequestStatus(
-    pr: PullRequestReference
-  ): Promise<PullRequestStatus>;
+  loadPullRequestStatus(pr: PullRequestReference): Promise<PullRequestStatus>;
 }
 
 // Ref: https://docs.github.com/en/graphql/reference/enums#pullrequestreviewdecision
@@ -78,11 +76,11 @@ export type CheckStatus =
   | "EXPECTED"
   | "FAILURE"
   | "PENDING"
-  | "SUCCESS"
+  | "SUCCESS";
 
 export interface PullRequestStatus {
-  reviewDecision: ReviewDecision,
-  checkStatus?: CheckStatus,
+  reviewDecision: ReviewDecision;
+  checkStatus?: CheckStatus;
 }
 
 export interface RepoReference {

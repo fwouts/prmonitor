@@ -120,13 +120,10 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
   switch (checkStatus) {
     case "PENDING":
       return [CHECK_STATUS_PENDING];
-      break;
     case "SUCCESS":
       return [CHECK_STATUS_PASSED];
-      break;
     case "FAILURE":
       return [CHECK_STATUS_FAILED];
-      break;
 
     case "ERROR":
     case "EXPECTED":

@@ -124,12 +124,9 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
       return [CHECK_STATUS_PASSED];
     case "FAILURE":
       return [CHECK_STATUS_FAILED];
-
     case "ERROR":
     case "EXPECTED":
-    case undefined:
     default:
-      // TODO: Add badges if needed.
       return [];
   }
 }

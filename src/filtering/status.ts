@@ -1,3 +1,4 @@
+import { CheckStatus } from "../github-api/api";
 import { PullRequest, ReviewState } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
@@ -46,6 +47,7 @@ function incomingPullRequestState(
     newCommit: hasReviewed && hasNewCommit,
     directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
     teams: pr.requestedTeams || [],
+    checkStatus: pr.checkStatus,
   };
 }
 
@@ -110,6 +112,7 @@ function outgoingPullRequestState(
     changesRequested: states.has("CHANGES_REQUESTED"),
     mergeable: pr.mergeable === true,
     approvedByEveryone: states.has("APPROVED") && states.size === 1,
+    checkStatus: pr.checkStatus,
   };
 }
 
@@ -154,6 +157,11 @@ export interface IncomingState {
    * List of team names requested.
    */
   teams: string[];
+
+  /**
+   * Current check status of tests.
+   */
+  checkStatus?: CheckStatus;
 }
 
 /**
@@ -200,6 +208,11 @@ export interface OutgoingState {
    * True if the PR was approved by all reviewers.
    */
   approvedByEveryone: boolean;
+
+  /**
+   * Current check status of tests.
+   */
+  checkStatus?: CheckStatus;
 }
 
 export function isReviewRequired(

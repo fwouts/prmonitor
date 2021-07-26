@@ -58,6 +58,30 @@ export interface GitHubApi {
   ): Promise<
     GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listCommits"]>
   >;
+
+  /**
+   * Returns the current status fields for a pull request.
+   */
+  loadPullRequestStatus(pr: PullRequestReference): Promise<PullRequestStatus>;
+}
+
+// Ref: https://docs.github.com/en/graphql/reference/enums#pullrequestreviewdecision
+export type ReviewDecision =
+  | "APPROVED"
+  | "CHANGES_REQUESTED"
+  | "REVIEW_REQUIRED";
+
+// Ref: https://docs.github.com/en/graphql/reference/enums#statusstate
+export type CheckStatus =
+  | "ERROR"
+  | "EXPECTED"
+  | "FAILURE"
+  | "PENDING"
+  | "SUCCESS";
+
+export interface PullRequestStatus {
+  reviewDecision: ReviewDecision;
+  checkStatus?: CheckStatus;
 }
 
 export interface RepoReference {

@@ -1,4 +1,8 @@
-import { PullRequestReference } from "../github-api/api";
+import {
+  CheckStatus,
+  PullRequestReference,
+  ReviewDecision,
+} from "../github-api/api";
 
 export interface LoadedState {
   /**
@@ -76,6 +80,9 @@ export interface PullRequest {
   reviews: Review[];
   comments: Comment[];
   commits?: Commit[];
+
+  reviewDecision: ReviewDecision;
+  checkStatus?: CheckStatus;
 }
 
 export interface Comment {

@@ -8,6 +8,7 @@ import {
   OutgoingState,
   PullRequestState,
 } from "../filtering/status";
+import { CheckStatus } from "../github-api/api";
 
 const StateBox = styled.div`
   padding: 0 8px;
@@ -50,6 +51,22 @@ const MERGEABLE = (
 const APPROVED_BY_EVERONE = (
   <SpacedBadge pill variant="success" key="approved-by-everyone">
     Approved by everyone
+  </SpacedBadge>
+);
+
+const CHECK_STATUS_PASSED = (
+  <SpacedBadge pill variant="success" key="check-status-passed">
+    Checks Pass
+  </SpacedBadge>
+);
+const CHECK_STATUS_FAILED = (
+  <SpacedBadge pill variant="danger" key="check-status-passed">
+    Checks Fail
+  </SpacedBadge>
+);
+const CHECK_STATUS_PENDING = (
+  <SpacedBadge pill variant="warning" key="check-status-passed">
+    Checks Pending
   </SpacedBadge>
 );
 
@@ -99,11 +116,30 @@ function getBadges(state: PullRequestState): JSX.Element[] {
   return badges;
 }
 
-function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
-  if (state.newReviewRequested) {
-    return [UNREVIEWED];
+function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
+  switch (checkStatus) {
+    case "PENDING":
+      return [CHECK_STATUS_PENDING];
+    case "SUCCESS":
+      return [CHECK_STATUS_PASSED];
+    case "FAILURE":
+      return [CHECK_STATUS_FAILED];
+    case "ERROR":
+    case "EXPECTED":
+    default:
+      return [];
   }
+}
+
+function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
+  badges.push(...getCheckStatusBadge(state.checkStatus));
+
+  if (state.newReviewRequested) {
+    badges.push(UNREVIEWED);
+    return badges;
+  }
+
   if (state.authorResponded) {
     badges.push(AUTHOR_REPLIED);
   }
@@ -115,6 +151,8 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
 
 function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
+  badges.push(...getCheckStatusBadge(state.checkStatus));
+
   if (state.mergeable) {
     badges.push(MERGEABLE);
   }
@@ -128,5 +166,6 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
       badges.push(NO_REVIEWER_ASSIGNED);
     }
   }
+
   return badges;
 }

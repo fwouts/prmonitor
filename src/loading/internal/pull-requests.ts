@@ -2,6 +2,7 @@ import { RestEndpointMethodTypes } from "@octokit/rest";
 import {
   GitHubApi,
   PullRequestReference,
+  PullRequestStatus,
   RepoReference,
 } from "../../github-api/api";
 import { nonEmptyItems } from "../../helpers";
@@ -56,36 +57,44 @@ async function updateCommentsAndReviews(
     repo,
     number: rawPullRequest.number,
   };
-  const [freshPullRequestDetails, freshReviews, freshComments, freshCommits] =
-    await Promise.all([
-      githubApi.loadPullRequestDetails(pr),
-      githubApi.loadReviews(pr).then((reviews) =>
-        reviews.map((review) => ({
-          authorLogin: review.user ? review.user.login : "",
-          state: review.state as ReviewState,
-          submittedAt: review.submitted_at,
-        }))
-      ),
-      githubApi.loadComments(pr).then((comments) =>
-        comments.map((comment) => ({
-          authorLogin: comment.user ? comment.user.login : "",
-          createdAt: comment.created_at,
-        }))
-      ),
-      githubApi.loadCommits(pr).then((commits) =>
-        commits.map((commit) => ({
-          authorLogin: commit.author ? commit.author.login : "",
-          createdAt: commit.commit.author?.date,
-        }))
-      ),
-    ]);
+  const [
+    freshPullRequestDetails,
+    freshReviews,
+    freshComments,
+    freshCommits,
+    pullRequestStatus,
+  ] = await Promise.all([
+    githubApi.loadPullRequestDetails(pr),
+    githubApi.loadReviews(pr).then((reviews) =>
+      reviews.map((review) => ({
+        authorLogin: review.user ? review.user.login : "",
+        state: review.state as ReviewState,
+        submittedAt: review.submitted_at,
+      }))
+    ),
+    githubApi.loadComments(pr).then((comments) =>
+      comments.map((comment) => ({
+        authorLogin: comment.user ? comment.user.login : "",
+        createdAt: comment.created_at,
+      }))
+    ),
+    githubApi.loadCommits(pr).then((commits) =>
+      commits.map((commit) => ({
+        authorLogin: commit.author ? commit.author.login : "",
+        createdAt: commit.commit.author?.date,
+      }))
+    ),
+    githubApi.loadPullRequestStatus(pr),
+  ]);
+
   return pullRequestFromResponse(
     rawPullRequest,
     freshPullRequestDetails,
     freshReviews,
     freshComments,
     freshCommits,
-    isReviewRequested
+    isReviewRequested,
+    pullRequestStatus
   );
 }
 
@@ -95,7 +104,8 @@ function pullRequestFromResponse(
   reviews: Review[],
   comments: Comment[],
   commits: Commit[],
-  reviewRequested: boolean
+  reviewRequested: boolean,
+  status: PullRequestStatus
 ): PullRequest {
   const repo = extractRepo(response);
   return {
@@ -127,6 +137,8 @@ function pullRequestFromResponse(
     reviews,
     comments,
     commits,
+    reviewDecision: status.reviewDecision,
+    checkStatus: status.checkStatus,
   };
 }
 

@@ -3,8 +3,8 @@ import { observer } from "mobx-react-lite";
 import moment from "moment";
 import React from "react";
 import { Alert } from "react-bootstrap";
+import { SmallButton } from "./design/Button";
 import { Core } from "../state/core";
-import { Link } from "./design/Link";
 
 export interface StatusProps {
   core: Core;
@@ -25,13 +25,13 @@ export const Status = observer((props: StatusProps) => {
         {props.core.refreshing ? (
           "Refreshing..."
         ) : (
-          <Link
+          <SmallButton
             onClick={() => {
               props.core.triggerBackgroundRefresh();
             }}
           >
-            Refresh now
-          </Link>
+            Refresh
+          </SmallButton>
         )}
       </div>
     );

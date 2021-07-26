@@ -127,6 +127,7 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
 
     case "ERROR":
     case "EXPECTED":
+    case undefined:
     default:
       // TODO: Add badges if needed.
       return [];

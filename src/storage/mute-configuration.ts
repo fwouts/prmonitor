@@ -1,6 +1,6 @@
 import assertNever from "assert-never";
 import cloneDeep from "lodash/cloneDeep";
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequestReference, RepoReference } from "../github-api/api";
 
 export const NOTHING_MUTED: MuteConfiguration = {
@@ -33,7 +33,7 @@ export interface MuteConfiguration {
 }
 
 export function addMute(
-  env: Environment,
+  context: Context,
   config: MuteConfiguration,
   pullRequest: PullRequestReference,
   muteType: MuteType
@@ -57,7 +57,7 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "next-comment-by-author",
-          mutedAtTimestamp: env.getCurrentTime(),
+          mutedAtTimestamp: context.getCurrentTime(),
         },
       });
       break;
@@ -66,7 +66,7 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "next-update",
-          mutedAtTimestamp: env.getCurrentTime(),
+          mutedAtTimestamp: context.getCurrentTime(),
         },
       });
       break;
@@ -83,7 +83,7 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "specific-time",
-          unmuteAtTimestamp: env.getCurrentTime() + 3600 * 1000,
+          unmuteAtTimestamp: context.getCurrentTime() + 3600 * 1000,
         },
       });
       break;

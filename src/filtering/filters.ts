@@ -1,4 +1,4 @@
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { EnrichedPullRequest } from "./enriched-pull-request";
@@ -39,7 +39,7 @@ export type FilteredPullRequests = {
 };
 
 export function filterPullRequests(
-  env: Environment,
+  context: Context,
   userLogin: string,
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration
@@ -59,7 +59,7 @@ export function filterPullRequests(
           notifyNewCommits,
           onlyDirectRequests,
           whitelistedTeams
-        ) && isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
+        ) && isMuted(context, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
       (pr) =>
@@ -68,7 +68,7 @@ export function filterPullRequests(
           notifyNewCommits,
           onlyDirectRequests,
           whitelistedTeams
-        ) && isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
+        ) && isMuted(context, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
       (pr) =>
@@ -79,7 +79,7 @@ export function filterPullRequests(
     ),
     mine: enrichedPullRequests.filter((pr) => pr.author?.login === userLogin),
     ignored: enrichedPullRequests.filter(
-      (pr) => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
+      (pr) => isMuted(context, pr, muteConfiguration) === MutedResult.INVISIBLE
     ),
   };
 }

@@ -1,6 +1,6 @@
 import { ChromeApi } from "./chrome/api";
 import { chromeApiSingleton } from "./chrome/implementation";
-import { Environment } from "./environment/api";
+import { Context } from "./environment/api";
 import { buildEnvironment } from "./environment/implementation";
 import { CrossScriptMessenger } from "./messaging/api";
 import { Core } from "./state/core";
@@ -13,12 +13,12 @@ setUpBackgroundScript(chromeApi, env);
 
 let refreshing = false;
 
-function setUpBackgroundScript(chromeApi: ChromeApi, env: Environment) {
+function setUpBackgroundScript(chromeApi: ChromeApi, context: Context) {
   selfUpdateAsap(chromeApi);
   refreshOnUpdate(chromeApi, triggerRefresh);
   refreshRegulary(chromeApi, triggerRefresh);
-  refreshOnDemand(env.messenger, triggerRefresh);
-  const core = new Core(env);
+  refreshOnDemand(context.messenger, triggerRefresh);
+  const core = new Core(context);
 
   async function triggerRefresh() {
     if (refreshing) {

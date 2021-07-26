@@ -1,4 +1,4 @@
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import {
@@ -10,11 +10,11 @@ import {
  * Returns whether the pull request is muted.
  */
 export function isMuted(
-  env: Environment,
+  context: Context,
   pr: PullRequest,
   muteConfiguration: MuteConfiguration
 ): MutedResult {
-  const currentTime = env.getCurrentTime();
+  const currentTime = context.getCurrentTime();
   for (const [owner, ignoreConfiguration] of Object.entries(
     muteConfiguration.ignored || {}
   )) {

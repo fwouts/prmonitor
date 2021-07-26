@@ -130,6 +130,7 @@ class FakePullRequestBuilder {
       comments: this._comments,
       reviews: this._reviews,
       commits: this._commits,
+      reviewDecision: "REVIEW_REQUIRED",
     };
   }
 

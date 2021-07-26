@@ -88,6 +88,11 @@ describe("refreshOpenPullRequests", () => {
     mocked(githubApi.loadComments).mockReturnValue(Promise.resolve([]));
     mocked(githubApi.loadReviews).mockReturnValue(Promise.resolve([]));
     mocked(githubApi.loadCommits).mockReturnValue(Promise.resolve([]));
+    mocked(githubApi.loadPullRequestStatus).mockReturnValue(
+      Promise.resolve({
+        reviewDecision: "REVIEW_REQUIRED",
+      })
+    );
     const result = await refreshOpenPullRequests(githubApi, "fwouts");
     expect(result).toHaveLength(3);
     expect(mocked(githubApi.searchPullRequests).mock.calls).toEqual([
@@ -108,5 +113,6 @@ function mockGitHubApi(): GitHubApi {
     loadReviews: jest.fn(),
     loadComments: jest.fn(),
     loadCommits: jest.fn(),
+    loadPullRequestStatus: jest.fn(),
   };
 }

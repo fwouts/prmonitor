@@ -1,4 +1,4 @@
-import { CheckStatus } from "../github-api/api";
+import { CheckStatus, ReviewDecision } from "../github-api/api";
 import { PullRequest, ReviewState } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
@@ -113,6 +113,7 @@ function outgoingPullRequestState(
     mergeable: pr.mergeable === true,
     approvedByEveryone: states.has("APPROVED") && states.size === 1,
     checkStatus: pr.checkStatus,
+    reviewDecision: pr.reviewDecision,
   };
 }
 
@@ -213,6 +214,11 @@ export interface OutgoingState {
    * Current check status of tests.
    */
   checkStatus?: CheckStatus;
+
+  /**
+   * FIXME
+   */
+  reviewDecision: ReviewDecision;
 }
 
 export function isReviewRequired(

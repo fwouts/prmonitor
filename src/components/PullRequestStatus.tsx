@@ -48,9 +48,15 @@ const MERGEABLE = (
   </SpacedBadge>
 );
 
-const APPROVED_BY_EVERONE = (
+const APPROVED_BY_EVERYONE = (
   <SpacedBadge pill variant="success" key="approved-by-everyone">
     Approved by everyone
+  </SpacedBadge>
+);
+
+const APPROVED = (
+  <SpacedBadge pill variant="success" key="approved-by-everyone">
+    Approved
   </SpacedBadge>
 );
 
@@ -146,6 +152,7 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   if (state.newCommit) {
     badges.push(NEW_COMMIT);
   }
+
   return badges;
 }
 
@@ -156,15 +163,23 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   if (state.mergeable) {
     badges.push(MERGEABLE);
   }
-  if (state.approvedByEveryone) {
-    badges.push(APPROVED_BY_EVERONE);
-  } else if (state.changesRequested) {
-    badges.push(CHANGES_REQUESTED);
-  } else {
-    badges.push(WAITING_FOR_REVIEW);
-    if (state.noReviewers) {
-      badges.push(NO_REVIEWER_ASSIGNED);
-    }
+
+  switch (state.reviewDecision) {
+    case "APPROVED":
+      badges.push(APPROVED);
+      if (state.approvedByEveryone) {
+        badges.push(APPROVED_BY_EVERYONE);
+      }
+      break;
+    case "CHANGES_REQUESTED":
+      badges.push(CHANGES_REQUESTED);
+      break;
+    case "REVIEW_REQUIRED":
+      badges.push(WAITING_FOR_REVIEW);
+      if (state.noReviewers) {
+        badges.push(NO_REVIEWER_ASSIGNED);
+      }
+      break;
   }
 
   return badges;

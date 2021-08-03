@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
-    "@babel/preset-env": "^7.14.8",
+    "@babel/preset-env": "^7.14.9",
     "@octokit/core": "^3.5.1",
     "@types/chrome": "^0.0.150",
     "@types/jest": "^26.0.24",

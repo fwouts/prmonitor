@@ -48,6 +48,7 @@ function incomingPullRequestState(
     directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
     teams: pr.requestedTeams || [],
     checkStatus: pr.checkStatus,
+    reviewDecision: pr.reviewDecision,
   };
 }
 
@@ -163,6 +164,11 @@ export interface IncomingState {
    * Current check status of tests.
    */
   checkStatus?: CheckStatus;
+
+  /**
+   * FIXME
+   */
+   reviewDecision: ReviewDecision;
 }
 
 /**

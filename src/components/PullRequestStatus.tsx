@@ -8,7 +8,7 @@ import {
   OutgoingState,
   PullRequestState,
 } from "../filtering/status";
-import { CheckStatus } from "../github-api/api";
+import { CheckStatus, ReviewDecision } from "../github-api/api";
 
 const StateBox = styled.div`
   padding: 0 8px;
@@ -137,9 +137,23 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
   }
 }
 
+function getReviewDecisionBadge(reviewDecision: ReviewDecision): JSX.Element[] {
+  switch (reviewDecision) {
+    case "APPROVED":
+      return [APPROVED];
+    case "CHANGES_REQUESTED":
+      return [CHANGES_REQUESTED];
+    case "REVIEW_REQUIRED":
+      return [WAITING_FOR_REVIEW]
+  }
+
+  return []
+}
+
 function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
   badges.push(...getCheckStatusBadge(state.checkStatus));
+  badges.push(...getReviewDecisionBadge(state.reviewDecision));
 
   if (state.newReviewRequested) {
     badges.push(UNREVIEWED);

@@ -52,6 +52,24 @@ ReactDOM.render(
         .nav-tabs {
           border-bottom: none;
         }
+
+        /**
+         * Temporary workaround for secondary monitors on MacOS where redraws don't happen
+         * TODO: Remove once Chromium fixes bug.
+         * Ref: https://stackoverflow.com/questions/56500742/why-is-my-google-chrome-extensions-popup-ui-laggy-on-external-monitors-but-not/64113061#64113061
+         * @See https://bugs.chromium.org/p/chromium/issues/detail?id=971701
+         */
+        @keyframes redraw {
+          0% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.99;
+          }
+        }
+        html {
+          animation: redraw 1s linear infinite;
+        }
       `}
     />
     <Popup core={core} />

@@ -166,7 +166,7 @@ export interface IncomingState {
   checkStatus?: CheckStatus;
 
   /**
-   * FIXME
+   * Current review decision.
    */
    reviewDecision: ReviewDecision;
 }
@@ -222,7 +222,7 @@ export interface OutgoingState {
   checkStatus?: CheckStatus;
 
   /**
-   * FIXME
+   * Current review decision.
    */
   reviewDecision: ReviewDecision;
 }

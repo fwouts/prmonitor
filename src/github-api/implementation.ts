@@ -32,13 +32,13 @@ export function buildGitHubApi(token: string): GitHubApi {
         }
         return false;
       },
-      onAbuseLimit: (
+      onSecondaryRateLimit: (
         _retryAfterSeconds: number,
         options: ThrottlingOptions
       ) => {
         // Does not retry, only logs a warning.
         console.warn(
-          `Abuse detected for request ${options.method} ${options.url}`
+          `Secondary Rate Limit detected for request ${options.method} ${options.url}`
         );
         return false;
       },

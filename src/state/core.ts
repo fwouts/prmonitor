@@ -5,7 +5,7 @@ import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import {
   Filter,
   FilteredPullRequests,
-  filterPullRequests,
+  filterPullRequests
 } from "../filtering/filters";
 import { PullRequestReference, RepoReference } from "../github-api/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
@@ -16,7 +16,7 @@ import {
   NOTHING_MUTED,
   removeOwnerMute,
   removePullRequestMute,
-  removeRepositoryMute,
+  removeRepositoryMute
 } from "../storage/mute-configuration";
 
 export class Core {
@@ -107,7 +107,7 @@ export class Core {
       );
       await this.saveNotifiedPullRequests(notifyAboutPullRequests);
       this.saveError(null);
-    } catch (e) {
+    } catch (e: any) {
       this.saveError(e.message);
       throw e;
     } finally {

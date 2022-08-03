@@ -106,7 +106,7 @@ export const Popup = observer((props: PopupProps) => {
                     {props.core.filteredPullRequests && (
                       <Badge
                         pill
-                        variant={
+                        bg={
                           props.core.filteredPullRequests.incoming.length > 0
                             ? "danger"
                             : "secondary"
@@ -124,7 +124,7 @@ export const Popup = observer((props: PopupProps) => {
                   <>
                     Muted{" "}
                     {props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
+                      <Badge bg="secondary">
                         {props.core.filteredPullRequests.muted.length}
                       </Badge>
                     )}
@@ -137,7 +137,7 @@ export const Popup = observer((props: PopupProps) => {
                   <>
                     Already reviewed{" "}
                     {props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
+                      <Badge bg="secondary">
                         {props.core.filteredPullRequests.reviewed.length}
                       </Badge>
                     )}
@@ -150,7 +150,7 @@ export const Popup = observer((props: PopupProps) => {
                   <>
                     My PRs{" "}
                     {props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
+                      <Badge bg="secondary">
                         {props.core.filteredPullRequests.mine.length}
                       </Badge>
                     )}

@@ -164,34 +164,34 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
               </Dropdown.Toggle>
               <Dropdown.Menu>
                 <Dropdown.Item
-                  onSelect={createMuteHandler("next-comment-by-author")}
+                  onClick={createMuteHandler("next-comment-by-author")}
                 >
                   <Icon icon="reply" />
                   Mute until next comment by author
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("next-update")}>
+                <Dropdown.Item onClick={createMuteHandler("next-update")}>
                   <Icon icon="podcast" />
                   Mute until any update by author
                 </Dropdown.Item>
                 {props.pullRequest.draft && (
-                  <Dropdown.Item onSelect={createMuteHandler("not-draft")}>
+                  <Dropdown.Item onClick={createMuteHandler("not-draft")}>
                     <Icon icon="pen" />
                     Mute until not draft
                   </Dropdown.Item>
                 )}
-                <Dropdown.Item onSelect={createMuteHandler("1-hour")}>
+                <Dropdown.Item onClick={createMuteHandler("1-hour")}>
                   <Icon icon="clock" />
                   Mute for 1 hour
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("forever")}>
+                <Dropdown.Item onClick={createMuteHandler("forever")}>
                   <Icon icon="ban" />
                   Mute forever
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("repo")}>
+                <Dropdown.Item onClick={createMuteHandler("repo")}>
                   Ignore PRs in{" "}
                   <b>{`${props.pullRequest.repoOwner}/${props.pullRequest.repoName}`}</b>
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("owner")}>
+                <Dropdown.Item onClick={createMuteHandler("owner")}>
                   Ignore all PRs in repositories owned by{" "}
                   <b>{props.pullRequest.repoOwner}</b>
                 </Dropdown.Item>

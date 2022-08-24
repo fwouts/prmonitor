@@ -1,20 +1,22 @@
+import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
 import { Filter } from "../filtering/filters";
+import { isRunningAsPopup } from "../popup-environment";
 import { Core } from "../state/core";
 import { PullRequest, ref } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
+import { Link } from "./design/Link";
+import { Row } from "./design/Row";
 import { IgnoredRepositories } from "./IgnoredRepositories";
 import { Loader } from "./Loader";
+import { NewCommitsToggle } from "./NewCommitsToggle";
 import { PullRequestList } from "./PullRequestList";
 import { Settings } from "./Settings";
 import { Status } from "./Status";
-import { Row } from "./design/Row";
-import { Link } from "./design/Link";
-import styled from "@emotion/styled";
-import { isRunningAsPopup } from "../popup-environment";
+import { WhitelistedTeams } from "./WhitelistedTeams";
 
 export interface PopupProps {
   core: Core;
@@ -50,6 +52,22 @@ export const Popup = observer((props: PopupProps) => {
     props.core.unmutePullRequest(ref(pullRequest));
   };
 
+  const onToggleNewCommitsNotification = () => {
+    props.core.toggleNewCommitsNotificationSetting();
+  };
+
+  const onToggleOnlyDirectRequests = () => {
+    props.core.toggleOnlyDirectRequestsSetting();
+  };
+
+  const onChangeWhitelistedTeams = (teamsText: string) => {
+    const teams = teamsText
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length);
+    props.core.onChangeWhitelistedTeamsSetting(teams);
+  };
+
   if (props.core.overallStatus !== "loaded") {
     return <Loader />;
   }
@@ -79,9 +97,7 @@ export const Popup = observer((props: PopupProps) => {
             <Tabs
               id="popup-tabs"
               activeKey={state.currentFilter}
-              onSelect={(key: string) =>
-                setState({ currentFilter: key as Filter })
-              }
+              onSelect={(key) => setState({ currentFilter: key as Filter })}
             >
               <Tab
                 title={
@@ -89,7 +105,8 @@ export const Popup = observer((props: PopupProps) => {
                     Incoming PRs{" "}
                     {props.core.filteredPullRequests && (
                       <Badge
-                        variant={
+                        pill
+                        bg={
                           props.core.filteredPullRequests.incoming.length > 0
                             ? "danger"
                             : "secondary"
@@ -107,7 +124,7 @@ export const Popup = observer((props: PopupProps) => {
                   <>
                     Muted{" "}
                     {props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
+                      <Badge bg="secondary">
                         {props.core.filteredPullRequests.muted.length}
                       </Badge>
                     )}
@@ -120,7 +137,7 @@ export const Popup = observer((props: PopupProps) => {
                   <>
                     Already reviewed{" "}
                     {props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
+                      <Badge bg="secondary">
                         {props.core.filteredPullRequests.reviewed.length}
                       </Badge>
                     )}
@@ -133,7 +150,7 @@ export const Popup = observer((props: PopupProps) => {
                   <>
                     My PRs{" "}
                     {props.core.filteredPullRequests && (
-                      <Badge variant="secondary">
+                      <Badge bg="secondary">
                         {props.core.filteredPullRequests.mine.length}
                       </Badge>
                     )}
@@ -143,6 +160,31 @@ export const Popup = observer((props: PopupProps) => {
               />
             </Tabs>
             <PullRequestList
+              header={
+                state.currentFilter === Filter.INCOMING && (
+                  <>
+                    <WhitelistedTeams
+                      onlyDirectRequestsToggled={
+                        !!props.core.muteConfiguration.onlyDirectRequests
+                      }
+                      whitelistedTeams={
+                        props.core.muteConfiguration.whitelistedTeams || []
+                      }
+                      userLogin={
+                        props.core.loadedState
+                          ? props.core.loadedState.userLogin
+                          : undefined
+                      }
+                      onToggleOnlyDirectRequests={onToggleOnlyDirectRequests}
+                      onChangeWhitelistedTeams={onChangeWhitelistedTeams}
+                    />
+                    <NewCommitsToggle
+                      toggled={!!props.core.muteConfiguration.notifyNewCommits}
+                      onToggle={onToggleNewCommitsNotification}
+                    />
+                  </>
+                )
+              }
               pullRequests={
                 props.core.filteredPullRequests
                   ? props.core.filteredPullRequests[state.currentFilter]

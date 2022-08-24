@@ -1,4 +1,4 @@
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { EnrichedPullRequest } from "./enriched-pull-request";
@@ -39,7 +39,7 @@ export type FilteredPullRequests = {
 };
 
 export function filterPullRequests(
-  env: Environment,
+  context: Context,
   userLogin: string,
   openPullRequests: PullRequest[],
   muteConfiguration: MuteConfiguration
@@ -48,27 +48,38 @@ export function filterPullRequests(
     state: pullRequestState(pr, userLogin),
     ...pr,
   }));
+  const notifyNewCommits = !!muteConfiguration.notifyNewCommits;
+  const onlyDirectRequests = !!muteConfiguration.onlyDirectRequests;
+  const whitelistedTeams = muteConfiguration.whitelistedTeams || [];
   return {
     incoming: enrichedPullRequests.filter(
       (pr) =>
-        isReviewRequired(pr.state) &&
-        isMuted(env, pr, muteConfiguration) === MutedResult.VISIBLE
+        isReviewRequired(
+          pr.state,
+          notifyNewCommits,
+          onlyDirectRequests,
+          whitelistedTeams
+        ) && isMuted(context, pr, muteConfiguration) === MutedResult.VISIBLE
     ),
     muted: enrichedPullRequests.filter(
       (pr) =>
-        isReviewRequired(pr.state) &&
-        isMuted(env, pr, muteConfiguration) === MutedResult.MUTED
+        isReviewRequired(
+          pr.state,
+          notifyNewCommits,
+          onlyDirectRequests,
+          whitelistedTeams
+        ) && isMuted(context, pr, muteConfiguration) === MutedResult.MUTED
     ),
     reviewed: enrichedPullRequests.filter(
       (pr) =>
         pr.state.kind === "incoming" &&
         !pr.state.newReviewRequested &&
-        !pr.state.newCommit &&
+        (!pr.state.newCommit || !notifyNewCommits) &&
         !pr.state.authorResponded
     ),
-    mine: enrichedPullRequests.filter((pr) => pr.author.login === userLogin),
+    mine: enrichedPullRequests.filter((pr) => pr.author?.login === userLogin),
     ignored: enrichedPullRequests.filter(
-      (pr) => isMuted(env, pr, muteConfiguration) === MutedResult.INVISIBLE
+      (pr) => isMuted(context, pr, muteConfiguration) === MutedResult.INVISIBLE
     ),
   };
 }

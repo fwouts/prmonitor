@@ -1,17 +1,20 @@
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
-import { getLastAuthorUpdateTimestamp } from "./timestamps";
+import {
+  getLastAuthorCommentTimestamp,
+  getLastAuthorUpdateTimestamp,
+} from "./timestamps";
 
 /**
  * Returns whether the pull request is muted.
  */
 export function isMuted(
-  env: Environment,
+  context: Context,
   pr: PullRequest,
   muteConfiguration: MuteConfiguration
 ): MutedResult {
-  const currentTime = env.getCurrentTime();
+  const currentTime = context.getCurrentTime();
   for (const [owner, ignoreConfiguration] of Object.entries(
     muteConfiguration.ignored || {}
   )) {
@@ -40,6 +43,12 @@ export function isMuted(
           const updatedSince =
             getLastAuthorUpdateTimestamp(pr) > muted.until.mutedAtTimestamp;
           return updatedSince ? MutedResult.VISIBLE : MutedResult.MUTED;
+        case "next-comment-by-author":
+          const commentedSince =
+            getLastAuthorCommentTimestamp(pr) > muted.until.mutedAtTimestamp;
+          return commentedSince ? MutedResult.VISIBLE : MutedResult.MUTED;
+        case "not-draft":
+          return pr.draft ? MutedResult.MUTED : MutedResult.VISIBLE;
         case "specific-time":
           return currentTime >= muted.until.unmuteAtTimestamp
             ? MutedResult.VISIBLE

@@ -22,6 +22,8 @@ class FakePullRequestBuilder {
     number: 1,
   };
   private _reviewerLogins: string[] = [];
+  private _reviewerTeams: string[] = [];
+  private _teamMap: Record<string, string[]> = {};
   private _comments: Comment[] = [];
   private _reviews: Review[] = [];
   private _commits: Commit[] = [];
@@ -57,8 +59,14 @@ class FakePullRequestBuilder {
     return this;
   }
 
-  reviewRequested(logins: string[]) {
+  reviewRequested(logins: string[], teams?: string[]) {
     this._reviewerLogins = logins;
+    this._reviewerTeams = teams || [];
+    return this;
+  }
+
+  teams(teamMap: Record<string, string[]>) {
+    this._teamMap = teamMap;
     return this;
   }
 
@@ -91,10 +99,21 @@ class FakePullRequestBuilder {
   }
 
   build(): PullRequest {
+    const reviewTeamRequested = this._reviewerTeams.some((teamName) => {
+      const members = this._teamMap[teamName] || [];
+      return members.includes(this._seenAs);
+    });
+    const reviewRequested =
+      this._reviewerLogins.includes(this._seenAs) || reviewTeamRequested;
     return {
       author: {
         login: this._author,
         avatarUrl: "",
+      },
+      changeSummary: {
+        changedFiles: 5,
+        additions: 100,
+        deletions: 50,
       },
       title: "PR",
       repoOwner: this._ref.repo.owner,
@@ -105,11 +124,13 @@ class FakePullRequestBuilder {
       mergeable: this._mergeable,
       updatedAt: "1 June 2019",
       htmlUrl: `http://github.com/${this._ref.repo.owner}/${this._ref.repo.name}/${this._ref.number}`,
-      reviewRequested: this._reviewerLogins.includes(this._seenAs),
+      reviewRequested: reviewRequested,
       requestedReviewers: this._reviewerLogins,
+      requestedTeams: this._reviewerTeams,
       comments: this._comments,
       reviews: this._reviews,
       commits: this._commits,
+      reviewDecision: "REVIEW_REQUIRED",
     };
   }
 

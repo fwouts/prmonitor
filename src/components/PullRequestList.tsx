@@ -25,36 +25,40 @@ export interface PullRequestListProps {
   pullRequests: EnrichedPullRequest[] | null;
   emptyMessage: string;
   mutingConfiguration: "allow-muting" | "allow-unmuting" | "none";
+  header: React.ReactNode;
   onOpenAll(): void;
   onOpen(pullRequestUrl: string): void;
   onMute(pullRequest: PullRequest, muteType: MuteType): void;
   onUnmute(pullRequest: PullRequest): void;
 }
 
-export const PullRequestList = observer((props: PullRequestListProps) => (
-  <List>
-    {props.pullRequests === null ? (
-      <Loader />
-    ) : props.pullRequests.length === 0 ? (
-      <Paragraph>{props.emptyMessage}</Paragraph>
-    ) : (
-      <>
-        {props.pullRequests.map((pullRequest) => (
-          <PullRequestItem
-            key={pullRequest.nodeId}
-            pullRequest={pullRequest}
-            mutingConfiguration={props.mutingConfiguration}
-            onOpen={props.onOpen}
-            onMute={props.onMute}
-            onUnmute={props.onUnmute}
-          />
-        ))}
-        {props.pullRequests.length > 1 && (
-          <OpenAllParagraph>
-            <Link onClick={props.onOpenAll}>Open them all</Link>
-          </OpenAllParagraph>
-        )}
-      </>
-    )}
-  </List>
-));
+export const PullRequestList = observer((props: PullRequestListProps) => {
+  return (
+    <List>
+      {props.header}
+      {props.pullRequests === null ? (
+        <Loader />
+      ) : props.pullRequests.length === 0 ? (
+        <Paragraph>{props.emptyMessage}</Paragraph>
+      ) : (
+        <>
+          {props.pullRequests.map((pullRequest) => (
+            <PullRequestItem
+              key={pullRequest.nodeId}
+              pullRequest={pullRequest}
+              mutingConfiguration={props.mutingConfiguration}
+              onOpen={props.onOpen}
+              onMute={props.onMute}
+              onUnmute={props.onUnmute}
+            />
+          ))}
+          {props.pullRequests.length > 1 && (
+            <OpenAllParagraph>
+              <Link onClick={props.onOpenAll}>Open them all</Link>
+            </OpenAllParagraph>
+          )}
+        </>
+      )}
+    </List>
+  );
+});

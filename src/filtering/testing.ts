@@ -1,16 +1,16 @@
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteConfiguration } from "../storage/mute-configuration";
 import { Filter, filterPullRequests } from "./filters";
 
 export function getFilteredBucket(
-  env: Environment,
+  context: Context,
   userLogin: string,
   muteConfiguration: MuteConfiguration,
   pr: PullRequest
 ) {
   const filteredPullRequests = filterPullRequests(
-    env,
+    context,
     userLogin,
     [pr],
     muteConfiguration

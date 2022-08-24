@@ -1,3 +1,4 @@
+import { CheckStatus } from "../github-api/api";
 import { PullRequest, ReviewState } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
@@ -13,12 +14,13 @@ export function pullRequestState(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestState {
-  if (pr.author.login === currentUserLogin) {
+  if (pr.author?.login === currentUserLogin) {
     return outgoingPullRequestState(pr, currentUserLogin);
   }
   if (!pr.reviewRequested && !userPreviouslyReviewed(pr, currentUserLogin)) {
     return {
       kind: "not-involved",
+      draft: pr.draft === true,
     };
   }
   return incomingPullRequestState(pr, currentUserLogin);
@@ -39,9 +41,13 @@ function incomingPullRequestState(
   const hasReviewed = lastReviewOrCommentFromCurrentUser > 0;
   return {
     kind: "incoming",
+    draft: pr.draft === true,
     newReviewRequested: !hasReviewed,
     authorResponded: hasReviewed && hasNewCommentByAuthor,
     newCommit: hasReviewed && hasNewCommit,
+    directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
+    teams: pr.requestedTeams || [],
+    checkStatus: pr.checkStatus,
   };
 }
 
@@ -49,10 +55,8 @@ function outgoingPullRequestState(
   pr: PullRequest,
   currentUserLogin: string
 ): PullRequestState {
-  const lastReviewOrCommentFromCurrentUserTimestamp = getLastReviewOrCommentTimestamp(
-    pr,
-    currentUserLogin
-  );
+  const lastReviewOrCommentFromCurrentUserTimestamp =
+    getLastReviewOrCommentTimestamp(pr, currentUserLogin);
   const lastCommitTimestamp = getLastCommitTimestamp(pr);
   const lastActionByCurrentUserTimestamp = Math.max(
     lastReviewOrCommentFromCurrentUserTimestamp,
@@ -62,7 +66,7 @@ function outgoingPullRequestState(
 
   // Keep track of the last known state of reviews left by others.
   for (const review of pr.reviews) {
-    if (review.authorLogin === currentUserLogin) {
+    if (review.authorLogin === currentUserLogin || !review.submittedAt) {
       continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();
@@ -108,6 +112,7 @@ function outgoingPullRequestState(
     changesRequested: states.has("CHANGES_REQUESTED"),
     mergeable: pr.mergeable === true,
     approvedByEveryone: states.has("APPROVED") && states.size === 1,
+    checkStatus: pr.checkStatus,
   };
 }
 
@@ -119,6 +124,11 @@ export type PullRequestState = IncomingState | NotInvolvedState | OutgoingState;
  */
 export interface IncomingState {
   kind: "incoming";
+
+  /**
+   * True if the PR is a draft.
+   */
+  draft: boolean;
 
   /**
    * True if a review has been requested from the user, but they haven't
@@ -137,6 +147,21 @@ export interface IncomingState {
    * previously submitted by the user.
    */
   newCommit: boolean;
+
+  /**
+   * True if a review has been requested for the current user, and not just included indirectly via a team.
+   */
+  directlyAdded: boolean;
+
+  /**
+   * List of team names requested.
+   */
+  teams: string[];
+
+  /**
+   * Current check status of tests.
+   */
+  checkStatus?: CheckStatus;
 }
 
 /**
@@ -145,6 +170,11 @@ export interface IncomingState {
  */
 export interface NotInvolvedState {
   kind: "not-involved";
+
+  /**
+   * True if the PR is a draft.
+   */
+  draft: boolean;
 }
 
 /**
@@ -178,11 +208,28 @@ export interface OutgoingState {
    * True if the PR was approved by all reviewers.
    */
   approvedByEveryone: boolean;
+
+  /**
+   * Current check status of tests.
+   */
+  checkStatus?: CheckStatus;
 }
 
-export function isReviewRequired(state: PullRequestState) {
-  return (
+export function isReviewRequired(
+  state: PullRequestState,
+  notifyNewCommits: boolean,
+  onlyDirectRequests: boolean,
+  whitelistedTeams: string[]
+) {
+  const inWhitelistedTeams =
     state.kind === "incoming" &&
-    (state.newReviewRequested || state.authorResponded || state.newCommit)
-  );
+    state.teams.some((team) => whitelistedTeams.includes(team));
+  const v =
+    state.kind === "incoming" &&
+    (!onlyDirectRequests || state.directlyAdded || inWhitelistedTeams) &&
+    (state.newReviewRequested ||
+      state.authorResponded ||
+      (notifyNewCommits && state.newCommit));
+
+  return v;
 }

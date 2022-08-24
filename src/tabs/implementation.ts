@@ -9,7 +9,8 @@ export function buildTabOpener(
 ): TabOpener {
   return {
     async openPullRequest(pullRequestUrl: string) {
-      const lastRequestTimestamp = await store.lastRequestForTabsPermission.load();
+      const lastRequestTimestamp =
+        await store.lastRequestForTabsPermission.load();
       if (lastRequestTimestamp !== null) {
         // We requested the permission before already. Let's not be persistent.
         chromeApi.permissions.getAll((permissions) => {

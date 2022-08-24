@@ -1,11 +1,14 @@
 import assertNever from "assert-never";
 import cloneDeep from "lodash/cloneDeep";
-import { Environment } from "../environment/api";
+import { Context } from "../environment/api";
 import { PullRequestReference, RepoReference } from "../github-api/api";
 
 export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: [],
   ignored: {},
+  notifyNewCommits: false,
+  onlyDirectRequests: false,
+  whitelistedTeams: [],
 };
 
 export interface MuteConfiguration {
@@ -21,10 +24,16 @@ export interface MuteConfiguration {
   ignored?: {
     [owner: string]: IgnoreConfiguration;
   };
+
+  notifyNewCommits?: boolean;
+
+  onlyDirectRequests?: boolean;
+
+  whitelistedTeams?: string[];
 }
 
 export function addMute(
-  env: Environment,
+  context: Context,
   config: MuteConfiguration,
   pullRequest: PullRequestReference,
   muteType: MuteType
@@ -43,12 +52,29 @@ export function addMute(
   };
   // Add the new mute.
   switch (muteType) {
+    case "next-comment-by-author":
+      muteConfiguration.mutedPullRequests.push({
+        ...pullRequest,
+        until: {
+          kind: "next-comment-by-author",
+          mutedAtTimestamp: context.getCurrentTime(),
+        },
+      });
+      break;
     case "next-update":
       muteConfiguration.mutedPullRequests.push({
         ...pullRequest,
         until: {
           kind: "next-update",
-          mutedAtTimestamp: env.getCurrentTime(),
+          mutedAtTimestamp: context.getCurrentTime(),
+        },
+      });
+      break;
+    case "not-draft":
+      muteConfiguration.mutedPullRequests.push({
+        ...pullRequest,
+        until: {
+          kind: "not-draft",
         },
       });
       break;
@@ -57,7 +83,7 @@ export function addMute(
         ...pullRequest,
         until: {
           kind: "specific-time",
-          unmuteAtTimestamp: env.getCurrentTime() + 3600 * 1000,
+          unmuteAtTimestamp: context.getCurrentTime() + 3600 * 1000,
         },
       });
       break;
@@ -146,7 +172,14 @@ export function removeRepositoryMute(
   };
 }
 
-export type MuteType = "next-update" | "1-hour" | "forever" | "repo" | "owner";
+export type MuteType =
+  | "next-update"
+  | "next-comment-by-author"
+  | "1-hour"
+  | "not-draft"
+  | "forever"
+  | "repo"
+  | "owner";
 
 export interface MutedPullRequest {
   repo: {
@@ -159,6 +192,8 @@ export interface MutedPullRequest {
 
 export type MutedUntil =
   | MutedUntilNextUpdateByAuthor
+  | MutedUntilNextCommentByAuthor
+  | MutedUntilNotDraft
   | MutedUntilSpecificTime
   | MutedForever;
 
@@ -168,9 +203,25 @@ export interface MutedUntilNextUpdateByAuthor {
   /**
    * The timestamp at which the PR was muted.
    *
-   * Any update by the author after this timestamp will make the PR re-appear.
+   * Any update (commit or comment by the author) after this timestamp will make
+   * the PR re-appear.
    */
   mutedAtTimestamp: number;
+}
+
+export interface MutedUntilNextCommentByAuthor {
+  kind: "next-comment-by-author";
+
+  /**
+   * The timestamp at which the PR was muted.
+   *
+   * Any comment by the author after this timestamp will make the PR re-appear.
+   */
+  mutedAtTimestamp: number;
+}
+
+export interface MutedUntilNotDraft {
+  kind: "not-draft";
 }
 
 export interface MutedUntilSpecificTime {

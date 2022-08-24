@@ -8,143 +8,164 @@ import {
   OutgoingState,
   PullRequestState,
 } from "../filtering/status";
+import { CheckStatus } from "../github-api/api";
 
 const StateBox = styled.div`
   padding: 0 8px;
 `;
 
+const SpacedBadge = styled(Badge)`
+  margin-right: 4px;
+`;
+
 const UNREVIEWED = (
-  <Badge pill variant="danger">
+  <SpacedBadge pill variant="danger" key="unreviewed">
     Unreviewed
-  </Badge>
+  </SpacedBadge>
 );
 
 const AUTHOR_REPLIED = (
-  <Badge pill variant="secondary">
+  <SpacedBadge pill variant="secondary" key="author-replied">
     Author replied
-  </Badge>
+  </SpacedBadge>
 );
 
 const NEW_COMMIT = (
-  <Badge pill variant="primary">
+  <SpacedBadge pill variant="primary" key="new-commit">
     New commit
-  </Badge>
+  </SpacedBadge>
 );
 
 const DRAFT = (
-  <Badge pill variant="dark">
+  <SpacedBadge pill variant="dark" key="draft">
     Draft
-  </Badge>
+  </SpacedBadge>
 );
 
 const MERGEABLE = (
-  <Badge pill variant="success">
+  <SpacedBadge pill variant="success" key="mergeable">
     Mergeable
-  </Badge>
+  </SpacedBadge>
 );
 
 const APPROVED_BY_EVERONE = (
-  <Badge pill variant="success">
+  <SpacedBadge pill variant="success" key="approved-by-everyone">
     Approved by everyone
-  </Badge>
+  </SpacedBadge>
+);
+
+const CHECK_STATUS_PASSED = (
+  <SpacedBadge pill variant="success" key="check-status-passed">
+    Checks Pass
+  </SpacedBadge>
+);
+const CHECK_STATUS_FAILED = (
+  <SpacedBadge pill variant="danger" key="check-status-passed">
+    Checks Fail
+  </SpacedBadge>
+);
+const CHECK_STATUS_PENDING = (
+  <SpacedBadge pill variant="warning" key="check-status-passed">
+    Checks Pending
+  </SpacedBadge>
 );
 
 const CHANGES_REQUESTED = (
-  <Badge pill variant="warning">
+  <SpacedBadge pill variant="warning" key="changes-requested">
     Changes requested
-  </Badge>
+  </SpacedBadge>
 );
 
 const WAITING_FOR_REVIEW = (
-  <Badge pill variant="info">
+  <SpacedBadge pill variant="info" key="waiting-for-review">
     Waiting for review
-  </Badge>
+  </SpacedBadge>
 );
 
 const NO_REVIEWER_ASSIGNED = (
-  <Badge pill variant="light">
+  <SpacedBadge pill variant="light" key="no-reviewer-assigned">
     No reviewer assigned
-  </Badge>
+  </SpacedBadge>
 );
 
 export const PullRequestStatus = observer(
   ({ pullRequest }: { pullRequest: EnrichedPullRequest }) => {
-    const state = renderState(pullRequest.state);
-    if (state) {
-      return <StateBox>{state}</StateBox>;
+    const badges = getBadges(pullRequest.state);
+    if (badges.length > 0) {
+      return <StateBox>{badges}</StateBox>;
     }
     return <></>;
   }
 );
 
-function renderState(state: PullRequestState) {
+function getBadges(state: PullRequestState): JSX.Element[] {
+  const badges: JSX.Element[] = [];
+  if (state.draft) {
+    badges.push(DRAFT);
+  }
   switch (state.kind) {
     case "incoming":
-      return renderIncomingState(state);
+      badges.push(...getIncomingStateBadges(state));
+      break;
     case "outgoing":
-      return addDraftTag(
-        state,
-        addMergeableTag(state, renderOutgoingState(state))
-      );
+      badges.push(...getOutgoingStateBadges(state));
+      break;
     default:
-      return null;
+    // Do nothing.
+  }
+  return badges;
+}
+
+function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
+  switch (checkStatus) {
+    case "PENDING":
+      return [CHECK_STATUS_PENDING];
+    case "SUCCESS":
+      return [CHECK_STATUS_PASSED];
+    case "FAILURE":
+      return [CHECK_STATUS_FAILED];
+    case "ERROR":
+    case "EXPECTED":
+    default:
+      return [];
   }
 }
 
-function renderIncomingState(state: IncomingState) {
+function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
+  const badges: JSX.Element[] = [];
+  badges.push(...getCheckStatusBadge(state.checkStatus));
+
   if (state.newReviewRequested) {
-    return UNREVIEWED;
-  } else if (state.authorResponded && state.newCommit) {
-    return (
-      <>
-        {AUTHOR_REPLIED} {NEW_COMMIT}
-      </>
-    );
-  } else if (state.authorResponded) {
-    return AUTHOR_REPLIED;
-  } else if (state.newCommit) {
-    return NEW_COMMIT;
-  } else {
-    return null;
+    badges.push(UNREVIEWED);
+    return badges;
   }
+
+  if (state.authorResponded) {
+    badges.push(AUTHOR_REPLIED);
+  }
+  if (state.newCommit) {
+    badges.push(NEW_COMMIT);
+  }
+  return badges;
 }
 
-function renderOutgoingState(state: OutgoingState): JSX.Element {
-  if (state.approvedByEveryone) {
-    return APPROVED_BY_EVERONE;
-  } else if (state.changesRequested) {
-    return CHANGES_REQUESTED;
-  } else if (state.noReviewers) {
-    return (
-      <>
-        {WAITING_FOR_REVIEW} {NO_REVIEWER_ASSIGNED}
-      </>
-    );
-  } else {
-    return WAITING_FOR_REVIEW;
-  }
-}
+function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
+  const badges: JSX.Element[] = [];
+  badges.push(...getCheckStatusBadge(state.checkStatus));
 
-function addMergeableTag(state: OutgoingState, otherTags: JSX.Element) {
   if (state.mergeable) {
-    return (
-      <>
-        {MERGEABLE} {otherTags}
-      </>
-    );
-  } else {
-    return otherTags;
+    badges.push(MERGEABLE);
   }
-}
+  if (state.approvedByEveryone) {
+    badges.push(APPROVED_BY_EVERONE);
+  } else if (state.changesRequested) {
+    badges.push(CHANGES_REQUESTED);
+  } else {
+    badges.push(WAITING_FOR_REVIEW);
+    if (state.noReviewers) {
+      badges.push(NO_REVIEWER_ASSIGNED);
+    }
+  }
 
-function addDraftTag(state: OutgoingState, otherTags: JSX.Element) {
-  if (state.draft) {
-    return (
-      <>
-        {DRAFT} {otherTags}
-      </>
-    );
-  } else {
-    return otherTags;
-  }
+  return badges;
 }

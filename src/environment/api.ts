@@ -5,7 +5,7 @@ import { Notifier } from "../notifications/api";
 import { Store } from "../storage/api";
 import { TabOpener } from "../tabs/api";
 
-export interface Environment {
+export interface Context {
   store: Store;
   githubLoader: GitHubLoader;
   notifier: Notifier;

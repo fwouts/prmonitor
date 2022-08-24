@@ -4,11 +4,11 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Dropdown } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
+import { isRunningAsPopup } from "../popup-environment";
 import { PullRequest } from "../storage/loaded-state";
 import { MuteType } from "../storage/mute-configuration";
 import { SmallButton } from "./design/Button";
 import { PullRequestStatus } from "./PullRequestStatus";
-import { isRunningAsPopup } from "../popup-environment";
 
 const PullRequestBox = styled.a`
   display: flex;
@@ -39,13 +39,32 @@ const Title = styled.div`
   padding: 8px;
 `;
 
-const Repo = styled.div`
+const ContextSummary = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.9em;
-  color: #555;
   padding: 8px;
+`;
+
+const ChangeSummary = styled.span`
+  margin-left: 8px;
+`;
+
+const LinesAdded = styled.span`
+  color: #22863a;
+`;
+
+const LinesDeleted = styled.span`
+  color: #cb2431;
+`;
+
+const ChangedFiles = styled.span`
+  color: #555;
+`;
+
+const Repo = styled.span`
+  color: #555;
 `;
 
 const AuthorWidth = "80px";
@@ -81,8 +100,18 @@ const InlineDropdown = styled(Dropdown)`
   margin: 0 8px;
 
   .dropdown-menu {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
+
+  .dropdown-item {
+    padding: 4px 16px 3px 36px;
+  }
+`;
+
+const Icon = styled(FontAwesomeIcon)`
+  position: absolute;
+  margin-left: -24px;
+  margin-top: 2px;
 `;
 
 export interface PullRequestItemProps {
@@ -134,20 +163,35 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
                 <FontAwesomeIcon icon="bell-slash" />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onSelect={createMuteHandler("next-update")}>
-                  Mute until next update by author
+                <Dropdown.Item
+                  onClick={createMuteHandler("next-comment-by-author")}
+                >
+                  <Icon icon="reply" />
+                  Mute until next comment by author
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("1-hour")}>
+                <Dropdown.Item onClick={createMuteHandler("next-update")}>
+                  <Icon icon="podcast" />
+                  Mute until any update by author
+                </Dropdown.Item>
+                {props.pullRequest.draft && (
+                  <Dropdown.Item onClick={createMuteHandler("not-draft")}>
+                    <Icon icon="pen" />
+                    Mute until not draft
+                  </Dropdown.Item>
+                )}
+                <Dropdown.Item onClick={createMuteHandler("1-hour")}>
+                  <Icon icon="clock" />
                   Mute for 1 hour
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("forever")}>
+                <Dropdown.Item onClick={createMuteHandler("forever")}>
+                  <Icon icon="ban" />
                   Mute forever
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("repo")}>
+                <Dropdown.Item onClick={createMuteHandler("repo")}>
                   Ignore PRs in{" "}
                   <b>{`${props.pullRequest.repoOwner}/${props.pullRequest.repoName}`}</b>
                 </Dropdown.Item>
-                <Dropdown.Item onSelect={createMuteHandler("owner")}>
+                <Dropdown.Item onClick={createMuteHandler("owner")}>
                   Ignore all PRs in repositories owned by{" "}
                   <b>{props.pullRequest.repoOwner}</b>
                 </Dropdown.Item>
@@ -161,17 +205,40 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
           )}
         </Title>
         <PullRequestStatus pullRequest={props.pullRequest} />
-        <Repo>
-          {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
-          {props.pullRequest.pullRequestNumber})
-        </Repo>
+        <ContextSummary>
+          <Repo>
+            {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
+            {props.pullRequest.pullRequestNumber})
+          </Repo>
+          {props.pullRequest.changeSummary &&
+            (() => {
+              const adds = props.pullRequest.changeSummary.additions;
+              const dels = props.pullRequest.changeSummary.deletions;
+              const files = props.pullRequest.changeSummary.changedFiles;
+              return (
+                <ChangeSummary
+                  title={`${adds} line${
+                    adds == 1 ? "" : "s"
+                  } added, ${dels} line${
+                    dels == 1 ? "" : "s"
+                  } removed, ${files} file${files == 1 ? "" : "s"} changed`}
+                >
+                  <LinesAdded>+{adds}</LinesAdded>
+                  <LinesDeleted>-{dels}</LinesDeleted>
+                  <ChangedFiles>@{files}</ChangedFiles>
+                </ChangeSummary>
+              );
+            })()}
+        </ContextSummary>
       </Info>
-      <AuthorBox title={props.pullRequest.author.login}>
-        {props.pullRequest.author && (
-          <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
-        )}
-        <AuthorLogin>{props.pullRequest.author.login}</AuthorLogin>
-      </AuthorBox>
+      {props.pullRequest.author && (
+        <AuthorBox title={props.pullRequest.author.login}>
+          {props.pullRequest.author && (
+            <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
+          )}
+          <AuthorLogin>{props.pullRequest.author.login}</AuthorLogin>
+        </AuthorBox>
+      )}
     </PullRequestBox>
   );
 });

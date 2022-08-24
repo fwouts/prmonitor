@@ -1,8 +1,10 @@
-import Octokit from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
+import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
+import { GraphQLClient, gql } from "graphql-request";
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);
+const graphQLEndpoint = "https://<github enterprise domain>/api/graphql";
 
 interface ThrottlingOptions {
   method: string;
@@ -13,8 +15,8 @@ interface ThrottlingOptions {
 }
 
 export function buildGitHubApi(token: string): GitHubApi {
-  const octokit = new ThrottledOctokit({
-    baseUrl: 'https://api.github.<my domain>.com',
+  const octokit: Octokit = new ThrottledOctokit({
+    baseUrl: 'https://<github enterprise domain>/api/v3',
     auth: `token ${token}`,
     // https://developer.github.com/v3/pulls/#list-pull-requests
     // Enable Draft Pull Request API.
@@ -31,18 +33,25 @@ export function buildGitHubApi(token: string): GitHubApi {
         }
         return false;
       },
-      onAbuseLimit: (
+      onSecondaryRateLimit: (
         _retryAfterSeconds: number,
         options: ThrottlingOptions
       ) => {
         // Does not retry, only logs a warning.
         console.warn(
-          `Abuse detected for request ${options.method} ${options.url}`
+          `Secondary Rate Limit detected for request ${options.method} ${options.url}`
         );
         return false;
       },
     },
   });
+
+  const graphQLClient = new GraphQLClient(graphQLEndpoint, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   return {
     async loadAuthenticatedUser() {
       const response = await octokit.users.getAuthenticated({});
@@ -89,6 +98,37 @@ export function buildGitHubApi(token: string): GitHubApi {
           pull_number: pr.number,
         })
       );
+    },
+    loadPullRequestStatus(pr) {
+      const query = gql`
+        query {
+          repository(owner: "${pr.repo.owner}", name: "${pr.repo.name}") {
+            pullRequest(number: ${pr.number}) {
+              reviewDecision
+              commits(last: 1) {
+                nodes {
+                  commit {
+                    statusCheckRollup {
+                      state
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      return graphQLClient.request(query).then((response) => {
+        const result = response.repository.pullRequest;
+        const reviewDecision = result.reviewDecision;
+        const checkStatus =
+          result.commits.nodes?.[0]?.commit.statusCheckRollup?.state;
+        return {
+          reviewDecision,
+          checkStatus,
+        };
+      });
     },
   };
 }

@@ -34,16 +34,23 @@ Here's a quick demo of PR Monitor in action:
 3. Enter the token into the extension
 4. Enjoy
 
+## Using PR Monitor with GitHub Enterprise
+
+In order to use PR Monitor with GitHub Enterprise, you'll need to download the source code and set the `baseUrl` to match your GitHub Enterprise API URL, then compile the code (see below).
+
+It's a [one-line change](https://github.com/fwouts/prmonitor/commit/d0f753c18ddfe128a305ec45d9485edfec38e9ad), so don't be afraid! Refer to [#768](https://github.com/fwouts/prmonitor/issues/768#issuecomment-623434164) for a concrete example.
+
 ## How to build it yourself
 
-If you don't trust a random Chrome extension on the Internet with your GitHub token, that's understandable.
+If you don't trust a random browser extension on the Internet with your GitHub token, that's understandable.
 
 Here's how to build the extension yourself from source:
 
 1. Install [Yarn](https://yarnpkg.com).
 2. Install dependencies with `yarn install`.
 3. Run `yarn build`.
-4. Install the extension from the generated `dist/` directory in developer mode.
+4. In Chrome, go to chrome://extensions and enable "Developer mode" in the top-right corner.
+5. Click "Load unpacked" and select the generated `dist/` directory.
 
 ## Feedback
 

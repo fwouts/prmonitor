@@ -1,4 +1,8 @@
-import { PullRequestReference } from "../github-api/api";
+import {
+  CheckStatus,
+  PullRequestReference,
+  ReviewDecision,
+} from "../github-api/api";
 
 export interface LoadedState {
   /**
@@ -54,6 +58,11 @@ export interface PullRequest {
   author: {
     login: string;
     avatarUrl: string;
+  } | null;
+  changeSummary: {
+    changedFiles: number;
+    additions: number;
+    deletions: number;
   };
   title: string;
   draft?: boolean;
@@ -67,9 +76,13 @@ export interface PullRequest {
    */
   // TODO: Make this required in September 2019.
   requestedReviewers?: string[];
+  requestedTeams?: string[];
   reviews: Review[];
   comments: Comment[];
   commits?: Commit[];
+
+  reviewDecision: ReviewDecision;
+  checkStatus?: CheckStatus;
 }
 
 export interface Comment {
@@ -80,12 +93,12 @@ export interface Comment {
 export interface Review {
   authorLogin: string;
   state: ReviewState;
-  submittedAt: string;
+  submittedAt?: string;
 }
 
 export interface Commit {
   authorLogin: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export type ReviewState =

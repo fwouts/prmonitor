@@ -38,7 +38,7 @@ Here's a quick demo of PR Monitor in action:
 
 In order to use PR Monitor with GitHub Enterprise, you'll need to download the source code and set the `baseUrl` to match your GitHub Enterprise API URL, then compile the code (see below).
 
-It's a [one-line change](https://github.com/fwouts/prmonitor/commit/d0f753c18ddfe128a305ec45d9485edfec38e9ad), so don't be afraid! Refer to [#768](https://github.com/fwouts/prmonitor/issues/768#issuecomment-623434164) for a concrete example.
+It's a two-line change, so don't be afraid! Refer to [#769](https://github.com/fwouts/prmonitor/pull/769) for an example.
 
 ## How to build it yourself
 

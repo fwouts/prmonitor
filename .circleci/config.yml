@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build-release:
     docker:
-      - image: circleci/node
+      - image: cimg/node:18.7.0
     working_directory: ~/repo
     steps:
       - checkout

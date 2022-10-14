@@ -19,71 +19,71 @@ const SpacedBadge = styled(Badge)`
 `;
 
 const UNREVIEWED = (
-  <SpacedBadge pill variant="danger" key="unreviewed">
+  <SpacedBadge pill bg="danger" key="unreviewed">
     Unreviewed
   </SpacedBadge>
 );
 
 const AUTHOR_REPLIED = (
-  <SpacedBadge pill variant="secondary" key="author-replied">
+  <SpacedBadge pill bg="secondary" key="author-replied">
     Author replied
   </SpacedBadge>
 );
 
 const NEW_COMMIT = (
-  <SpacedBadge pill variant="primary" key="new-commit">
+  <SpacedBadge pill bg="primary" key="new-commit">
     New commit
   </SpacedBadge>
 );
 
 const DRAFT = (
-  <SpacedBadge pill variant="dark" key="draft">
+  <SpacedBadge pill bg="dark" key="draft">
     Draft
   </SpacedBadge>
 );
 
 const MERGEABLE = (
-  <SpacedBadge pill variant="success" key="mergeable">
+  <SpacedBadge pill bg="success" key="mergeable">
     Mergeable
   </SpacedBadge>
 );
 
 const APPROVED_BY_EVERONE = (
-  <SpacedBadge pill variant="success" key="approved-by-everyone">
+  <SpacedBadge pill bg="success" key="approved-by-everyone">
     Approved by everyone
   </SpacedBadge>
 );
 
 const CHECK_STATUS_PASSED = (
-  <SpacedBadge pill variant="success" key="check-status-passed">
+  <SpacedBadge pill bg="success" key="check-status-passed">
     Checks Pass
   </SpacedBadge>
 );
 const CHECK_STATUS_FAILED = (
-  <SpacedBadge pill variant="danger" key="check-status-passed">
+  <SpacedBadge pill bg="danger" key="check-status-passed">
     Checks Fail
   </SpacedBadge>
 );
 const CHECK_STATUS_PENDING = (
-  <SpacedBadge pill variant="warning" key="check-status-passed">
+  <SpacedBadge pill bg="warning" key="check-status-passed">
     Checks Pending
   </SpacedBadge>
 );
 
 const CHANGES_REQUESTED = (
-  <SpacedBadge pill variant="warning" key="changes-requested">
+  <SpacedBadge pill bg="warning" key="changes-requested">
     Changes requested
   </SpacedBadge>
 );
 
 const WAITING_FOR_REVIEW = (
-  <SpacedBadge pill variant="info" key="waiting-for-review">
+  <SpacedBadge pill bg="info" key="waiting-for-review">
     Waiting for review
   </SpacedBadge>
 );
 
 const NO_REVIEWER_ASSIGNED = (
-  <SpacedBadge pill variant="light" key="no-reviewer-assigned">
+  <SpacedBadge pill bg="light" key="no-reviewer-assigned">
     No reviewer assigned
   </SpacedBadge>
 );

@@ -155,7 +155,7 @@ export const PullRequestItem = observer((props: PullRequestItemProps) => {
         <Title>
           {props.pullRequest.title}
           {props.mutingConfiguration === "allow-muting" && (
-            <InlineDropdown onClick={preventDefault} alignRight>
+            <InlineDropdown onClick={preventDefault} align="end">
               <Dropdown.Toggle
                 as={SmallButton}
                 id={`mute-dropdown-${props.pullRequest.nodeId}`}

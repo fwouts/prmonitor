@@ -1,5 +1,11 @@
 # PR Monitor
 
+> **Note** Looking for new maintainer
+>
+> PR Monitor is stable, no new features are planned and it's in maintenance only.
+>
+> If you'd like to improve it further, please send a pull request or feel free to fork the project.
+
 <p align="center">
   <a href="https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng">
     <img src="./images/logo-chrome.png" />

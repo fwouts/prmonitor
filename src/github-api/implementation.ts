@@ -4,7 +4,7 @@ import { GitHubApi } from "./api";
 import { GraphQLClient, gql } from "graphql-request";
 
 const ThrottledOctokit = Octokit.plugin(throttling as any);
-const graphQLEndpoint = "https://api.github.com/graphql";
+const graphQLEndpoint = "https://<github enterprise domain>/api/graphql";
 
 interface ThrottlingOptions {
   method: string;
@@ -16,6 +16,7 @@ interface ThrottlingOptions {
 
 export function buildGitHubApi(token: string): GitHubApi {
   const octokit: Octokit = new ThrottledOctokit({
+    baseUrl: 'https://<github enterprise domain>/api/v3',
     auth: `token ${token}`,
     // https://developer.github.com/v3/pulls/#list-pull-requests
     // Enable Draft Pull Request API.

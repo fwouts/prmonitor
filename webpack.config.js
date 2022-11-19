@@ -44,9 +44,11 @@ module.exports = {
   },
   mode: "development",
   devServer: {
-    contentBase: path.join(__dirname, "public"),
+    static: {
+        directory: path.join(__dirname, 'public'),
+        watch: true,
+    },
     compress: true,
-    watchContentBase: true,
     hot: true,
     port: 9000,
   },

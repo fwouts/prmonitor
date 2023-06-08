@@ -19,7 +19,7 @@ export function buildStore(chromeApi: ChromeApi): Store {
     muteConfiguration: chromeValueStorageWithDefault(
       chromeApi,
       "mute",
-      NOTHING_MUTED 
+      NOTHING_MUTED
     ),
     notifiedPullRequests: chromeValueStorageWithDefault<string[]>(
       chromeApi,

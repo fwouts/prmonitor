@@ -95,7 +95,7 @@ export class Core {
       const startRefreshTimestamp = this.context.getCurrentTime();
       await this.saveLoadedState({
         startRefreshTimestamp,
-        ...(await this.context.githubLoader(this.token, this.muteConfiguration, this.loadedState)),
+        ...(await this.context.githubLoader(this.token, this.loadedState)),
       });
       const notifyAboutPullRequests = [
         ...(this.unreviewedPullRequests || []),

@@ -13,7 +13,6 @@ import {
   Review,
   ReviewState,
 } from "../../storage/loaded-state";
-import { MuteConfiguration } from "../../storage/mute-configuration";
 
 /**
  * Refreshes the list of pull requests for a list of repositories.
@@ -24,26 +23,12 @@ import { MuteConfiguration } from "../../storage/mute-configuration";
  */
 export async function refreshOpenPullRequests(
   githubApi: GitHubApi,
-  userLogin: string,
-  muteConfiguration: MuteConfiguration
+  userLogin: string
 ): Promise<PullRequest[]> {
   // Note: each query should specifically exclude the previous ones so we don't end up having
   // to deduplicate PRs across lists.
-  let reviewRequestedFilter = `review-requested:${userLogin}`
-
-  if (muteConfiguration.onlyDirectRequests) {
-    reviewRequestedFilter = `user-review-requested:${userLogin}`
-
-    const whitelistedTeams = muteConfiguration.whitelistedTeams || []
-    for (let i = 0; i < whitelistedTeams.length; i++) {
-      reviewRequestedFilter = reviewRequestedFilter + ` team-review-requested:${whitelistedTeams[i]}`
-    }
-  }
-
-  // TODO: exclusions on the other filters
-
   const reviewRequestedPullRequests = await githubApi.searchPullRequests(
-    `${reviewRequestedFilter} -author:${userLogin} is:open archived:false`
+    `review-requested:${userLogin} -author:${userLogin} is:open archived:false`
   );
   const commentedPullRequests = await githubApi.searchPullRequests(
     `commenter:${userLogin} -author:${userLogin} -review-requested:${userLogin} is:open archived:false`

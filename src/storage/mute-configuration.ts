@@ -7,7 +7,7 @@ export const NOTHING_MUTED: MuteConfiguration = {
   mutedPullRequests: [],
   ignored: {},
   notifyNewCommits: false,
-  onlyDirectRequests: false,
+  onlyDirectRequests: true, // TODO: Clean up defaulting here
   whitelistedTeams: [],
 };
 

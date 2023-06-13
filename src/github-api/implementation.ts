@@ -4,15 +4,12 @@ import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
 import { GraphQLClient, gql } from "graphql-request";
 
-const ThrottledOctokit = Octokit.plugin(throttling as any);
+const ThrottledOctokit = Octokit.plugin(throttling);
 const graphQLEndpoint = "https://api.github.com/graphql";
 
 interface ThrottlingOptions {
   method: string;
   url: string;
-  request: {
-    retryCount: number;
-  };
 }
 
 export function buildGitHubApi(token: string): GitHubApi {
@@ -22,28 +19,26 @@ export function buildGitHubApi(token: string): GitHubApi {
     // Enable Draft Pull Request API.
     previews: ["shadow-cat"],
     throttle: {
-      onRateLimit: (retryAfterSeconds: number, options: ThrottlingOptions) => {
+      onRateLimit: (retryAfter: number, options: ThrottlingOptions, _: Octokit, retryCount: number) => {
         console.warn(
           `Request quota exhausted for request ${options.method} ${options.url}`
         );
         // Only retry twice.
-        if (options.request.retryCount < 2) {
-          console.log(`Retrying after ${retryAfterSeconds} seconds!`);
+        if (retryCount < 2) {
+          console.log(`Retrying after ${retryAfter} seconds!`);
           return true;
         }
         return false;
       },
-      onSecondaryRateLimit: (
-        retryAfterSeconds: number,
-        options: ThrottlingOptions
-      ) => {
+      onSecondaryRateLimit: (retryAfter: number, options: ThrottlingOptions, _: Octokit, retryCount: number) => {
         console.warn(
           `Secondary Rate Limit detected for request ${options.method} ${options.url}`
         );
-        // We can't bank on the `retryCount` because the API calls are made in parallel and we can have
-        // hundreds fail, in which case the `retryCount` is the sum based on the event.
-        // This may be fixed in a more up-to-date version, I might test that next.
-        console.log(`Retrying after ${retryAfterSeconds} seconds!`);
+        // Only retry twice.
+        if (retryCount < 2) {
+          console.log(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
         return true;
       },
     },

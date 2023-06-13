@@ -1,4 +1,5 @@
 import { throttling } from "@octokit/plugin-throttling";
+//import { Thr } from "@octokit/plugin-throttling/dist-types/types";
 import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
 import { GraphQLClient, gql } from "graphql-request";
@@ -33,14 +34,17 @@ export function buildGitHubApi(token: string): GitHubApi {
         return false;
       },
       onSecondaryRateLimit: (
-        _retryAfterSeconds: number,
+        retryAfterSeconds: number,
         options: ThrottlingOptions
       ) => {
-        // Does not retry, only logs a warning.
         console.warn(
           `Secondary Rate Limit detected for request ${options.method} ${options.url}`
         );
-        return false;
+        // We can't bank on the `retryCount` because the API calls are made in parallel and we can have
+        // hundreds fail, in which case the `retryCount` is the sum based on the event.
+        // This may be fixed in a more up-to-date version, I might test that next.
+        console.log(`Retrying after ${retryAfterSeconds} seconds!`);
+        return true;
       },
     },
   });

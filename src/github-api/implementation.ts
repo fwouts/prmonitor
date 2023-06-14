@@ -1,5 +1,4 @@
 import { throttling } from "@octokit/plugin-throttling";
-//import { Thr } from "@octokit/plugin-throttling/dist-types/types";
 import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
 import { GraphQLClient, gql } from "graphql-request";

@@ -38,7 +38,7 @@ export function buildGitHubApi(token: string): GitHubApi {
           console.log(`Retrying after ${retryAfter} seconds!`);
           return true;
         }
-        return true;
+        return false;
       },
     },
   });

@@ -1427,6 +1427,11 @@
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-13.4.0.tgz#06fe8fda93bf21bdd397fe7ef8805249efda6c06"
   integrity sha512-2mVzW0X1+HDO3jF80/+QFZNzJiTefELKbhMu6yaBYbp/1gSMkVDm4rT472gJljTokWUlXaaE63m7WrWENhMDLw==
 
+"@octokit/openapi-types@^14.0.0":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-14.0.0.tgz#949c5019028c93f189abbc2fb42f333290f7134a"
+  integrity sha512-HNWisMYlR8VCnNurDU6os2ikx0s0VyEjDYHNS/h4cgb8DeOxQ0n72HyinUtdDVxJhFy3FWLGl0DJhfEWk3P5Iw==
+
 "@octokit/plugin-paginate-rest@^4.0.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-4.1.0.tgz#670ac9ac369448c69a2371bfcd7e2b37d95534f2"
@@ -1447,12 +1452,12 @@
     "@octokit/types" "^7.0.0"
     deprecation "^2.3.1"
 
-"@octokit/plugin-throttling@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-4.2.0.tgz#261f265426dcf2f5126e60b75edf547e57e24def"
-  integrity sha512-5QilB43MU9MgKfrQh7ZBJ/sPwasoNOazHVZd77xS7iMRu81qxH9uOt31t2QXNx6Jnc29h7eiLZIRrJAVn+7kJA==
+"@octokit/plugin-throttling@^4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-4.3.2.tgz#d5eb363d5282c74b2839454a87545c5f90591a80"
+  integrity sha512-ZaCK599h3tzcoy0Jtdab95jgmD7X9iAk59E2E7hYKCAmnURaI4WpzwL9vckImilybUGrjY1JOWJapDs2N2D3vw==
   dependencies:
-    "@octokit/types" "^7.0.0"
+    "@octokit/types" "^8.0.0"
     bottleneck "^2.15.3"
 
 "@octokit/request-error@^3.0.0":
@@ -1492,6 +1497,13 @@
   integrity sha512-Dx6cNTORyVaKY0Yeb9MbHksk79L8GXsihbG6PtWqTpkyA2TY1qBWE26EQXVG3dHwY9Femdd/WEeRUEiD0+H3TQ==
   dependencies:
     "@octokit/openapi-types" "^13.4.0"
+
+"@octokit/types@^8.0.0":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-8.2.1.tgz#a6de091ae68b5541f8d4fcf9a12e32836d4648aa"
+  integrity sha512-8oWMUji8be66q2B9PmEIUyQm00VPDPun07umUWSaCwxmeaquFBro4Hcc3ruVoDo3zkQyZBlRvhIMEYS3pBhanw==
+  dependencies:
+    "@octokit/openapi-types" "^14.0.0"
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"

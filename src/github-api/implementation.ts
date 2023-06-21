@@ -3,15 +3,12 @@ import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
 import { GraphQLClient, gql } from "graphql-request";
 
-const ThrottledOctokit = Octokit.plugin(throttling as any);
+const ThrottledOctokit = Octokit.plugin(throttling);
 const graphQLEndpoint = "https://api.github.com/graphql";
 
 interface ThrottlingOptions {
   method: string;
   url: string;
-  request: {
-    retryCount: number;
-  };
 }
 
 export function buildGitHubApi(token: string): GitHubApi {
@@ -21,25 +18,26 @@ export function buildGitHubApi(token: string): GitHubApi {
     // Enable Draft Pull Request API.
     previews: ["shadow-cat"],
     throttle: {
-      onRateLimit: (retryAfterSeconds: number, options: ThrottlingOptions) => {
+      onRateLimit: (retryAfter: number, options: ThrottlingOptions, _: Octokit, retryCount: number) => {
         console.warn(
           `Request quota exhausted for request ${options.method} ${options.url}`
         );
         // Only retry twice.
-        if (options.request.retryCount < 2) {
-          console.log(`Retrying after ${retryAfterSeconds} seconds!`);
+        if (retryCount < 2) {
+          console.log(`Retrying after ${retryAfter} seconds!`);
           return true;
         }
         return false;
       },
-      onSecondaryRateLimit: (
-        _retryAfterSeconds: number,
-        options: ThrottlingOptions
-      ) => {
-        // Does not retry, only logs a warning.
+      onSecondaryRateLimit: (retryAfter: number, options: ThrottlingOptions, _: Octokit, retryCount: number) => {
         console.warn(
           `Secondary Rate Limit detected for request ${options.method} ${options.url}`
         );
+        // Only retry twice.
+        if (retryCount < 2) {
+          console.log(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
         return false;
       },
     },

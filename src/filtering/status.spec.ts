@@ -19,6 +19,7 @@ describe("pullRequestState", () => {
       newCommit: false,
       authorResponded: false,
       directlyAdded: true,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: [],
     });
 
@@ -42,6 +43,7 @@ describe("pullRequestState", () => {
       newCommit: false,
       authorResponded: false,
       directlyAdded: false,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: ["team"],
     });
 
@@ -62,6 +64,7 @@ describe("pullRequestState", () => {
       newCommit: false,
       authorResponded: true,
       directlyAdded: false,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: [],
     });
 
@@ -82,6 +85,7 @@ describe("pullRequestState", () => {
       newCommit: true,
       authorResponded: false,
       directlyAdded: false,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: [],
     });
 
@@ -103,6 +107,7 @@ describe("pullRequestState", () => {
       newCommit: true,
       authorResponded: true,
       directlyAdded: false,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: [],
     });
 
@@ -122,6 +127,7 @@ describe("pullRequestState", () => {
       newCommit: false,
       authorResponded: false,
       directlyAdded: false,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: [],
     });
 
@@ -141,6 +147,7 @@ describe("pullRequestState", () => {
       newCommit: false,
       authorResponded: false,
       directlyAdded: false,
+      reviewDecision: "REVIEW_REQUIRED",
       teams: [],
     });
   });
@@ -192,6 +199,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: false,
       approvedByEveryone: false,
+      reviewDecision: "REVIEW_REQUIRED",
     });
 
     expect(
@@ -206,6 +214,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: false,
       approvedByEveryone: false,
+      reviewDecision: "REVIEW_REQUIRED",
     });
 
     expect(
@@ -224,6 +233,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: false,
       approvedByEveryone: false,
+      reviewDecision: "REVIEW_REQUIRED",
     });
 
     expect(
@@ -246,6 +256,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: true,
       approvedByEveryone: false,
+      reviewDecision: "REVIEW_REQUIRED",
     });
 
     expect(
@@ -268,6 +279,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: false,
       approvedByEveryone: true,
+      reviewDecision: "REVIEW_REQUIRED",
     });
 
     expect(
@@ -290,6 +302,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: false,
       approvedByEveryone: false,
+      reviewDecision: "REVIEW_REQUIRED",
     });
 
     expect(
@@ -312,6 +325,7 @@ describe("pullRequestState", () => {
       changesRequested: false,
       mergeable: false,
       approvedByEveryone: false,
+      reviewDecision: "REVIEW_REQUIRED",
     });
   });
 });

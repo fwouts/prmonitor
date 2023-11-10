@@ -21,20 +21,20 @@ import {
  * brute-forcing would quickly go over API rate limits if the user has several
  * hundred repositories or many pull requests opened.
  */
-export async function refreshOpenPullRequests(
-  githubApi: GitHubApi,
-  userLogin: string
-): Promise<PullRequest[]> {
+export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<PullRequest[]> {
   // Note: each query should specifically exclude the previous ones so we don't end up having
   // to deduplicate PRs across lists.
   const reviewRequestedPullRequests = await githubApi.searchPullRequests(
-    `review-requested:${userLogin} -author:${userLogin} is:open archived:false`
+    `review-requested:@me -author:@me is:open`
   );
   const commentedPullRequests = await githubApi.searchPullRequests(
-    `commenter:${userLogin} -author:${userLogin} -review-requested:${userLogin} is:open archived:false`
+    `commenter:@me -author:@me -review-requested:@me is:open`
   );
-  const ownPullRequests = await githubApi.searchPullRequests(
-    `author:${userLogin} is:open archived:false`
+  const myNeedsReviewPullRequests = await githubApi.searchPullRequests(
+    `author:@me is:open -review:changes_requested`
+  );
+  const myNeedsRevisionPullRequests = await githubApi.searchPullRequests(
+    `author:@me is:open review:changes_requested`
   );
   return Promise.all([
     ...reviewRequestedPullRequests.map((pr) =>
@@ -43,7 +43,8 @@ export async function refreshOpenPullRequests(
     ...commentedPullRequests.map((pr) =>
       updateCommentsAndReviews(githubApi, pr)
     ),
-    ...ownPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr)),
+    ...myNeedsReviewPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, true)),
+    ...myNeedsRevisionPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, false)),
   ]);
 }
 
@@ -61,6 +62,7 @@ async function updateCommentsAndReviews(
     freshPullRequestDetails,
     freshReviews,
     freshComments,
+    freshReviewComments,
     freshCommits,
     pullRequestStatus,
   ] = await Promise.all([
@@ -73,6 +75,12 @@ async function updateCommentsAndReviews(
       }))
     ),
     githubApi.loadComments(pr).then((comments) =>
+      comments.map((comment) => ({
+        authorLogin: comment.user ? comment.user.login : "",
+        createdAt: comment.created_at,
+      }))
+    ),
+    githubApi.loadReviewComments(pr).then((comments) =>
       comments.map((comment) => ({
         authorLogin: comment.user ? comment.user.login : "",
         createdAt: comment.created_at,
@@ -92,6 +100,7 @@ async function updateCommentsAndReviews(
     freshPullRequestDetails,
     freshReviews,
     freshComments,
+    freshReviewComments,
     freshCommits,
     isReviewRequested,
     pullRequestStatus
@@ -103,6 +112,7 @@ function pullRequestFromResponse(
   details: RestEndpointMethodTypes["pulls"]["get"]["response"]["data"],
   reviews: Review[],
   comments: Comment[],
+  reviewComments: Comment[],
   commits: Commit[],
   reviewRequested: boolean,
   status: PullRequestStatus
@@ -135,7 +145,7 @@ function pullRequestFromResponse(
       details.requested_teams?.map((team) => team?.name)
     ),
     reviews,
-    comments,
+    comments: [...comments, ...reviewComments],
     commits,
     reviewDecision: status.reviewDecision,
     checkStatus: status.checkStatus,

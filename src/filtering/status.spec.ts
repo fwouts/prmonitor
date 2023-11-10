@@ -191,7 +191,7 @@ describe("pullRequestState", () => {
       noReviewers: true,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false,
+      approved: false,
     });
 
     expect(
@@ -205,7 +205,7 @@ describe("pullRequestState", () => {
       noReviewers: true,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false,
+      approved: false,
     });
 
     expect(
@@ -223,7 +223,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false,
+      approved: false,
     });
 
     expect(
@@ -245,7 +245,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: true,
-      approvedByEveryone: false,
+      approved: false,
     });
 
     expect(
@@ -267,7 +267,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: true,
+      approved: true,
     });
 
     expect(
@@ -289,7 +289,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false,
+      approved: false,
     });
 
     expect(
@@ -311,7 +311,7 @@ describe("pullRequestState", () => {
       noReviewers: false,
       changesRequested: false,
       mergeable: false,
-      approvedByEveryone: false,
+      approved: false,
     });
   });
 });

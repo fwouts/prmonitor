@@ -1,22 +1,23 @@
-import styled from "@emotion/styled";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { Badge, Tab, Tabs } from "react-bootstrap";
-import { Filter } from "../filtering/filters";
-import { isRunningAsPopup } from "../popup-environment";
+import { Filter, FilteredPullRequests } from "../filtering/filters";
 import { Core } from "../state/core";
-import { PullRequest, ref } from "../storage/loaded-state";
-import { MuteType } from "../storage/mute-configuration";
-import { Link } from "./design/Link";
-import { Row } from "./design/Row";
-import { IgnoredRepositories } from "./IgnoredRepositories";
 import { Loader } from "./Loader";
-import { NewCommitsToggle } from "./NewCommitsToggle";
 import { PullRequestList } from "./PullRequestList";
-import { Settings } from "./Settings";
 import { Status } from "./Status";
-import { WhitelistedTeams } from "./WhitelistedTeams";
+import { isRunningAsPopup } from "../popup-environment";
+import { Link } from "./design/Link";
+import styled from "@emotion/styled";
+import { CopyIcon } from '@primer/octicons-react'
+import { Settings } from "./Settings";
+
+const FullScreenLink = styled(Link)`
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
+`;
 
 export interface PopupProps {
   core: Core;
@@ -27,199 +28,170 @@ export interface PopupState {
 }
 
 export const Popup = observer((props: PopupProps) => {
+  const { core } = props;
+  const { filteredPullRequests: prs } = core ?? {};
+
   const [state, setState] = useState<PopupState>({
-    currentFilter: Filter.INCOMING,
+    currentFilter: Filter.ALL,
   });
 
-  const onOpenAll = () => {
-    const pullRequests = props.core.filteredPullRequests
-      ? props.core.filteredPullRequests[state.currentFilter]
-      : [];
-    for (const pullRequest of pullRequests) {
-      onOpen(pullRequest.htmlUrl);
-    }
-  };
-
   const onOpen = (pullRequestUrl: string) => {
-    props.core.openPullRequest(pullRequestUrl).catch(console.error);
+    core.openPullRequest(pullRequestUrl).catch(console.error);
   };
 
-  const onMute = (pullRequest: PullRequest, muteType: MuteType) => {
-    props.core.mutePullRequest(ref(pullRequest), muteType);
-  };
-
-  const onUnmute = (pullRequest: PullRequest) => {
-    props.core.unmutePullRequest(ref(pullRequest));
-  };
-
-  const onToggleNewCommitsNotification = () => {
-    props.core.toggleNewCommitsNotificationSetting();
-  };
-
-  const onToggleOnlyDirectRequests = () => {
-    props.core.toggleOnlyDirectRequestsSetting();
-  };
-
-  const onChangeWhitelistedTeams = (teamsText: string) => {
-    const teams = teamsText
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length);
-    props.core.onChangeWhitelistedTeamsSetting(teams);
-  };
-
-  if (props.core.overallStatus !== "loaded") {
+  if (core.overallStatus !== "loaded") {
     return <Loader />;
   }
 
   return (
     <>
-      <Row>
-        <Status core={props.core} />
-        {isRunningAsPopup() && (
-          <FullScreenLink
-            target="_blank"
-            href={`chrome-extension://${chrome.runtime.id}/index.html`}
-          >
-            <FontAwesomeIcon icon="clone" />
-          </FullScreenLink>
-        )}
-      </Row>
-      {props.core.token &&
+      {core.token &&
         // Don't show the list if there was an error, we're not refreshing
         // anymore (because of the error) and we don't have any loaded state.
         !(
-          props.core.lastError &&
-          !props.core.refreshing &&
-          !props.core.loadedState
+          core.lastError &&
+          !core.refreshing &&
+          !core.loadedState
         ) && (
-          <>
-            <Tabs
-              id="popup-tabs"
-              activeKey={state.currentFilter}
-              onSelect={(key) => setState({ currentFilter: key as Filter })}
-            >
-              <Tab
-                title={
-                  <>
-                    Incoming PRs{" "}
-                    {props.core.filteredPullRequests && (
-                      <Badge
-                        pill
-                        bg={
-                          props.core.filteredPullRequests.incoming.length > 0
-                            ? "danger"
-                            : "secondary"
-                        }
-                      >
-                        {props.core.filteredPullRequests.incoming.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.INCOMING}
-              />
-              <Tab
-                title={
-                  <>
-                    Muted{" "}
-                    {props.core.filteredPullRequests && (
-                      <Badge bg="secondary">
-                        {props.core.filteredPullRequests.muted.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.MUTED}
-              />
-              <Tab
-                title={
-                  <>
-                    Already reviewed{" "}
-                    {props.core.filteredPullRequests && (
-                      <Badge bg="secondary">
-                        {props.core.filteredPullRequests.reviewed.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.REVIEWED}
-              />
-              <Tab
-                title={
-                  <>
-                    My PRs{" "}
-                    {props.core.filteredPullRequests && (
-                      <Badge bg="secondary">
-                        {props.core.filteredPullRequests.mine.length}
-                      </Badge>
-                    )}
-                  </>
-                }
-                eventKey={Filter.MINE}
-              />
-            </Tabs>
-            <PullRequestList
-              header={
-                state.currentFilter === Filter.INCOMING && (
-                  <>
-                    <WhitelistedTeams
-                      onlyDirectRequestsToggled={
-                        !!props.core.muteConfiguration.onlyDirectRequests
-                      }
-                      whitelistedTeams={
-                        props.core.muteConfiguration.whitelistedTeams || []
-                      }
-                      userLogin={
-                        props.core.loadedState
-                          ? props.core.loadedState.userLogin
-                          : undefined
-                      }
-                      onToggleOnlyDirectRequests={onToggleOnlyDirectRequests}
-                      onChangeWhitelistedTeams={onChangeWhitelistedTeams}
-                    />
-                    <NewCommitsToggle
-                      toggled={!!props.core.muteConfiguration.notifyNewCommits}
-                      onToggle={onToggleNewCommitsNotification}
-                    />
-                  </>
-                )
-              }
-              pullRequests={
-                props.core.filteredPullRequests
-                  ? props.core.filteredPullRequests[state.currentFilter]
-                  : null
-              }
-              emptyMessage={
-                state.currentFilter === Filter.INCOMING
-                  ? `Nothing to review, yay!`
-                  : `There's nothing to see here.`
-              }
-              mutingConfiguration={
-                state.currentFilter === Filter.INCOMING
-                  ? "allow-muting"
-                  : state.currentFilter === Filter.MUTED
-                  ? "allow-unmuting"
-                  : "none"
-              }
-              onOpenAll={onOpenAll}
+          <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+            <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
+              <Tabs
+                id="popup-tabs"
+                activeKey={state.currentFilter}
+                onSelect={(key) => setState({ currentFilter: key as Filter })}
+              >
+                <Tab
+                  title={
+                    <>
+                      All{" "}
+                      {prs?.needsReview && (
+                        <Badge pill bg="danger">
+                          {prs.needsReview.length}
+                        </Badge>
+                      )}
+                    </>
+                  }
+                  eventKey={Filter.ALL}
+                />
+                <Tab
+                  title={
+                    <>
+                      Needs Review{" "}
+                      {prs?.needsReview && (
+                        <Badge pill bg="danger">
+                          {prs.needsReview.length}
+                        </Badge>
+                      )}
+                    </>
+                  }
+                  eventKey={Filter.NEEDS_REVIEW}
+                />
+                <Tab
+                  title={
+                    <>
+                      Needs Revision{" "}
+                      {prs?.needsRevision && (
+                        <Badge pill bg="secondary">
+                          {prs.needsRevision.length}
+                        </Badge>
+                      )}
+                    </>
+                  }
+                  eventKey={Filter.NEEDS_REVISION}
+                />
+                <Tab
+                  title={
+                    <>
+                      My PRs{" "}
+                      {prs?.mine && (
+                        <Badge bg="secondary">
+                          {prs.mine.length}
+                        </Badge>
+                      )}
+                    </>
+                  }
+                  eventKey={Filter.MINE}
+                />
+              </Tabs>
+              {isRunningAsPopup() && (
+                <FullScreenLink
+                  target="_blank"
+                  href={`chrome-extension://${chrome.runtime.id}/index.html`}
+                >
+                  <CopyIcon />
+                  
+                </FullScreenLink>
+              )}
+            </div>
+            <PullRequests 
+              core={core}
+              filter={state.currentFilter}
               onOpen={onOpen}
-              onMute={onMute}
-              onUnmute={onUnmute}
+              prs={prs}  
             />
-          </>
+          </div>
         )}
-      <IgnoredRepositories core={props.core} />
-      <Settings core={props.core} />
+      <div style={{ marginTop: '8px' }}>
+        <Settings core={props.core} />
+      </div>
     </>
   );
 });
 
-const FullScreenLink = styled(Link)`
-  padding: 16px;
-  opacity: 0.7;
-
-  &:hover {
-    opacity: 1;
+function headerForFilter(filter: Filter): string {
+  switch(filter) {
+    case Filter.NEEDS_REVIEW:
+      return "Needs Review";
+    case Filter.NEEDS_REVISION:
+      return "Needs Revision";
+    case Filter.MINE:
+      return "My PRs";
+    default:
+      return "Invalid Filter";
   }
-`;
+}
+
+function PullRequests({core, filter, prs, onOpen}: {core: Core, filter: Filter, prs: FilteredPullRequests | null, onOpen: (pullRequestUrl: string) => void}): JSX.Element {
+  if (filter === Filter.ALL) {
+    const filters: Array<Filter> = [
+      Filter.NEEDS_REVIEW, 
+      Filter.NEEDS_REVISION, 
+      Filter.MINE,
+    ];    
+    return (
+      <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+        <div style={{display: 'flex'}}>
+          <Status core={core} />
+        </div>
+        {filters.map((filter: Filter) => {
+          return (
+            <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
+              <div style={{fontSize: 18}}>
+                {headerForFilter(filter)}
+              </div>
+              <PullRequestList
+                header={null}
+                pullRequests={prs?.[filter] ?? null}
+                emptyMessage=""
+                onOpen={onOpen}
+              />
+            </div>
+          )
+        })}
+      </div>
+    ) 
+  }
+
+  return (
+    <PullRequestList
+      header={null}
+      pullRequests={prs?.[filter] ?? null}
+      emptyMessage={
+        filter === Filter.NEEDS_REVIEW
+          ? `Nothing to review, yay!`
+          : `There's nothing to see here.`
+      }
+      onOpen={onOpen}
+    />
+  )
+}

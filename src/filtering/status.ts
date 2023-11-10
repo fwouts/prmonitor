@@ -3,7 +3,6 @@ import { PullRequest, ReviewState } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
   getLastAuthorCommentTimestamp,
-  getLastCommitTimestamp,
   getLastReviewOrCommentTimestamp,
 } from "./timestamps";
 
@@ -36,32 +35,8 @@ function incomingPullRequestState(
   );
   const hasNewCommentByAuthor =
     lastReviewOrCommentFromCurrentUser < getLastAuthorCommentTimestamp(pr);
-  const hasNewCommit =
-    lastReviewOrCommentFromCurrentUser < getLastCommitTimestamp(pr);
   const hasReviewed = lastReviewOrCommentFromCurrentUser > 0;
-  return {
-    kind: "incoming",
-    draft: pr.draft === true,
-    newReviewRequested: !hasReviewed,
-    authorResponded: hasReviewed && hasNewCommentByAuthor,
-    newCommit: hasReviewed && hasNewCommit,
-    directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
-    teams: pr.requestedTeams || [],
-    checkStatus: pr.checkStatus,
-  };
-}
 
-function outgoingPullRequestState(
-  pr: PullRequest,
-  currentUserLogin: string
-): PullRequestState {
-  const lastReviewOrCommentFromCurrentUserTimestamp =
-    getLastReviewOrCommentTimestamp(pr, currentUserLogin);
-  const lastCommitTimestamp = getLastCommitTimestamp(pr);
-  const lastActionByCurrentUserTimestamp = Math.max(
-    lastReviewOrCommentFromCurrentUserTimestamp,
-    lastCommitTimestamp
-  );
   const stateByUser = new Map<string, ReviewState>();
 
   // Keep track of the last known state of reviews left by others.
@@ -71,7 +46,49 @@ function outgoingPullRequestState(
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (
-      submittedAt < lastActionByCurrentUserTimestamp &&
+      submittedAt < getLastReviewOrCommentTimestamp(pr, currentUserLogin) &&
+      review.state === "CHANGES_REQUESTED"
+    ) {
+      // This change request may not be relevant anymore because the author has
+      // taken action.
+      stateByUser.set(review.authorLogin, "PENDING");
+      continue;
+    }
+    // Set the user's current state to the current review. If it's a comment
+    // however, we don't want to override a previous approval or request for
+    // changes.
+    if (!stateByUser.has(review.authorLogin) || review.state !== "COMMENTED") {
+      stateByUser.set(review.authorLogin, review.state);
+    }
+  }
+
+  const states = new Set(stateByUser.values());
+  return {
+    kind: "incoming",
+    draft: pr.draft === true,
+    newReviewRequested: !hasReviewed,
+    authorResponded: hasReviewed && hasNewCommentByAuthor,
+    directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
+    teams: pr.requestedTeams || [],
+    checkStatus: pr.checkStatus,
+    changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
+  };
+}
+
+function outgoingPullRequestState(
+  pr: PullRequest,
+  currentUserLogin: string
+): PullRequestState {
+  const stateByUser = new Map<string, ReviewState>();
+
+  // Keep track of the last known state of reviews left by others.
+  for (const review of pr.reviews) {
+    if (review.authorLogin === currentUserLogin || !review.submittedAt) {
+      continue;
+    }
+    const submittedAt = new Date(review.submittedAt).getTime();
+    if (
+      submittedAt < getLastReviewOrCommentTimestamp(pr, currentUserLogin) &&
       review.state === "CHANGES_REQUESTED"
     ) {
       // This change request may not be relevant anymore because the author has
@@ -109,9 +126,9 @@ function outgoingPullRequestState(
     kind: "outgoing",
     draft: pr.draft === true,
     noReviewers: stateByUser.size === 0,
-    changesRequested: states.has("CHANGES_REQUESTED"),
+    changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
     mergeable: pr.mergeable === true,
-    approvedByEveryone: states.has("APPROVED") && states.size === 1,
+    approved: states.has("APPROVED"),
     checkStatus: pr.checkStatus,
   };
 }
@@ -143,12 +160,6 @@ export interface IncomingState {
   authorResponded: boolean;
 
   /**
-   * True if a new commit was added to the PR after a review or comment was
-   * previously submitted by the user.
-   */
-  newCommit: boolean;
-
-  /**
    * True if a review has been requested for the current user, and not just included indirectly via a team.
    */
   directlyAdded: boolean;
@@ -162,6 +173,12 @@ export interface IncomingState {
    * Current check status of tests.
    */
   checkStatus?: CheckStatus;
+
+  /**
+   * True if the PR received review comments which need to be addressed either
+   * by responding or adding new commits.
+   */
+  changesRequested: boolean;
 }
 
 /**
@@ -205,9 +222,9 @@ export interface OutgoingState {
   mergeable: boolean;
 
   /**
-   * True if the PR was approved by all reviewers.
+   * True if the PR was approved any reviewer.
    */
-  approvedByEveryone: boolean;
+  approved: boolean;
 
   /**
    * Current check status of tests.
@@ -217,19 +234,11 @@ export interface OutgoingState {
 
 export function isReviewRequired(
   state: PullRequestState,
-  notifyNewCommits: boolean,
-  onlyDirectRequests: boolean,
-  whitelistedTeams: string[]
 ) {
-  const inWhitelistedTeams =
-    state.kind === "incoming" &&
-    state.teams.some((team) => whitelistedTeams.includes(team));
-  const v =
-    state.kind === "incoming" &&
-    (!onlyDirectRequests || state.directlyAdded || inWhitelistedTeams) &&
-    (state.newReviewRequested ||
-      state.authorResponded ||
-      (notifyNewCommits && state.newCommit));
-
-  return v;
+  switch (state.kind) {
+    case "incoming":
+      return state.newReviewRequested;
+    default:
+      return false;
+  }
 }

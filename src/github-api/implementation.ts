@@ -87,6 +87,15 @@ export function buildGitHubApi(token: string): GitHubApi {
         })
       );
     },
+    loadReviewComments(pr) {
+      return octokit.paginate(
+        octokit.pulls.listReviewComments.endpoint.merge({
+          owner: pr.repo.owner,
+          repo: pr.repo.name,
+          pull_number: pr.number,
+        })
+      );
+    },
     loadCommits(pr) {
       return octokit.paginate(
         octokit.pulls.listCommits.endpoint.merge({
@@ -96,8 +105,8 @@ export function buildGitHubApi(token: string): GitHubApi {
         })
       );
     },
-    loadPullRequestStatus(pr) {
-      const query = gql`
+    async loadPullRequestStatus(pr) {
+      const data = await graphQLClient.request(gql`
         query {
           repository(owner: "${pr.repo.owner}", name: "${pr.repo.name}") {
             pullRequest(number: ${pr.number}) {
@@ -114,18 +123,13 @@ export function buildGitHubApi(token: string): GitHubApi {
             }
           }
         }
-      `;
+      `);
 
-      return graphQLClient.request(query).then((response) => {
-        const result = response.repository.pullRequest;
-        const reviewDecision = result.reviewDecision;
-        const checkStatus =
-          result.commits.nodes?.[0]?.commit.statusCheckRollup?.state;
-        return {
-          reviewDecision,
-          checkStatus,
-        };
-      });
+      const pullRequest = data.repository.pullRequest;
+      return {
+        reviewDecision: pullRequest.reviewDecision,
+        checkStatus: pullRequest.commits.nodes?.[0]?.commit.statusCheckRollup?.state,
+      };
     },
   };
 }

@@ -69,15 +69,13 @@ function getTitle(pullRequest: EnrichedPullRequest): string {
     case "incoming":
       if (pullRequest.state.newReviewRequested) {
         return "New pull request";
-      } else if (pullRequest.state.newCommit) {
-        return `Pull request updated`;
       } else if (pullRequest.state.authorResponded) {
         return `${pullRequest.author?.login || "unknown"} commented`;
       }
       break;
     case "outgoing":
-      if (pullRequest.state.approvedByEveryone) {
-        return `Pull request approved by everyone`;
+      if (pullRequest.state.approved) {
+        return `Pull request approved`;
       } else if (pullRequest.state.changesRequested) {
         return `New changes requested`;
       }

@@ -1,5 +1,4 @@
 import { LoadedState } from "../storage/loaded-state";
-import { MuteConfiguration } from "./mute-configuration";
 
 export interface Store {
   /**
@@ -16,11 +15,6 @@ export interface Store {
    * Storage of whether a refresh is happening in the background.
    */
   currentlyRefreshing: ValueStorage<boolean>;
-
-  /**
-   * Storage of the currently muted pull requests.
-   */
-  muteConfiguration: ValueStorage<MuteConfiguration>;
 
   /**
    * Storage of the URLs of pull requests that we have already notified the user about.

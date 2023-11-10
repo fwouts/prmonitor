@@ -1,10 +1,7 @@
 import { PullRequest } from "../storage/loaded-state";
 
 export function getLastUpdateTimestamp(pr: PullRequest) {
-  let prTimestamp = Math.max(
-    new Date(pr.updatedAt).getTime(),
-    getLastCommitTimestamp(pr)
-  );
+  let prTimestamp = new Date(pr.updatedAt).getTime();
   for (const comment of pr.comments) {
     prTimestamp = Math.max(prTimestamp, new Date(comment.createdAt).getTime());
   }
@@ -15,13 +12,6 @@ export function getLastUpdateTimestamp(pr: PullRequest) {
     prTimestamp = Math.max(prTimestamp, new Date(review.submittedAt).getTime());
   }
   return prTimestamp;
-}
-
-export function getLastAuthorUpdateTimestamp(pr: PullRequest): number {
-  return Math.max(
-    getLastAuthorCommentTimestamp(pr),
-    getLastCommitTimestamp(pr)
-  );
 }
 
 export function getLastAuthorCommentTimestamp(pr: PullRequest): number {
@@ -57,16 +47,4 @@ export function getLastReviewOrCommentTimestamp(
     }
   }
   return lastCommentedTime;
-}
-
-export function getLastCommitTimestamp(pr: PullRequest): number {
-  let lastCommitTime = 0;
-  for (const commit of pr.commits || []) {
-    if (!commit.createdAt) {
-      continue;
-    }
-    const createdAt = new Date(commit.createdAt).getTime();
-    lastCommitTime = Math.max(lastCommitTime, createdAt);
-  }
-  return lastCommitTime;
 }

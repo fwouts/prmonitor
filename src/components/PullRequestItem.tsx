@@ -1,54 +1,39 @@
 import styled from "@emotion/styled";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Dropdown } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { isRunningAsPopup } from "../popup-environment";
-import { PullRequest } from "../storage/loaded-state";
-import { MuteType } from "../storage/mute-configuration";
-import { SmallButton } from "./design/Button";
 import { PullRequestStatus } from "./PullRequestStatus";
+import { CommentIcon } from '@primer/octicons-react'
+import moment from "moment";
+import { IncomingState, OutgoingState } from "../filtering/status";
 
 const PullRequestBox = styled.a`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   text-decoration: none;
-  border-bottom: 1px solid #eee;
+  border-top: 1px solid #ddd;
   cursor: pointer;
+  padding: 12px;
+
+  &:first-child {
+    border-top: none;
+    border-radius: 8px 8px 0 0;
+  }
 
   &:last-child {
-    border-bottom: none;
+    border-radius: 0 0 8px 8px;
+  }
+
+  &:first-child:last-child {
+    border-radius: 8px;
   }
 
   &:hover {
-    background: #eef5ff;
+    background: #eef5ff !important;
     text-decoration: none;
   }
-`;
-
-const Info = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
-
-const Title = styled.div`
-  color: #000;
-  padding: 8px;
-`;
-
-const ContextSummary = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.9em;
-  padding: 8px;
-`;
-
-const ChangeSummary = styled.span`
-  margin-left: 8px;
 `;
 
 const LinesAdded = styled.span`
@@ -67,17 +52,7 @@ const Repo = styled.span`
   color: #555;
 `;
 
-const AuthorWidth = "80px";
-const AuthorAvatarSize = "40px";
-
-const AuthorBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: ${AuthorWidth};
-  padding: 8px;
-`;
+const AuthorAvatarSize = "20px";
 
 const AuthorAvatar = styled.img`
   width: ${AuthorAvatarSize};
@@ -86,159 +61,81 @@ const AuthorAvatar = styled.img`
   border-radius: 50%;
 `;
 
-const AuthorLogin = styled.div`
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  font-size: 0.9em;
-  color: #555;
-  max-width: ${AuthorWidth};
-`;
-
-const InlineDropdown = styled(Dropdown)`
-  display: inline-block;
-  margin: 0 8px;
-
-  .dropdown-menu {
-    font-size: 14px;
-  }
-
-  .dropdown-item {
-    padding: 4px 16px 3px 36px;
-  }
-`;
-
-const Icon = styled(FontAwesomeIcon)`
-  position: absolute;
-  margin-left: -24px;
-  margin-top: 2px;
-`;
-
 export interface PullRequestItemProps {
   pullRequest: EnrichedPullRequest;
-  mutingConfiguration: "allow-muting" | "allow-unmuting" | "none";
   onOpen(pullRequestUrl: string): void;
-  onMute(pullRequest: PullRequest, muteType: MuteType): void;
-  onUnmute(pullRequest: PullRequest): void;
 }
 
-export const PullRequestItem = observer((props: PullRequestItemProps) => {
+export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemProps) => {
   const open = (e: React.MouseEvent) => {
-    props.onOpen(props.pullRequest.htmlUrl);
+    onOpen(pullRequest.htmlUrl);
     e.preventDefault();
-  };
-
-  const preventDefault = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const createMuteHandler = (muteType: MuteType) => {
-    return () => {
-      props.onMute(props.pullRequest, muteType);
-    };
-  };
-
-  const unmute = (e: React.MouseEvent) => {
-    props.onUnmute(props.pullRequest);
-    e.preventDefault();
-    e.stopPropagation();
   };
 
   return (
     <PullRequestBox
-      key={props.pullRequest.nodeId}
+      key={pullRequest.nodeId}
       onClick={isRunningAsPopup() ? open : undefined}
-      href={props.pullRequest.htmlUrl}
+      href={pullRequest.htmlUrl}
+      style={{backgroundColor: itemBgColor(pullRequest)}}
     >
-      <Info>
-        <Title>
-          {props.pullRequest.title}
-          {props.mutingConfiguration === "allow-muting" && (
-            <InlineDropdown onClick={preventDefault} align="end">
-              <Dropdown.Toggle
-                as={SmallButton}
-                id={`mute-dropdown-${props.pullRequest.nodeId}`}
-              >
-                <FontAwesomeIcon icon="bell-slash" />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  onClick={createMuteHandler("next-comment-by-author")}
-                >
-                  <Icon icon="reply" />
-                  Mute until next comment by author
-                </Dropdown.Item>
-                <Dropdown.Item onClick={createMuteHandler("next-update")}>
-                  <Icon icon="podcast" />
-                  Mute until any update by author
-                </Dropdown.Item>
-                {props.pullRequest.draft && (
-                  <Dropdown.Item onClick={createMuteHandler("not-draft")}>
-                    <Icon icon="pen" />
-                    Mute until not draft
-                  </Dropdown.Item>
-                )}
-                <Dropdown.Item onClick={createMuteHandler("1-hour")}>
-                  <Icon icon="clock" />
-                  Mute for 1 hour
-                </Dropdown.Item>
-                <Dropdown.Item onClick={createMuteHandler("forever")}>
-                  <Icon icon="ban" />
-                  Mute forever
-                </Dropdown.Item>
-                <Dropdown.Item onClick={createMuteHandler("repo")}>
-                  Ignore PRs in{" "}
-                  <b>{`${props.pullRequest.repoOwner}/${props.pullRequest.repoName}`}</b>
-                </Dropdown.Item>
-                <Dropdown.Item onClick={createMuteHandler("owner")}>
-                  Ignore all PRs in repositories owned by{" "}
-                  <b>{props.pullRequest.repoOwner}</b>
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </InlineDropdown>
-          )}
-          {props.mutingConfiguration === "allow-unmuting" && (
-            <SmallButton title="Unmute" onClick={unmute}>
-              <FontAwesomeIcon icon="bell" />
-            </SmallButton>
-          )}
-        </Title>
-        <PullRequestStatus pullRequest={props.pullRequest} />
-        <ContextSummary>
-          <Repo>
-            {props.pullRequest.repoOwner}/{props.pullRequest.repoName} (#
-            {props.pullRequest.pullRequestNumber})
-          </Repo>
-          {props.pullRequest.changeSummary &&
-            (() => {
-              const adds = props.pullRequest.changeSummary.additions;
-              const dels = props.pullRequest.changeSummary.deletions;
-              const files = props.pullRequest.changeSummary.changedFiles;
-              return (
-                <ChangeSummary
-                  title={`${adds} line${
-                    adds == 1 ? "" : "s"
-                  } added, ${dels} line${
-                    dels == 1 ? "" : "s"
-                  } removed, ${files} file${files == 1 ? "" : "s"} changed`}
-                >
-                  <LinesAdded>+{adds}</LinesAdded>
-                  <LinesDeleted>-{dels}</LinesDeleted>
-                  <ChangedFiles>@{files}</ChangedFiles>
-                </ChangeSummary>
-              );
-            })()}
-        </ContextSummary>
-      </Info>
-      {props.pullRequest.author && (
-        <AuthorBox title={props.pullRequest.author.login}>
-          {props.pullRequest.author && (
-            <AuthorAvatar src={props.pullRequest.author.avatarUrl} />
-          )}
-          <AuthorLogin>{props.pullRequest.author.login}</AuthorLogin>
-        </AuthorBox>
-      )}
+      <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+            <AuthorAvatar src={pullRequest.author?.avatarUrl} />
+            <div>{pullRequest.title}{' (#'}{pullRequest.pullRequestNumber}{')'}</div>
+          </div>
+          <div>{moment(pullRequest.updatedAt).fromNow()}</div>
+        </div>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <div style={{display: 'flex', gap: '8px'}}>
+            <Repo>{pullRequest.repoOwner}/{pullRequest.repoName}</Repo>
+            <div style={{display: 'flex', gap: '8px'}}>
+              <LinesAdded>+{pullRequest.changeSummary.additions}</LinesAdded>
+              <LinesDeleted>-{pullRequest.changeSummary.deletions}</LinesDeleted>
+              <ChangedFiles>@{pullRequest.changeSummary.changedFiles}</ChangedFiles>
+              <div><CommentIcon /> {pullRequest.comments.length}</div>
+            </div>
+          </div>
+          <PullRequestStatus pullRequest={pullRequest} />
+        </div>
+      </div>
     </PullRequestBox>
   );
 });
+
+function isIncomingPr(pr: EnrichedPullRequest): boolean {
+  switch(pr.state.kind) {
+    case "incoming": return true;
+    default: return false;
+  }
+}
+
+function isOutgoingPr(pr: EnrichedPullRequest): boolean {
+  switch(pr.state.kind) {
+    case "outgoing": return true;
+    default: return false;
+  }
+}
+
+function itemBgColor(pr: EnrichedPullRequest): string {
+  if (isIncomingPr(pr) && 
+     !(pr.state as IncomingState).changesRequested &&
+     moreThanOneDayAgo(pr.updatedAt)) {
+    return '#ffeae9';
+  }
+  if (isOutgoingPr(pr) && 
+     (pr.state as OutgoingState).approved) {
+    return '#d9fee5';
+  }
+  if (isOutgoingPr(pr) && 
+     !(pr.state as OutgoingState).changesRequested &&
+     moreThanOneDayAgo(pr.updatedAt)) {
+    return '#ffeae9';
+  }
+  return '#fff';
+}
+
+function moreThanOneDayAgo(timestamp: string) {
+  return moment().diff(moment(timestamp), 'days') >= 1;
+}

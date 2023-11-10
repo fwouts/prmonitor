@@ -7,17 +7,7 @@ import {
   FilteredPullRequests,
   filterPullRequests
 } from "../filtering/filters";
-import { PullRequestReference, RepoReference } from "../github-api/api";
 import { LoadedState, PullRequest } from "../storage/loaded-state";
-import {
-  addMute,
-  MuteConfiguration,
-  MuteType,
-  NOTHING_MUTED,
-  removeOwnerMute,
-  removePullRequestMute,
-  removeRepositoryMute
-} from "../storage/mute-configuration";
 
 export class Core {
   private readonly context: Context;
@@ -26,7 +16,6 @@ export class Core {
   @observable refreshing = false;
   @observable token: string | null = null;
   @observable loadedState: LoadedState | null = null;
-  @observable muteConfiguration = NOTHING_MUTED;
   @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
@@ -52,8 +41,6 @@ export class Core {
       this.notifiedPullRequestUrls = new Set(
         await this.context.store.notifiedPullRequests.load()
       );
-      this.muteConfiguration =
-        await this.context.store.muteConfiguration.load();
       this.loadedState = await this.context.store.lastCheck.load();
     } else {
       this.refreshing = false;
@@ -61,7 +48,6 @@ export class Core {
       this.token = null;
       this.loadedState = null;
       this.notifiedPullRequestUrls = new Set();
-      this.muteConfiguration = NOTHING_MUTED;
     }
     this.overallStatus = "loaded";
     this.updateBadge();
@@ -74,7 +60,6 @@ export class Core {
     await this.saveError(null);
     await this.saveNotifiedPullRequests([]);
     await this.saveLoadedState(null);
-    await this.saveMuteConfiguration(NOTHING_MUTED);
     await this.load();
     this.triggerBackgroundRefresh();
   }
@@ -121,59 +106,6 @@ export class Core {
     await this.context.tabOpener.openPullRequest(pullRequestUrl);
   }
 
-  async mutePullRequest(pullRequest: PullRequestReference, muteType: MuteType) {
-    await this.saveMuteConfiguration(
-      addMute(this.context, this.muteConfiguration, pullRequest, muteType)
-    );
-    this.updateBadge();
-  }
-
-  async unmutePullRequest(pullRequest: PullRequestReference) {
-    await this.saveMuteConfiguration(
-      removePullRequestMute(this.muteConfiguration, pullRequest)
-    );
-    this.updateBadge();
-  }
-
-  async unmuteOwner(owner: string) {
-    await this.saveMuteConfiguration(
-      removeOwnerMute(this.muteConfiguration, owner)
-    );
-    this.updateBadge();
-  }
-
-  async unmuteRepository(repo: RepoReference) {
-    await this.saveMuteConfiguration(
-      removeRepositoryMute(this.muteConfiguration, repo)
-    );
-    this.updateBadge();
-  }
-
-  async toggleNewCommitsNotificationSetting() {
-    await this.saveMuteConfiguration({
-      ...this.muteConfiguration,
-      notifyNewCommits: !this.muteConfiguration.notifyNewCommits,
-    });
-    this.updateBadge();
-  }
-
-  async toggleOnlyDirectRequestsSetting() {
-    const newOnlyDirectRequests = !this.muteConfiguration.onlyDirectRequests;
-    await this.saveMuteConfiguration({
-      ...this.muteConfiguration,
-      onlyDirectRequests: newOnlyDirectRequests,
-    });
-    this.updateBadge();
-  }
-
-  async onChangeWhitelistedTeamsSetting(teams: string[]) {
-    await this.saveMuteConfiguration({
-      ...this.muteConfiguration,
-      whitelistedTeams: teams,
-    });
-    this.updateBadge();
-  }
-
   @computed
   get filteredPullRequests(): FilteredPullRequests | null {
     const lastCheck = this.loadedState;
@@ -181,17 +113,15 @@ export class Core {
       return null;
     }
     return filterPullRequests(
-      this.context,
       lastCheck.userLogin,
       lastCheck.openPullRequests,
-      this.muteConfiguration
     );
   }
 
   @computed
   get unreviewedPullRequests(): EnrichedPullRequest[] | null {
     return this.filteredPullRequests
-      ? this.filteredPullRequests[Filter.INCOMING]
+      ? this.filteredPullRequests[Filter.NEEDS_REVIEW]
       : null;
   }
 
@@ -201,7 +131,7 @@ export class Core {
       ? this.filteredPullRequests[Filter.MINE].filter(
           (pr) =>
             pr.state.kind === "outgoing" &&
-            (pr.state.approvedByEveryone || pr.state.changesRequested)
+            (pr.state.approved || pr.state.changesRequested)
         )
       : null;
   }
@@ -226,11 +156,6 @@ export class Core {
   private async saveLoadedState(lastCheck: LoadedState | null) {
     this.loadedState = lastCheck;
     await this.context.store.lastCheck.save(lastCheck);
-  }
-
-  private async saveMuteConfiguration(muteConfiguration: MuteConfiguration) {
-    this.muteConfiguration = muteConfiguration;
-    await this.context.store.muteConfiguration.save(muteConfiguration);
   }
 
   private updateBadge() {

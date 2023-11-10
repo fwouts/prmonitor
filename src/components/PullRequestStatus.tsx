@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Badge } from "react-bootstrap";
@@ -10,89 +9,79 @@ import {
 } from "../filtering/status";
 import { CheckStatus } from "../github-api/api";
 
-const StateBox = styled.div`
-  padding: 0 8px;
-`;
-
-const SpacedBadge = styled(Badge)`
-  margin-right: 4px;
-`;
-
 const UNREVIEWED = (
-  <SpacedBadge pill bg="danger" key="unreviewed">
+  <Badge pill bg="danger" key="unreviewed">
     Unreviewed
-  </SpacedBadge>
+  </Badge>
 );
 
 const AUTHOR_REPLIED = (
-  <SpacedBadge pill bg="secondary" key="author-replied">
+  <Badge pill bg="secondary" key="author-replied">
     Author replied
-  </SpacedBadge>
-);
-
-const NEW_COMMIT = (
-  <SpacedBadge pill bg="primary" key="new-commit">
-    New commit
-  </SpacedBadge>
+  </Badge>
 );
 
 const DRAFT = (
-  <SpacedBadge pill bg="dark" key="draft">
+  <Badge pill bg="dark" key="draft">
     Draft
-  </SpacedBadge>
+  </Badge>
 );
 
 const MERGEABLE = (
-  <SpacedBadge pill bg="success" key="mergeable">
+  <Badge pill bg="success" key="mergeable">
     Mergeable
-  </SpacedBadge>
+  </Badge>
 );
 
-const APPROVED_BY_EVERONE = (
-  <SpacedBadge pill bg="success" key="approved-by-everyone">
-    Approved by everyone
-  </SpacedBadge>
+const APPROVED = (
+  <Badge pill bg="success" key="approved">
+    Approved
+  </Badge>
 );
 
 const CHECK_STATUS_PASSED = (
-  <SpacedBadge pill bg="success" key="check-status-passed">
+  <Badge pill bg="success" key="check-status-passed">
     Checks Pass
-  </SpacedBadge>
+  </Badge>
 );
 const CHECK_STATUS_FAILED = (
-  <SpacedBadge pill bg="danger" key="check-status-passed">
+  <Badge pill bg="danger" key="check-status-passed">
     Checks Fail
-  </SpacedBadge>
+  </Badge>
 );
 const CHECK_STATUS_PENDING = (
-  <SpacedBadge pill bg="warning" key="check-status-passed">
+  <Badge pill bg="warning" key="check-status-passed">
     Checks Pending
-  </SpacedBadge>
+  </Badge>
 );
 
 const CHANGES_REQUESTED = (
-  <SpacedBadge pill bg="warning" key="changes-requested">
+  <Badge pill bg="danger" key="changes-requested">
     Changes requested
-  </SpacedBadge>
+  </Badge>
 );
 
 const WAITING_FOR_REVIEW = (
-  <SpacedBadge pill bg="info" key="waiting-for-review">
+  <Badge pill bg="info" key="waiting-for-review">
     Waiting for review
-  </SpacedBadge>
+  </Badge>
 );
 
 const NO_REVIEWER_ASSIGNED = (
-  <SpacedBadge pill bg="light" key="no-reviewer-assigned">
+  <Badge pill bg="light" key="no-reviewer-assigned">
     No reviewer assigned
-  </SpacedBadge>
+  </Badge>
 );
 
 export const PullRequestStatus = observer(
   ({ pullRequest }: { pullRequest: EnrichedPullRequest }) => {
     const badges = getBadges(pullRequest.state);
     if (badges.length > 0) {
-      return <StateBox>{badges}</StateBox>;
+      return (
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          {badges}
+        </div>
+      );
     }
     return <></>;
   }
@@ -134,17 +123,15 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
 function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
   badges.push(...getCheckStatusBadge(state.checkStatus));
-
   if (state.newReviewRequested) {
     badges.push(UNREVIEWED);
     return badges;
   }
-
+  if (state.changesRequested) {
+    badges.push(CHANGES_REQUESTED);
+  }
   if (state.authorResponded) {
     badges.push(AUTHOR_REPLIED);
-  }
-  if (state.newCommit) {
-    badges.push(NEW_COMMIT);
   }
   return badges;
 }
@@ -156,8 +143,8 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   if (state.mergeable) {
     badges.push(MERGEABLE);
   }
-  if (state.approvedByEveryone) {
-    badges.push(APPROVED_BY_EVERONE);
+  if (state.approved) {
+    badges.push(APPROVED);
   } else if (state.changesRequested) {
     badges.push(CHANGES_REQUESTED);
   } else {

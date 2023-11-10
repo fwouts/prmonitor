@@ -51,6 +51,15 @@ export interface GitHubApi {
   >;
 
   /**
+   * Returns the full list of comments for a pull request.
+   */
+  loadReviewComments(
+    pr: PullRequestReference
+  ): Promise<
+    GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listReviewComments"]>
+  >;
+
+  /**
    * Returns the full list of commits for a pull request.
    */
   loadCommits(

@@ -11,7 +11,7 @@ export function buildGitHubLoader(): GitHubLoader {
 async function load(token: string): Promise<LoadedState> {
   const githubApi = buildGitHubApi(token);
   const user = await githubApi.loadAuthenticatedUser();
-  const openPullRequests = await refreshOpenPullRequests(githubApi, user.login);
+  const openPullRequests = await refreshOpenPullRequests(githubApi);
   const sorted = [...openPullRequests].sort((a, b) => {
     return getLastUpdateTimestamp(b) - getLastUpdateTimestamp(a);
   });

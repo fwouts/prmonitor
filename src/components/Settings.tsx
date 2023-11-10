@@ -4,7 +4,6 @@ import React, { FormEvent, useRef, useState } from "react";
 import { Core } from "../state/core";
 import { LargeButton } from "./design/Button";
 import { Center } from "./design/Center";
-import { Header } from "./design/Header";
 import { Link } from "./design/Link";
 import { Paragraph } from "./design/Paragraph";
 import { Row } from "./design/Row";
@@ -71,7 +70,6 @@ export const Settings = observer((props: SettingsProps) => {
 
   return (
     <>
-      <Header>Settings</Header>
       {!editing ? (
         props.core.loadedState ? (
           <Row>
@@ -80,7 +78,6 @@ export const Settings = observer((props: SettingsProps) => {
               <UserLogin>
                 {props.core.loadedState.userLogin || "unknown"}
               </UserLogin>
-              .
             </Paragraph>
             <LargeButton onClick={openForm}>Update token</LargeButton>
           </Row>

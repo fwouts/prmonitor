@@ -28,11 +28,6 @@ export interface Store {
    * Storage of the user's provided GitHub token.
    */
   token: ValueStorage<string | null>;
-
-  /**
-   * Storage of the last timestamp we requested the "tabs" permission.
-   */
-  lastRequestForTabsPermission: ValueStorage<number | null>;
 }
 
 export interface ValueStorage<T> {

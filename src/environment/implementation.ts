@@ -8,15 +8,14 @@ import { buildTabOpener } from "../tabs/implementation";
 import { Context } from "./api";
 
 export function buildEnvironment(chromeApi: ChromeApi): Context {
-  const store = buildStore(chromeApi);
   const getCurrentTime = () => Date.now();
   return {
-    store,
+    store: buildStore(chromeApi),
     githubLoader: buildGitHubLoader(),
     notifier: buildNotifier(chromeApi),
     badger: buildBadger(chromeApi),
     messenger: buildMessenger(chromeApi),
-    tabOpener: buildTabOpener(chromeApi, store, getCurrentTime),
+    tabOpener: buildTabOpener(chromeApi),
     getCurrentTime,
     isOnline: () => navigator.onLine,
   };

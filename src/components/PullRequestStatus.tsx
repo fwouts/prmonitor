@@ -89,9 +89,6 @@ export const PullRequestStatus = observer(
 
 function getBadges(state: PullRequestState): JSX.Element[] {
   const badges: JSX.Element[] = [];
-  if (state.draft) {
-    badges.push(DRAFT);
-  }
   switch (state.kind) {
     case "incoming":
       badges.push(...getIncomingStateBadges(state));
@@ -123,6 +120,9 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
 function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
   badges.push(...getCheckStatusBadge(state.checkStatus));
+  if (state.draft) {
+    badges.push(DRAFT);
+  }
   if (state.newReviewRequested) {
     badges.push(UNREVIEWED);
     return badges;
@@ -143,7 +143,9 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   if (state.mergeable) {
     badges.push(MERGEABLE);
   }
-  if (state.approved) {
+  if (state.draft) {
+    badges.push(DRAFT);
+  } else if (state.approved) {
     badges.push(APPROVED);
   } else if (state.changesRequested) {
     badges.push(CHANGES_REQUESTED);

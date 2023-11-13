@@ -8,7 +8,6 @@ import {
 import { nonEmptyItems } from "../../helpers";
 import {
   Comment,
-  Commit,
   PullRequest,
   Review,
   ReviewState,
@@ -27,8 +26,8 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
   const reviewRequestedPullRequests = await githubApi.searchPullRequests(
     `review-requested:@me -author:@me is:open`
   );
-  const commentedPullRequests = await githubApi.searchPullRequests(
-    `commenter:@me -author:@me -review-requested:@me is:open`
+  const needsRevisionPullRequests = await githubApi.searchPullRequests(
+    `is:open -author:@me review:changes_requested involves:@me`
   );
   const myNeedsReviewPullRequests = await githubApi.searchPullRequests(
     `author:@me is:open -review:changes_requested`
@@ -40,7 +39,7 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
     ...reviewRequestedPullRequests.map((pr) =>
       updateCommentsAndReviews(githubApi, pr, true)
     ),
-    ...commentedPullRequests.map((pr) =>
+    ...needsRevisionPullRequests.map((pr) =>
       updateCommentsAndReviews(githubApi, pr)
     ),
     ...myNeedsReviewPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, true)),
@@ -63,7 +62,6 @@ async function updateCommentsAndReviews(
     freshReviews,
     freshComments,
     freshReviewComments,
-    freshCommits,
     pullRequestStatus,
   ] = await Promise.all([
     githubApi.loadPullRequestDetails(pr),
@@ -86,12 +84,6 @@ async function updateCommentsAndReviews(
         createdAt: comment.created_at,
       }))
     ),
-    githubApi.loadCommits(pr).then((commits) =>
-      commits.map((commit) => ({
-        authorLogin: commit.author ? commit.author.login : "",
-        createdAt: commit.commit.author?.date,
-      }))
-    ),
     githubApi.loadPullRequestStatus(pr),
   ]);
 
@@ -101,7 +93,6 @@ async function updateCommentsAndReviews(
     freshReviews,
     freshComments,
     freshReviewComments,
-    freshCommits,
     isReviewRequested,
     pullRequestStatus
   );
@@ -113,7 +104,6 @@ function pullRequestFromResponse(
   reviews: Review[],
   comments: Comment[],
   reviewComments: Comment[],
-  commits: Commit[],
   reviewRequested: boolean,
   status: PullRequestStatus
 ): PullRequest {
@@ -146,7 +136,6 @@ function pullRequestFromResponse(
     ),
     reviews,
     comments: [...comments, ...reviewComments],
-    commits,
     reviewDecision: status.reviewDecision,
     checkStatus: status.checkStatus,
   };

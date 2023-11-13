@@ -79,7 +79,6 @@ export interface PullRequest {
   requestedTeams?: string[];
   reviews: Review[];
   comments: Comment[];
-  commits?: Commit[];
 
   reviewDecision: ReviewDecision;
   checkStatus?: CheckStatus;

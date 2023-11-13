@@ -59,12 +59,14 @@ async function updateCommentsAndReviews(
   };
   const [
     freshPullRequestDetails,
+    freshChangeSummary,
     freshReviews,
     freshComments,
     freshReviewComments,
     pullRequestStatus,
   ] = await Promise.all([
     githubApi.loadPullRequestDetails(pr),
+    githubApi.loadPullRequestChangeSummary(pr),
     githubApi.loadReviews(pr).then((reviews) =>
       reviews.map((review) => ({
         authorLogin: review.user ? review.user.login : "",
@@ -90,6 +92,7 @@ async function updateCommentsAndReviews(
   return pullRequestFromResponse(
     rawPullRequest,
     freshPullRequestDetails,
+    freshChangeSummary,
     freshReviews,
     freshComments,
     freshReviewComments,
@@ -101,6 +104,7 @@ async function updateCommentsAndReviews(
 function pullRequestFromResponse(
   response: RestEndpointMethodTypes["search"]["issuesAndPullRequests"]["response"]["data"]["items"][number],
   details: RestEndpointMethodTypes["pulls"]["get"]["response"]["data"],
+  changeSummary: any,
   reviews: Review[],
   comments: Comment[],
   reviewComments: Comment[],
@@ -120,9 +124,9 @@ function pullRequestFromResponse(
       avatarUrl: response.user.avatar_url,
     },
     changeSummary: {
-      changedFiles: details.changed_files,
-      additions: details.additions,
-      deletions: details.deletions,
+      changedFiles: changeSummary.length,
+      additions: changeSummary.reduce((total: number, curr: any) => total + curr.additions, 0),
+      deletions: changeSummary.reduce((total: number, curr: any) => total + curr.deletions, 0),
     },
     title: response.title,
     draft: response.draft,

@@ -1387,6 +1387,15 @@
     is-plain-object "^5.0.0"
     universal-user-agent "^6.0.0"
 
+"@octokit/endpoint@^9.0.0":
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/@octokit/endpoint/-/endpoint-9.0.2.tgz#f9098bf15b893ac30c144c5e77da0322ad41b008"
+  integrity sha512-qhKW8YLIi+Kmc92FQUFGr++DYtkx/1fBv+Thua6baqnjnOsgBYJDCvWZR1YcINuHGOEQt416WOfE+A/oG60NBQ==
+  dependencies:
+    "@octokit/types" "^12.0.0"
+    is-plain-object "^5.0.0"
+    universal-user-agent "^6.0.0"
+
 "@octokit/graphql@^5.0.0":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@octokit/graphql/-/graphql-5.0.1.tgz#a06982514ad131fb6fbb9da968653b2233fade9b"
@@ -1405,6 +1414,11 @@
   version "14.0.0"
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-14.0.0.tgz#949c5019028c93f189abbc2fb42f333290f7134a"
   integrity sha512-HNWisMYlR8VCnNurDU6os2ikx0s0VyEjDYHNS/h4cgb8DeOxQ0n72HyinUtdDVxJhFy3FWLGl0DJhfEWk3P5Iw==
+
+"@octokit/openapi-types@^19.0.2":
+  version "19.0.2"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-19.0.2.tgz#d72778fe2f6151314b6f0201fbc771bb741276fc"
+  integrity sha512-8li32fUDUeml/ACRp/njCWTsk5t17cfTM1jp9n08pBrqs5cDFJubtjsSnuz56r5Tad6jdEPJld7LxNp9dNcyjQ==
 
 "@octokit/plugin-paginate-rest@^4.0.0":
   version "4.1.0"
@@ -1443,6 +1457,15 @@
     deprecation "^2.0.0"
     once "^1.4.0"
 
+"@octokit/request-error@^5.0.0":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@octokit/request-error/-/request-error-5.0.1.tgz#277e3ce3b540b41525e07ba24c5ef5e868a72db9"
+  integrity sha512-X7pnyTMV7MgtGmiXBwmO6M5kIPrntOXdyKZLigNfQWSEQzVxR4a4vo49vJjTWX70mPndj8KhfT4Dx+2Ng3vnBQ==
+  dependencies:
+    "@octokit/types" "^12.0.0"
+    deprecation "^2.0.0"
+    once "^1.4.0"
+
 "@octokit/request@^6.0.0":
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/@octokit/request/-/request-6.2.1.tgz#3ceeb22dab09a29595d96594b6720fc14495cf4e"
@@ -1455,6 +1478,17 @@
     node-fetch "^2.6.7"
     universal-user-agent "^6.0.0"
 
+"@octokit/request@^8.1.5":
+  version "8.1.5"
+  resolved "https://registry.yarnpkg.com/@octokit/request/-/request-8.1.5.tgz#902ae9565117a1dc410d10b5dbc44c4d27a89b71"
+  integrity sha512-zVKbNbX1xUluD9ZR4/tPs1yuYrK9xeh5fGZUXA6u04XGsTvomg0YO8/ZUC0FqAd49hAOEMFPAVUTh+2lBhOhLA==
+  dependencies:
+    "@octokit/endpoint" "^9.0.0"
+    "@octokit/request-error" "^5.0.0"
+    "@octokit/types" "^12.0.0"
+    is-plain-object "^5.0.0"
+    universal-user-agent "^6.0.0"
+
 "@octokit/rest@^19.0.4":
   version "19.0.4"
   resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-19.0.4.tgz#fd8bed1cefffa486e9ae46a9dc608ce81bcfcbdd"
@@ -1464,6 +1498,13 @@
     "@octokit/plugin-paginate-rest" "^4.0.0"
     "@octokit/plugin-request-log" "^1.0.4"
     "@octokit/plugin-rest-endpoint-methods" "^6.0.0"
+
+"@octokit/types@^12.0.0":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-12.3.0.tgz#e3f8bc53f65ef551e19cc1a0fea15adadec17d2d"
+  integrity sha512-nJ8X2HRr234q3w/FcovDlA+ttUU4m1eJAourvfUUtwAWeqL8AsyRqfnLvVnYn3NFbUnsmzQCzLNdFerPwdmcDQ==
+  dependencies:
+    "@octokit/openapi-types" "^19.0.2"
 
 "@octokit/types@^7.0.0", "@octokit/types@^7.1.1":
   version "7.1.1"

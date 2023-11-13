@@ -32,7 +32,7 @@ module.exports = {
     ],
   },
   entry: {
-    background: "./src/background.ts",
+    background: "./background.ts",
     popup: "./src/popup.tsx",
   },
   resolve: {

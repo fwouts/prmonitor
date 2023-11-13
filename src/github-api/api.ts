@@ -25,6 +25,8 @@ export interface GitHubApi {
     >
   >;
 
+  loadPullRequestChangeSummary(pr: PullRequestReference): Promise<any>;
+
   /**
    * Returns the details of a pull request.
    */
@@ -57,15 +59,6 @@ export interface GitHubApi {
     pr: PullRequestReference
   ): Promise<
     GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listReviewComments"]>
-  >;
-
-  /**
-   * Returns the full list of commits for a pull request.
-   */
-  loadCommits(
-    pr: PullRequestReference
-  ): Promise<
-    GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listCommits"]>
   >;
 
   /**

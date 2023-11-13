@@ -1,113 +1,86 @@
-import { throttling } from "@octokit/plugin-throttling";
-import { Octokit } from "@octokit/rest";
 import { GitHubApi } from "./api";
-import { GraphQLClient, gql } from "graphql-request";
-
-const ThrottledOctokit = Octokit.plugin(throttling);
-const graphQLEndpoint = "https://api.github.com/graphql";
-
-interface ThrottlingOptions {
-  method: string;
-  url: string;
-}
+import { request } from "@octokit/request";
 
 export function buildGitHubApi(token: string): GitHubApi {
-  const octokit: Octokit = new ThrottledOctokit({
-    auth: `token ${token}`,
-    // https://developer.github.com/v3/pulls/#list-pull-requests
-    // Enable Draft Pull Request API.
-    previews: ["shadow-cat"],
-    throttle: {
-      onRateLimit: (retryAfter: number, options: ThrottlingOptions, _: Octokit, retryCount: number) => {
-        console.warn(
-          `Request quota exhausted for request ${options.method} ${options.url}`
-        );
-        // Only retry twice.
-        if (retryCount < 2) {
-          console.log(`Retrying after ${retryAfter} seconds!`);
-          return true;
-        }
-        return false;
-      },
-      onSecondaryRateLimit: (retryAfter: number, options: ThrottlingOptions, _: Octokit, retryCount: number) => {
-        console.warn(
-          `Secondary Rate Limit detected for request ${options.method} ${options.url}`
-        );
-        // Only retry twice.
-        if (retryCount < 2) {
-          console.log(`Retrying after ${retryAfter} seconds!`);
-          return true;
-        }
-        return false;
-      },
-    },
-  });
-
-  const graphQLClient = new GraphQLClient(graphQLEndpoint, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
   return {
-    async loadAuthenticatedUser() {
-      const response = await octokit.users.getAuthenticated({});
-      return response.data;
-    },
-    searchPullRequests(query) {
-      return octokit.paginate(
-        octokit.search.issuesAndPullRequests.endpoint.merge({
-          q: `is:pr ${query}`,
-        })
-      );
-    },
-    async loadPullRequestDetails(pr) {
-      const response = await octokit.pulls.get({
-        owner: pr.repo.owner,
-        repo: pr.repo.name,
-        pull_number: pr.number,
+    async loadAuthenticatedUser(): Promise<any> {
+      const response = await request(`GET /user`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        org: "octokit",
+        type: "private",
       });
       return response.data;
     },
-    loadReviews(pr) {
-      return octokit.paginate(
-        octokit.pulls.listReviews.endpoint.merge({
-          owner: pr.repo.owner,
-          repo: pr.repo.name,
-          pull_number: pr.number,
-        })
-      );
+    async searchPullRequests(query): Promise<any> {
+      const response = await request(`GET /search/issues`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        q: `is:pr ${query}`,
+        org: "octokit",
+        type: "private",
+      });
+      return response.data.items;
     },
-    loadComments(pr) {
-      return octokit.paginate(
-        octokit.issues.listComments.endpoint.merge({
-          owner: pr.repo.owner,
-          repo: pr.repo.name,
-          issue_number: pr.number,
-        })
-      );
+    async loadPullRequestDetails(pr): Promise<any> {
+      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        org: "octokit",
+        type: "private",
+      });
+      console.log('deets', response);
+      return response.data;
     },
-    loadReviewComments(pr) {
-      return octokit.paginate(
-        octokit.pulls.listReviewComments.endpoint.merge({
-          owner: pr.repo.owner,
-          repo: pr.repo.name,
-          pull_number: pr.number,
-        })
-      );
+    async loadPullRequestChangeSummary(pr): Promise<any> {
+      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/files`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        org: "octokit",
+        type: "private",
+      });
+      return response.data;
     },
-    loadCommits(pr) {
-      return octokit.paginate(
-        octokit.pulls.listCommits.endpoint.merge({
-          owner: pr.repo.owner,
-          repo: pr.repo.name,
-          pull_number: pr.number,
-        })
-      );
+    async loadReviews(pr): Promise<any> {
+      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/reviews`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        org: "octokit",
+        type: "private",
+      });
+      return response.data;
+    },
+    async loadComments(pr): Promise<any> {
+      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/issues/${pr.number}/comments`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        org: "octokit",
+        type: "private",
+      });
+      return response.data ?? [];
+    },
+    async loadReviewComments(pr): Promise<any> {
+      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/comments`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        org: "octokit",
+        type: "private",
+      });
+      return response.data ?? [];
     },
     async loadPullRequestStatus(pr) {
-      const data = await graphQLClient.request(gql`
-        query {
+      const response = await request("POST /graphql", {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        query: `query {
           repository(owner: "${pr.repo.owner}", name: "${pr.repo.name}") {
             pullRequest(number: ${pr.number}) {
               reviewDecision
@@ -122,10 +95,13 @@ export function buildGitHubApi(token: string): GitHubApi {
               }
             }
           }
-        }
-      `);
+        }`,
+        variables: {
+          login: "octokit",
+        },
+      });
 
-      const pullRequest = data.repository.pullRequest;
+      const pullRequest = response.data.data.repository.pullRequest;
       return {
         reviewDecision: pullRequest.reviewDecision,
         checkStatus: pullRequest.commits.nodes?.[0]?.commit.statusCheckRollup?.state,

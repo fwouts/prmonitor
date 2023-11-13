@@ -24,7 +24,7 @@ export const Status = observer((props: StatusProps) => {
   return (
     <StatusContainer style={{ backgroundColor: '#fff', display: 'flex', flexDirection: 'column', width: '100%' }}>
       {core.lastError ? (
-        <div style={{ backgroundColor: 'red', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div>Error: {core.lastError}</div>
           <LastUpdated timestamp={loadedState?.startRefreshTimestamp} />
           <RefreshButton onClick={() => {core.triggerBackgroundRefresh()}} /> 

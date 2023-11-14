@@ -32,7 +32,6 @@ export function buildGitHubApi(token: string): GitHubApi {
         org: "octokit",
         type: "private",
       });
-      console.log('deets', response);
       return response.data;
     },
     async loadPullRequestChangeSummary(pr): Promise<any> {

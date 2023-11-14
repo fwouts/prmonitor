@@ -66,7 +66,7 @@ function incomingPullRequestState(
   return {
     kind: "incoming",
     draft: pr.draft === true,
-    newReviewRequested: !hasReviewed,
+    newReviewRequested: !hasReviewed || states.has("PENDING"),
     authorResponded: hasReviewed && hasNewCommentByAuthor,
     directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
     teams: pr.requestedTeams || [],
@@ -230,15 +230,4 @@ export interface OutgoingState {
    * Current check status of tests.
    */
   checkStatus?: CheckStatus;
-}
-
-export function isReviewRequired(
-  state: PullRequestState,
-) {
-  switch (state.kind) {
-    case "incoming":
-      return state.newReviewRequested;
-    default:
-      return false;
-  }
 }

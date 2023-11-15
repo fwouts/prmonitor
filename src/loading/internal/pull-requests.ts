@@ -29,11 +29,8 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
   const needsRevisionPullRequests = await githubApi.searchPullRequests(
     `-author:@me is:open review:changes_requested review-requested:@me`
   );
-  const myNeedsReviewPullRequests = await githubApi.searchPullRequests(
-    `author:@me is:open -review:changes_requested`
-  );
-  const myNeedsRevisionPullRequests = await githubApi.searchPullRequests(
-    `author:@me is:open review:changes_requested`
+  const myPullRequests = await githubApi.searchPullRequests(
+    `author:@me is:open`
   );
   return Promise.all([
     ...reviewRequestedPullRequests.map((pr) =>
@@ -42,8 +39,7 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
     ...needsRevisionPullRequests.map((pr) =>
       updateCommentsAndReviews(githubApi, pr)
     ),
-    ...myNeedsReviewPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, true)),
-    ...myNeedsRevisionPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, false)),
+    ...myPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, true)),
   ]);
 }
 

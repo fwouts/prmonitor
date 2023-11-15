@@ -33,6 +33,12 @@ const MERGEABLE = (
   </Badge>
 );
 
+const NOT_MERGEABLE = (
+  <Badge pill bg="danger" key="not_mergeable">
+    Mergeable
+  </Badge>
+);
+
 const APPROVED = (
   <Badge pill bg="success" key="approved">
     Approved
@@ -41,17 +47,17 @@ const APPROVED = (
 
 const CHECK_STATUS_PASSED = (
   <Badge pill bg="success" key="check-status-passed">
-    Checks Pass
+    Tests
   </Badge>
 );
 const CHECK_STATUS_FAILED = (
-  <Badge pill bg="danger" key="check-status-passed">
-    Checks Fail
+  <Badge pill bg="danger" key="check-status-failed">
+    Tests
   </Badge>
 );
 const CHECK_STATUS_PENDING = (
-  <Badge pill bg="warning" key="check-status-passed">
-    Checks Pending
+  <Badge pill bg="warning" key="check-status-pending">
+    Tests
   </Badge>
 );
 
@@ -61,9 +67,9 @@ const CHANGES_REQUESTED = (
   </Badge>
 );
 
-const WAITING_FOR_REVIEW = (
+const NEEDS_REVIEW = (
   <Badge pill bg="info" key="waiting-for-review">
-    Waiting for review
+    Needs review
   </Badge>
 );
 
@@ -139,10 +145,8 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
 function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
   badges.push(...getCheckStatusBadge(state.checkStatus));
+  badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);
 
-  if (state.mergeable) {
-    badges.push(MERGEABLE);
-  }
   if (state.draft) {
     badges.push(DRAFT);
   } else if (state.approved) {
@@ -150,7 +154,7 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   } else if (state.changesRequested) {
     badges.push(CHANGES_REQUESTED);
   } else {
-    badges.push(WAITING_FOR_REVIEW);
+    badges.push(NEEDS_REVIEW);
     if (state.noReviewers) {
       badges.push(NO_REVIEWER_ASSIGNED);
     }

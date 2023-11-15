@@ -24,7 +24,7 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
   // Note: each query should specifically exclude the previous ones so we don't end up having
   // to deduplicate PRs across lists.
   const reviewRequestedPullRequests = await githubApi.searchPullRequests(
-    `-author:@me is:open -review:approved review-requested:@me`
+    `-author:@me is:open -review:approved -review:changes_requested review-requested:@me`
   );
   const needsRevisionPullRequests = await githubApi.searchPullRequests(
     `-author:@me is:open review:changes_requested review-requested:@me`

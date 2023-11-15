@@ -125,27 +125,26 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
 
 function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
-  badges.push(...getCheckStatusBadge(state.checkStatus));
+
   if (state.draft) {
     badges.push(DRAFT);
-  }
-  if (state.newReviewRequested) {
+  } else if (state.newReviewRequested) {
     badges.push(UNREVIEWED);
-    return badges;
-  }
-  if (state.changesRequested) {
+  } else if (state.changesRequested) {
     badges.push(CHANGES_REQUESTED);
   }
+
   if (state.authorResponded) {
     badges.push(AUTHOR_REPLIED);
   }
+
+  badges.push(...getCheckStatusBadge(state.checkStatus));
+
   return badges;
 }
 
 function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
-  badges.push(...getCheckStatusBadge(state.checkStatus));
-  badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);
 
   if (state.draft) {
     badges.push(DRAFT);
@@ -159,6 +158,9 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
       badges.push(NO_REVIEWER_ASSIGNED);
     }
   }
+
+  badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);
+  badges.push(...getCheckStatusBadge(state.checkStatus));
 
   return badges;
 }

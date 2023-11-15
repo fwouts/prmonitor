@@ -7,7 +7,7 @@ import {
   FilteredPullRequests,
   filterPullRequests
 } from "../filtering/filters";
-import { LoadedState, PullRequest } from "../storage/loaded-state";
+import { LoadedState } from "../storage/loaded-state";
 
 export class Core {
   private readonly context: Context;
@@ -16,7 +16,6 @@ export class Core {
   @observable refreshing = false;
   @observable token: string | null = null;
   @observable loadedState: LoadedState | null = null;
-  @observable notifiedPullRequestUrls = new Set<string>();
   @observable lastError: string | null = null;
 
   constructor(context: Context) {
@@ -28,9 +27,6 @@ export class Core {
         this.load();
       }
     });
-    this.context.notifier.registerClickListener((url) =>
-      this.openPullRequest(url).catch(console.error)
-    );
   }
 
   async load() {
@@ -38,16 +34,12 @@ export class Core {
     if (this.token !== null) {
       this.refreshing = await this.context.store.currentlyRefreshing.load();
       this.lastError = await this.context.store.lastError.load();
-      this.notifiedPullRequestUrls = new Set(
-        await this.context.store.notifiedPullRequests.load()
-      );
       this.loadedState = await this.context.store.lastCheck.load();
     } else {
       this.refreshing = false;
       this.lastError = null;
       this.token = null;
       this.loadedState = null;
-      this.notifiedPullRequestUrls = new Set();
     }
     this.overallStatus = "loaded";
     this.updateBadge();
@@ -58,7 +50,6 @@ export class Core {
     await this.context.store.token.save(token);
     await this.saveRefreshing(false);
     await this.saveError(null);
-    await this.saveNotifiedPullRequests([]);
     await this.saveLoadedState(null);
     await this.load();
     this.triggerBackgroundRefresh();
@@ -82,15 +73,6 @@ export class Core {
         startRefreshTimestamp,
         ...(await this.context.githubLoader(this.token, this.loadedState)),
       });
-      const notifyAboutPullRequests = [
-        ...(this.unreviewedPullRequests || []),
-        ...(this.actionRequiredOwnPullRequests || []),
-      ];
-      await this.context.notifier.notify(
-        notifyAboutPullRequests,
-        this.notifiedPullRequestUrls
-      );
-      await this.saveNotifiedPullRequests(notifyAboutPullRequests);
       this.saveError(null);
     } catch (e: any) {
       this.saveError(e.message);
@@ -134,13 +116,6 @@ export class Core {
             (pr.state.approved || pr.state.changesRequested)
         )
       : null;
-  }
-
-  private async saveNotifiedPullRequests(pullRequests: PullRequest[]) {
-    this.notifiedPullRequestUrls = new Set(pullRequests.map((p) => p.htmlUrl));
-    await this.context.store.notifiedPullRequests.save(
-      Array.from(this.notifiedPullRequestUrls)
-    );
   }
 
   private async saveError(error: string | null) {

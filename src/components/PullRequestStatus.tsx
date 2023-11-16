@@ -138,6 +138,7 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
     badges.push(AUTHOR_REPLIED);
   }
 
+  badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);
   badges.push(...getCheckStatusBadge(state.checkStatus));
 
   return badges;

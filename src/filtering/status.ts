@@ -72,6 +72,7 @@ function incomingPullRequestState(
     teams: pr.requestedTeams || [],
     checkStatus: pr.checkStatus,
     changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
+    mergeable: pr.mergeable === true,
   };
 }
 
@@ -179,6 +180,11 @@ export interface IncomingState {
    * by responding or adding new commits.
    */
   changesRequested: boolean;
+
+  /**
+   * True if GitHub indicates that the PR can be merged.
+   */
+  mergeable: boolean;
 }
 
 /**

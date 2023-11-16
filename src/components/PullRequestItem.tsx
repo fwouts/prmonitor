@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
-import { isRunningAsPopup } from "../popup-environment";
 import { PullRequestStatus } from "./PullRequestStatus";
 import { CommentIcon } from '@primer/octicons-react'
 import moment from "moment";
@@ -75,7 +74,7 @@ export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemP
   return (
     <PullRequestBox
       key={pullRequest.nodeId}
-      onClick={isRunningAsPopup() ? open : undefined}
+      onClick={open}
       href={pullRequest.htmlUrl}
       style={{backgroundColor: itemBgColor(pullRequest)}}
     >

@@ -86,9 +86,9 @@ export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemP
           <div>{moment(pullRequest.updatedAt).fromNow()}</div>
         </div>
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          <div style={{display: 'flex', gap: '8px'}}>
+          <div style={{display: 'flex', gap: '8px', flexGrow: 1 }}>
             <Repo>{pullRequest.repoOwner}/{pullRequest.repoName}</Repo>
-            <div style={{display: 'flex', gap: '8px'}}>
+            <div style={{display: 'flex', gap: '8px' }}>
               <LinesAdded>+{pullRequest.changeSummary.additions}</LinesAdded>
               <LinesDeleted>-{pullRequest.changeSummary.deletions}</LinesDeleted>
               <ChangedFiles>@{pullRequest.changeSummary.changedFiles}</ChangedFiles>

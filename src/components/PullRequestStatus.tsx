@@ -74,7 +74,14 @@ export const PullRequestStatus = observer(
     const badges = getBadges(pullRequest.state);
     if (badges.length > 0) {
       return (
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <div style={{
+          alignItems: 'center',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '4px',
+          justifyContent: 'flex-end',
+          maxWidth: '40%',
+        }}>
           {badges}
         </div>
       );

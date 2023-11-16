@@ -2,11 +2,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Badge } from "react-bootstrap";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
-import {
-  IncomingState,
-  OutgoingState,
-  PullRequestState,
-} from "../filtering/status";
+import { PullRequestState } from "../filtering/status";
 import { CheckStatus } from "../github-api/api";
 
 const UNREVIEWED = (
@@ -73,12 +69,6 @@ const NEEDS_REVIEW = (
   </Badge>
 );
 
-const NO_REVIEWER_ASSIGNED = (
-  <Badge pill bg="light" key="no-reviewer-assigned">
-    No reviewer assigned
-  </Badge>
-);
-
 export const PullRequestStatus = observer(
   ({ pullRequest }: { pullRequest: EnrichedPullRequest }) => {
     const badges = getBadges(pullRequest.state);
@@ -94,18 +84,13 @@ export const PullRequestStatus = observer(
 );
 
 function getBadges(state: PullRequestState): JSX.Element[] {
-  const badges: JSX.Element[] = [];
   switch (state.kind) {
     case "incoming":
-      badges.push(...getIncomingStateBadges(state));
-      break;
+      return getIncomingStateBadges(state);
     case "outgoing":
-      badges.push(...getOutgoingStateBadges(state));
-      break;
-    default:
-    // Do nothing.
+      return getOutgoingStateBadges(state);
   }
-  return badges;
+  return [];
 }
 
 function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
@@ -123,7 +108,7 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
   }
 }
 
-function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
+function getIncomingStateBadges(state: PullRequestState): JSX.Element[] {
   const badges: JSX.Element[] = [];
 
   if (state.draft) {
@@ -144,7 +129,7 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   return badges;
 }
 
-function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
+function getOutgoingStateBadges(state: PullRequestState): JSX.Element[] {
   const badges: JSX.Element[] = [];
 
   if (state.draft) {
@@ -155,9 +140,6 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
     badges.push(CHANGES_REQUESTED);
   } else {
     badges.push(NEEDS_REVIEW);
-    if (state.noReviewers) {
-      badges.push(NO_REVIEWER_ASSIGNED);
-    }
   }
 
   badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);

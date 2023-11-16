@@ -5,7 +5,6 @@ import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequestStatus } from "./PullRequestStatus";
 import { CommentIcon } from '@primer/octicons-react'
 import moment from "moment";
-import { IncomingState, OutgoingState } from "../filtering/status";
 
 const PullRequestBox = styled.a`
   display: flex;
@@ -103,33 +102,10 @@ export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemP
   );
 });
 
-function isIncomingPr(pr: EnrichedPullRequest): boolean {
-  switch(pr.state.kind) {
-    case "incoming": return true;
-    default: return false;
-  }
-}
-
-function isOutgoingPr(pr: EnrichedPullRequest): boolean {
-  switch(pr.state.kind) {
-    case "outgoing": return true;
-    default: return false;
-  }
-}
-
 function itemBgColor(pr: EnrichedPullRequest): string {
-  if (isIncomingPr(pr) && 
-     !(pr.state as IncomingState).changesRequested &&
-     moreThanOneDayAgo(pr.updatedAt)) {
-    return '#ffeae9';
-  }
-  if (isOutgoingPr(pr) && 
-     (pr.state as OutgoingState).approved) {
+  if (pr.state.approved) {
     return '#d9fee5';
-  }
-  if (isOutgoingPr(pr) && 
-     !(pr.state as OutgoingState).changesRequested &&
-     moreThanOneDayAgo(pr.updatedAt)) {
+  } if (!pr.state.changesRequested && moreThanOneDayAgo(pr.updatedAt)) {
     return '#ffeae9';
   }
   return '#fff';

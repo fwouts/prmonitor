@@ -1,6 +1,5 @@
 import { CheckStatus } from "../github-api/api";
 import { PullRequest, ReviewState } from "../storage/loaded-state";
-import { userPreviouslyReviewed } from "./reviewed";
 import {
   getLastAuthorCommentTimestamp,
   getLastReviewOrCommentTimestamp,
@@ -15,12 +14,6 @@ export function pullRequestState(
 ): PullRequestState {
   if (pr.author?.login === currentUserLogin) {
     return outgoingPullRequestState(pr, currentUserLogin);
-  }
-  if (!pr.reviewRequested && !userPreviouslyReviewed(pr, currentUserLogin)) {
-    return {
-      kind: "not-involved",
-      draft: pr.draft === true,
-    };
   }
   return incomingPullRequestState(pr, currentUserLogin);
 }
@@ -68,11 +61,10 @@ function incomingPullRequestState(
     draft: pr.draft === true,
     newReviewRequested: !hasReviewed || states.has("PENDING"),
     authorResponded: hasReviewed && hasNewCommentByAuthor,
-    directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
-    teams: pr.requestedTeams || [],
     checkStatus: pr.checkStatus,
     changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
     mergeable: pr.mergeable === true,
+    approved: false,
   };
 }
 
@@ -126,114 +118,23 @@ function outgoingPullRequestState(
   return {
     kind: "outgoing",
     draft: pr.draft === true,
-    noReviewers: stateByUser.size === 0,
     changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
     mergeable: pr.mergeable === true,
     approved: states.has("APPROVED"),
     checkStatus: pr.checkStatus,
+    newReviewRequested: states.has("PENDING"),
+    authorResponded: false,
   };
 }
 
-export type PullRequestState = IncomingState | NotInvolvedState | OutgoingState;
-
-/**
- * The current user is involved in the PR, either because they are a reviewer or
- * because they've added comments.
- */
-export interface IncomingState {
-  kind: "incoming";
-
-  /**
-   * True if the PR is a draft.
-   */
-  draft: boolean;
-
-  /**
-   * True if a review has been requested from the user, but they haven't
-   * submitted any review or comments on the PR yet.
-   */
-  newReviewRequested: boolean;
-
-  /**
-   * True if the author posted a comment after a review or comment was
-   * previously submitted by the user.
-   */
-  authorResponded: boolean;
-
-  /**
-   * True if a review has been requested for the current user, and not just included indirectly via a team.
-   */
-  directlyAdded: boolean;
-
-  /**
-   * List of team names requested.
-   */
-  teams: string[];
-
-  /**
-   * Current check status of tests.
-   */
-  checkStatus?: CheckStatus;
-
-  /**
-   * True if the PR received review comments which need to be addressed either
-   * by responding or adding new commits.
-   */
-  changesRequested: boolean;
-
-  /**
-   * True if GitHub indicates that the PR can be merged.
-   */
-  mergeable: boolean;
-}
-
-/**
- * The current user is not involved in the PR. That is, they are not a
- * reviewer and haven't posted any comments.
- */
-export interface NotInvolvedState {
-  kind: "not-involved";
-
-  /**
-   * True if the PR is a draft.
-   */
-  draft: boolean;
-}
-
-/**
- * The PR that authored by the current user.
- */
-export interface OutgoingState {
-  kind: "outgoing";
-
-  /**
-   * True if the PR is a draft.
-   */
-  draft: boolean;
-
-  /**
-   * True if the PR has no reviewers yet.
-   */
-  noReviewers: boolean;
-
-  /**
-   * True if the PR received review comments which need to be addressed either
-   * by responding or adding new commits.
-   */
-  changesRequested: boolean;
-
-  /**
-   * True if GitHub indicates that the PR can be merged.
-   */
-  mergeable: boolean;
-
-  /**
-   * True if the PR was approved any reviewer.
-   */
+export type PullRequestState = {
   approved: boolean;
-
-  /**
-   * Current check status of tests.
-   */
+  authorResponded: boolean;
+  changesRequested: boolean;
+  draft: boolean;
+  kind: "incoming" | "outgoing";
+  mergeable: boolean;
+  newReviewRequested: boolean;
+  
   checkStatus?: CheckStatus;
 }

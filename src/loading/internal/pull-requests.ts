@@ -27,7 +27,7 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
     `-author:@me is:open -review:approved -review:changes_requested review-requested:@me`
   );
   const needsRevisionPullRequests = await githubApi.searchPullRequests(
-    `-author:@me is:open review:changes_requested review-requested:@me`
+    `-author:@me is:open review:changes_requested involves:@me`
   );
   const myPullRequests = await githubApi.searchPullRequests(
     `author:@me is:open`

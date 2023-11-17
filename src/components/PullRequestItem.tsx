@@ -103,9 +103,13 @@ export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemP
 });
 
 function itemBgColor(pr: EnrichedPullRequest): string {
+  if (pr.draft) {
+    return '#fff';
+  }
   if (pr.state.approved) {
     return '#d9fee5';
-  } if (!pr.state.changesRequested && moreThanOneDayAgo(pr.updatedAt)) {
+  } 
+  if (!pr.state.changesRequested && moreThanOneDayAgo(pr.updatedAt)) {
     return '#ffeae9';
   }
   return '#fff';

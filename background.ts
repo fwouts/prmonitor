@@ -19,12 +19,10 @@ refreshOnDemand(env.messenger);
 async function triggerRefresh() {
   const result = await chromeApi.storage.session.get(["refreshing"]);
   const refreshing = result?.refreshing ?? false;
-  console.log('devon', 'triggerRefresh', result, refreshing);
   if (refreshing) {
     return;
   }
   try {
-    console.log('devon', 'triggerRefresh', 'load');
     chromeApi.storage.session.set({ refreshing: true });
     await core.load();
     if (!core.token) {

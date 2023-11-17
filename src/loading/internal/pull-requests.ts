@@ -21,23 +21,25 @@ import {
  * hundred repositories or many pull requests opened.
  */
 export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<PullRequest[]> {
-  // Note: each query should specifically exclude the previous ones so we don't end up having
-  // to deduplicate PRs across lists.
+  // As long as a review is requested for you (even if changes have been requested), then it's reviewable
   const reviewRequestedPullRequests = await githubApi.searchPullRequests(
-    `-author:@me is:open -review:approved -review:changes_requested review-requested:@me`
+    `-author:@me -is:draft is:open -review:approved review-requested:@me`
   );
   const needsRevisionPullRequests = await githubApi.searchPullRequests(
-    `-author:@me is:open review:changes_requested involves:@me`
+    `-author:@me -is:draft is:open review:changes_requested involves:@me`
   );
   const myPullRequests = await githubApi.searchPullRequests(
     `author:@me is:open`
   );
+
   return Promise.all([
     ...reviewRequestedPullRequests.map((pr) =>
       updateCommentsAndReviews(githubApi, pr, true)
     ),
-    ...needsRevisionPullRequests.map((pr) =>
-      updateCommentsAndReviews(githubApi, pr)
+    // Remove PRs that needs revision but have a review requested of you
+    ...needsRevisionPullRequests
+      .filter(nrpr => !reviewRequestedPullRequests.find(rrpr => nrpr.number === rrpr.number))
+      .map((pr) => updateCommentsAndReviews(githubApi, pr)
     ),
     ...myPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, true)),
   ]);

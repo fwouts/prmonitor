@@ -26,7 +26,7 @@ export function filterPullRequests(
     (pr) => pr.author?.login === userLogin
   );
   const needsReview = enrichedPullRequests.filter(
-    (pr) => userLogin !== pr.author?.login && isReviewRequired(pr.state)
+    (pr) => userLogin !== pr.author?.login && !areChangesRequested(pr.state)
   );
   const needsRevision = enrichedPullRequests.filter(
     (pr) => userLogin !== pr.author?.login && areChangesRequested(pr.state)
@@ -39,17 +39,6 @@ export function filterPullRequests(
     needsReview,
     needsRevision,
   };
-}
-
-function isReviewRequired(
-  state: PullRequestState,
-) {
-  switch (state.kind) {
-    case "incoming":
-      return state.newReviewRequested;
-    default:
-      return false;
-  }
 }
 
 function areChangesRequested(

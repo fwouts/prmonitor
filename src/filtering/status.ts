@@ -83,7 +83,6 @@ function outgoingPullRequestState(
       submittedAt < getLastReviewTimestamp(pr, review.authorLogin) &&
       review.state === "CHANGES_REQUESTED"
     ) {
-      console.log('submittedAt', new Date(submittedAt), new Date(getLastReviewTimestamp(pr, currentUserLogin)))
       stateByUser.set(review.authorLogin, "PENDING");
       continue;
     }
@@ -93,9 +92,6 @@ function outgoingPullRequestState(
   }
 
   const states = new Set(stateByUser.values());
-  if (pr.pullRequestNumber === 3110) {
-    console.log('pr 3110', stateByUser)
-  }
   return {
     kind: "outgoing",
     draft: pr.draft === true,

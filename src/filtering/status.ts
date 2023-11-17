@@ -3,6 +3,7 @@ import { PullRequest, ReviewState } from "../storage/loaded-state";
 import {
   getLastAuthorCommentTimestamp,
   getLastReviewOrCommentTimestamp,
+  getLastReviewTimestamp,
 } from "./timestamps";
 
 /**
@@ -39,7 +40,7 @@ function incomingPullRequestState(
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (
-      submittedAt < getLastReviewOrCommentTimestamp(pr, currentUserLogin) &&
+      submittedAt < getLastReviewTimestamp(pr, review.authorLogin) &&
       review.state === "CHANGES_REQUESTED"
     ) {
       // This change request may not be relevant anymore because the author has
@@ -73,48 +74,28 @@ function outgoingPullRequestState(
   currentUserLogin: string
 ): PullRequestState {
   const stateByUser = new Map<string, ReviewState>();
-
-  // Keep track of the last known state of reviews left by others.
   for (const review of pr.reviews) {
     if (review.authorLogin === currentUserLogin || !review.submittedAt) {
       continue;
     }
     const submittedAt = new Date(review.submittedAt).getTime();
     if (
-      submittedAt < getLastReviewOrCommentTimestamp(pr, currentUserLogin) &&
+      submittedAt < getLastReviewTimestamp(pr, review.authorLogin) &&
       review.state === "CHANGES_REQUESTED"
     ) {
-      // This change request may not be relevant anymore because the author has
-      // taken action.
+      console.log('submittedAt', new Date(submittedAt), new Date(getLastReviewTimestamp(pr, currentUserLogin)))
       stateByUser.set(review.authorLogin, "PENDING");
       continue;
     }
-    // Set the user's current state to the current review. If it's a comment
-    // however, we don't want to override a previous approval or request for
-    // changes.
     if (!stateByUser.has(review.authorLogin) || review.state !== "COMMENTED") {
       stateByUser.set(review.authorLogin, review.state);
     }
   }
 
-  // Ensure that anyone who commented without leaving a review is counted too.
-  for (const comment of pr.comments) {
-    if (comment.authorLogin === currentUserLogin) {
-      continue;
-    }
-    if (!stateByUser.has(comment.authorLogin)) {
-      stateByUser.set(comment.authorLogin, "COMMENTED");
-    }
-  }
-
-  // Requested reviewers are specifically reviewers who haven't posted a review
-  // after a request. This can also be the case when they had previously
-  // reviewed, but the author requested another review from them.
-  for (const requestedReviewer of pr.requestedReviewers || []) {
-    stateByUser.set(requestedReviewer, "PENDING");
-  }
-
   const states = new Set(stateByUser.values());
+  if (pr.pullRequestNumber === 3110) {
+    console.log('pr 3110', stateByUser)
+  }
   return {
     kind: "outgoing",
     draft: pr.draft === true,

@@ -48,3 +48,23 @@ export function getLastReviewOrCommentTimestamp(
   }
   return lastCommentedTime;
 }
+
+export function getLastReviewTimestamp(
+  pr: PullRequest,
+  login: string
+): number {
+  let lastReviewedTime = 0;
+  for (const review of pr.reviews) {
+    if (review.state === "PENDING") {
+      continue;
+    }
+    if (!review.submittedAt) {
+      continue;
+    }
+    const submittedAt = new Date(review.submittedAt).getTime();
+    if (review.authorLogin === login) {
+      lastReviewedTime = Math.max(lastReviewedTime, submittedAt);
+    }
+  }
+  return lastReviewedTime;
+}

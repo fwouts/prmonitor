@@ -29,13 +29,15 @@ export const Status = observer((props: StatusProps) => {
           <LastUpdated timestamp={loadedState?.startRefreshTimestamp} />
           <RefreshButton onClick={() => {core.triggerBackgroundRefresh()}} /> 
         </div>
-      ) : core.refreshing ? 
-        <div style={{ display: 'flex' }}>
-          Refreshing...
-        </div>
-      : (
+      ) : (
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <LastUpdated timestamp={loadedState?.startRefreshTimestamp} />
+          {
+            core.refreshing ? 
+              <div style={{ display: 'flex' }}>
+                Refreshing...
+              </div> :
+              <LastUpdated timestamp={loadedState?.startRefreshTimestamp} />
+          }
           <RefreshButton onClick={() => {core.triggerBackgroundRefresh()}} />
         </div>
       )}

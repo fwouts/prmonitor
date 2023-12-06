@@ -79,11 +79,11 @@ export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemP
     >
       <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+          <div style={{display: 'flex', gap: '8px', alignItems: 'center', maxWidth: '75%'}}>
             <AuthorAvatar src={pullRequest.author?.avatarUrl} />
-            <div>{pullRequest.title}{' (#'}{pullRequest.pullRequestNumber}{')'}</div>
+            <div style={{display: 'flex', flexWrap:'wrap'}}>{pullRequest.title}{' (#'}{pullRequest.pullRequestNumber}{')'}</div>
           </div>
-          <div>{moment(pullRequest.updatedAt).fromNow()}</div>
+          <div style={{display: 'flex'}}>{moment(pullRequest.updatedAt).fromNow()}</div>
         </div>
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <div style={{display: 'flex', gap: '8px', flexGrow: 1 }}>

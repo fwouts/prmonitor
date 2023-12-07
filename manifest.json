@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "PR Monitor",
-  "version": "0.0.0",
-  "description": "Get notified when you receive a pull request on GitHub.",
+  "name": "Github PR Tracker",
+  "version": "1.0.0",
+  "description": "Better track Github PRs",
   "permissions": ["alarms", "storage"],
   "background": {
     "service_worker": "./background.js",

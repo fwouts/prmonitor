@@ -9,4 +9,7 @@ export type Message =
     }
   | {
       kind: "reload";
+    }
+  | {
+      kind: "restart";
     };

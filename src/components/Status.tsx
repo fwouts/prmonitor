@@ -27,7 +27,7 @@ export const Status = observer((props: StatusProps) => {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div>Error: {core.lastError}</div>
           <LastUpdated timestamp={loadedState?.startRefreshTimestamp} />
-          <RefreshButton onClick={() => {core.triggerBackgroundRefresh()}} /> 
+          <Button onClick={() => {core.triggerBackgroundRefresh()}} title="Refresh" /> 
         </div>
       ) : (
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -38,17 +38,21 @@ export const Status = observer((props: StatusProps) => {
               </div> :
               <LastUpdated timestamp={loadedState?.startRefreshTimestamp} />
           }
-          <RefreshButton onClick={() => {core.triggerBackgroundRefresh()}} />
+          {
+            core.refreshing ? 
+              <Button onClick={() => {core.triggerRestart()}} title="Reload" /> :
+              <Button onClick={() => {core.triggerBackgroundRefresh()}} title="Refresh" />
+          }
         </div>
       )}
     </StatusContainer>
   );
 });
 
-function RefreshButton({onClick}: {onClick: () => void}): JSX.Element {
+function Button({onClick, title}: {onClick: () => void, title: string}): JSX.Element {
   return (
     <SmallButton onClick={onClick}>
-      Refresh
+      {title}
     </SmallButton>
   )
 }

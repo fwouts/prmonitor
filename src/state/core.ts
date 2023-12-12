@@ -171,6 +171,19 @@ export class Core {
     }
   }
 
+  triggerRestart() {
+    this.context.messenger.send({
+      kind: "restart",
+    });
+
+    // Note: this is a hack in place because outside of a Chrome extension (ie
+    // when developing with webpack dev server), we don't have a background
+    // script that will refresh.
+    if (process.env.NODE_ENV === "development") {
+      this.refreshPullRequests().catch(console.error);
+    }
+  }
+
   private triggerReload() {
     this.context.messenger.send({
       kind: "reload",

@@ -76,5 +76,8 @@ function refreshOnDemand(messenger: CrossScriptMessenger) {
     if (message.kind === "refresh") {
       triggerRefresh().catch(console.error);
     }
+    if (message.kind === "restart") {
+      chromeApi.runtime.reload();
+    }
   });
 }

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Github PR Tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Better track Github PRs",
   "permissions": ["alarms", "storage"],
   "background": {

@@ -25,54 +25,86 @@ export function buildGitHubApi(token: string): GitHubApi {
       return response.data.items;
     },
     async loadPullRequestDetails(pr): Promise<any> {
-      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        org: "octokit",
-        type: "private",
-      });
+      const response = await request(
+        `GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}`,
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          org: "octokit",
+          type: "private",
+        }
+      );
       return response.data;
     },
     async loadPullRequestChangeSummary(pr): Promise<any> {
-      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/files`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        org: "octokit",
-        type: "private",
-      });
+      const response = await request(
+        `GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/files`,
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          org: "octokit",
+          type: "private",
+        }
+      );
       return response.data;
     },
     async loadReviews(pr): Promise<any> {
-      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/reviews`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        org: "octokit",
-        type: "private",
-      });
+      const response = await request(
+        `GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/reviews`,
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          org: "octokit",
+          type: "private",
+        }
+      );
       return response.data;
     },
     async loadComments(pr): Promise<any> {
-      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/issues/${pr.number}/comments`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        org: "octokit",
-        type: "private",
-      });
+      const response = await request(
+        `GET /repos/${pr.repo.owner}/${pr.repo.name}/issues/${pr.number}/comments`,
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          org: "octokit",
+          type: "private",
+        }
+      );
       return response.data ?? [];
     },
     async loadReviewComments(pr): Promise<any> {
-      const response = await request(`GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/comments`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        org: "octokit",
-        type: "private",
-      });
+      const response = await request(
+        `GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/comments`,
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          org: "octokit",
+          type: "private",
+        }
+      );
       return response.data ?? [];
+    },
+    async loadIsMerged(pr): Promise<boolean> {
+      try {
+        const response = await request(
+          `GET /repos/${pr.repo.owner}/${pr.repo.name}/pulls/${pr.number}/merge`,
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+            org: "octokit",
+            type: "private",
+          }
+        );
+        return response.status === 204;
+      } catch (e) {
+        return false;
+      }
     },
     async loadPullRequestStatus(pr) {
       const response = await request("POST /graphql", {
@@ -103,7 +135,8 @@ export function buildGitHubApi(token: string): GitHubApi {
       const pullRequest = response.data.data.repository.pullRequest;
       return {
         reviewDecision: pullRequest.reviewDecision,
-        checkStatus: pullRequest.commits.nodes?.[0]?.commit.statusCheckRollup?.state,
+        checkStatus:
+          pullRequest.commits.nodes?.[0]?.commit.statusCheckRollup?.state,
       };
     },
   };

@@ -82,6 +82,7 @@ export interface PullRequest {
 
   reviewDecision: ReviewDecision;
   checkStatus?: CheckStatus;
+  isMerged: boolean;
 }
 
 export interface Comment {

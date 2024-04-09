@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { EnrichedPullRequest } from "../filtering/enriched-pull-request";
 import { PullRequestStatus } from "./PullRequestStatus";
-import { CommentIcon } from '@primer/octicons-react'
+import { CommentIcon } from "@primer/octicons-react";
 import moment from "moment";
 
 const PullRequestBox = styled.a`
@@ -64,57 +64,86 @@ export interface PullRequestItemProps {
   onOpen(pullRequestUrl: string): void;
 }
 
-export const PullRequestItem = observer(({onOpen, pullRequest}: PullRequestItemProps) => {
-  const open = (e: React.MouseEvent) => {
-    onOpen(pullRequest.htmlUrl);
-    e.preventDefault();
-  };
+export const PullRequestItem = observer(
+  ({ onOpen, pullRequest }: PullRequestItemProps) => {
+    const open = (e: React.MouseEvent) => {
+      onOpen(pullRequest.htmlUrl);
+      e.preventDefault();
+    };
 
-  return (
-    <PullRequestBox
-      key={pullRequest.nodeId}
-      onClick={open}
-      href={pullRequest.htmlUrl}
-      style={{backgroundColor: itemBgColor(pullRequest)}}
-    >
-      <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          <div style={{display: 'flex', gap: '8px', alignItems: 'center', maxWidth: '75%'}}>
-            <AuthorAvatar src={pullRequest.author?.avatarUrl} />
-            <div style={{display: 'flex', flexWrap:'wrap'}}>{pullRequest.title}{' (#'}{pullRequest.pullRequestNumber}{')'}</div>
-          </div>
-          <div style={{display: 'flex'}}>{moment(pullRequest.updatedAt).fromNow()}</div>
-        </div>
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          <div style={{display: 'flex', gap: '8px', flexGrow: 1 }}>
-            <Repo>{pullRequest.repoOwner}/{pullRequest.repoName}</Repo>
-            <div style={{display: 'flex', gap: '8px' }}>
-              <LinesAdded>+{pullRequest.changeSummary.additions}</LinesAdded>
-              <LinesDeleted>-{pullRequest.changeSummary.deletions}</LinesDeleted>
-              <ChangedFiles>@{pullRequest.changeSummary.changedFiles}</ChangedFiles>
-              <div><CommentIcon /> {pullRequest.comments.length}</div>
+    return (
+      <PullRequestBox
+        key={pullRequest.nodeId}
+        onClick={open}
+        href={pullRequest.htmlUrl}
+        style={{ backgroundColor: itemBgColor(pullRequest) }}
+      >
+        <div
+          style={{ display: "flex", flexDirection: "column", width: "100%" }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+                maxWidth: "75%",
+              }}
+            >
+              <AuthorAvatar src={pullRequest.author?.avatarUrl} />
+              <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {pullRequest.title}
+                {" (#"}
+                {pullRequest.pullRequestNumber}
+                {")"}
+              </div>
+            </div>
+            <div style={{ display: "flex" }}>
+              {moment(pullRequest.updatedAt).fromNow()}
             </div>
           </div>
-          <PullRequestStatus pullRequest={pullRequest} />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", gap: "8px", flexGrow: 1 }}>
+              <Repo>
+                {pullRequest.repoOwner}/{pullRequest.repoName}
+              </Repo>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <LinesAdded>+{pullRequest.changeSummary.additions}</LinesAdded>
+                <LinesDeleted>
+                  -{pullRequest.changeSummary.deletions}
+                </LinesDeleted>
+                <ChangedFiles>
+                  @{pullRequest.changeSummary.changedFiles}
+                </ChangedFiles>
+                <div>
+                  <CommentIcon /> {pullRequest.comments.length}
+                </div>
+              </div>
+            </div>
+            <PullRequestStatus pullRequest={pullRequest} />
+          </div>
         </div>
-      </div>
-    </PullRequestBox>
-  );
-});
+      </PullRequestBox>
+    );
+  }
+);
 
 function itemBgColor(pr: EnrichedPullRequest): string {
+  if (pr.isMerged) {
+    return "#CBC3E3";
+  }
   if (pr.draft) {
-    return '#fff';
+    return "#fff";
   }
   if (pr.state.approved) {
-    return '#d9fee5';
-  } 
-  if (!pr.state.changesRequested && moreThanOneDayAgo(pr.updatedAt)) {
-    return '#ffeae9';
+    return "#d9fee5";
   }
-  return '#fff';
+  if (!pr.state.changesRequested && moreThanOneDayAgo(pr.updatedAt)) {
+    return "#ffeae9";
+  }
+  return "#fff";
 }
 
 function moreThanOneDayAgo(timestamp: string) {
-  return moment().diff(moment(timestamp), 'days') >= 1;
+  return moment().diff(moment(timestamp), "days") >= 1;
 }

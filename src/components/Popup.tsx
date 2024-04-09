@@ -9,7 +9,7 @@ import { Status } from "./Status";
 import { isRunningAsPopup } from "../popup-environment";
 import { Link } from "./design/Link";
 import styled from "@emotion/styled";
-import { CopyIcon } from '@primer/octicons-react'
+import { CopyIcon } from "@primer/octicons-react";
 import { Settings } from "./Settings";
 
 const FullScreenLink = styled(Link)`
@@ -48,13 +48,17 @@ export const Popup = observer((props: PopupProps) => {
       {core.token &&
         // Don't show the list if there was an error, we're not refreshing
         // anymore (because of the error) and we don't have any loaded state.
-        !(
-          core.lastError &&
-          !core.refreshing &&
-          !core.loadedState
-        ) && (
-          <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-            <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
+        !(core.lastError && !core.refreshing && !core.loadedState) && (
+          <div
+            style={{ display: "flex", flexDirection: "column", width: "100%" }}
+          >
+            <div
+              style={{
+                alignItems: "center",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
               <Tabs
                 id="popup-tabs"
                 activeKey={state.currentFilter}
@@ -104,9 +108,7 @@ export const Popup = observer((props: PopupProps) => {
                     <>
                       My PRs{" "}
                       {prs?.mine && (
-                        <Badge bg="secondary">
-                          {prs.mine.length}
-                        </Badge>
+                        <Badge bg="secondary">{prs.mine.length}</Badge>
                       )}
                     </>
                   }
@@ -119,19 +121,18 @@ export const Popup = observer((props: PopupProps) => {
                   href={`chrome-extension://${chrome.runtime.id}/index.html`}
                 >
                   <CopyIcon />
-                  
                 </FullScreenLink>
               )}
             </div>
-            <PullRequests 
+            <PullRequests
               core={core}
               filter={state.currentFilter}
               onOpen={onOpen}
-              prs={prs}  
+              prs={prs}
             />
           </div>
         )}
-      <div style={{ marginTop: '8px' }}>
+      <div style={{ marginTop: "8px" }}>
         <Settings core={props.core} />
       </div>
     </>
@@ -139,36 +140,50 @@ export const Popup = observer((props: PopupProps) => {
 });
 
 function headerForFilter(filter: Filter): string {
-  switch(filter) {
+  switch (filter) {
     case Filter.NEEDS_REVIEW:
       return "Needs Review";
     case Filter.NEEDS_REVISION:
       return "Needs Revision";
     case Filter.MINE:
       return "My PRs";
+    case Filter.RECENTLY_MERGED:
+      return "My Recently Merged PRs";
     default:
       return "Invalid Filter";
   }
 }
 
-function PullRequests({core, filter, prs, onOpen}: {core: Core, filter: Filter, prs: FilteredPullRequests | null, onOpen: (pullRequestUrl: string) => void}): JSX.Element {
+function PullRequests({
+  core,
+  filter,
+  prs,
+  onOpen,
+}: {
+  core: Core;
+  filter: Filter;
+  prs: FilteredPullRequests | null;
+  onOpen: (pullRequestUrl: string) => void;
+}): JSX.Element {
   if (filter === Filter.ALL) {
     const filters: Array<Filter> = [
-      Filter.NEEDS_REVIEW, 
-      Filter.NEEDS_REVISION, 
+      Filter.NEEDS_REVIEW,
+      Filter.NEEDS_REVISION,
       Filter.MINE,
-    ];    
+      Filter.RECENTLY_MERGED,
+    ];
     return (
-      <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-        <div style={{display: 'flex'}}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ display: "flex" }}>
           <Status core={core} />
         </div>
-        {filters.map((filter: Filter) => {
+        {filters.map((filter: Filter, index: number) => {
           return (
-            <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-              <div style={{fontSize: 18}}>
-                {headerForFilter(filter)}
-              </div>
+            <div
+              key={index}
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <div style={{ fontSize: 18 }}>{headerForFilter(filter)}</div>
               <PullRequestList
                 header={null}
                 pullRequests={prs?.[filter] ?? null}
@@ -176,10 +191,10 @@ function PullRequests({core, filter, prs, onOpen}: {core: Core, filter: Filter, 
                 onOpen={onOpen}
               />
             </div>
-          )
+          );
         })}
       </div>
-    ) 
+    );
   }
 
   return (
@@ -193,5 +208,5 @@ function PullRequests({core, filter, prs, onOpen}: {core: Core, filter: Filter, 
       }
       onOpen={onOpen}
     />
-  )
+  );
 }

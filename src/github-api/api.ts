@@ -58,13 +58,17 @@ export interface GitHubApi {
   loadReviewComments(
     pr: PullRequestReference
   ): Promise<
-    GetResponseDataTypeFromEndpointMethod<Octokit["pulls"]["listReviewComments"]>
+    GetResponseDataTypeFromEndpointMethod<
+      Octokit["pulls"]["listReviewComments"]
+    >
   >;
 
   /**
    * Returns the current status fields for a pull request.
    */
   loadPullRequestStatus(pr: PullRequestReference): Promise<PullRequestStatus>;
+
+  loadIsMerged(pr: PullRequestReference): Promise<boolean>;
 }
 
 // Ref: https://docs.github.com/en/graphql/reference/enums#pullrequestreviewdecision

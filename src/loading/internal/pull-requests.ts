@@ -12,6 +12,7 @@ import {
   Review,
   ReviewState,
 } from "../../storage/loaded-state";
+import moment from "moment";
 
 export function testPRs(): Promise<PullRequest[]> {
   return Promise.all([
@@ -21,10 +22,11 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1098,
-      updatedAt: '9 December 2023',
+      updatedAt: "9 December 2023",
       author: {
         login: "dbharris2",
-        avatarUrl: "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
+        avatarUrl:
+          "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
       },
       changeSummary: {
         changedFiles: 6,
@@ -37,10 +39,20 @@ export function testPRs(): Promise<PullRequest[]> {
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
-      reviews: [{authorLogin: "someone-else", state: "APPROVED", submittedAt: "10 December 2023"}],
-      comments: [{authorLogin: "", createdAt: ""}, {authorLogin: "", createdAt: ""}],
+      reviews: [
+        {
+          authorLogin: "someone-else",
+          state: "APPROVED",
+          submittedAt: "10 December 2023",
+        },
+      ],
+      comments: [
+        { authorLogin: "", createdAt: "" },
+        { authorLogin: "", createdAt: "" },
+      ],
       reviewDecision: "APPROVED",
       checkStatus: "SUCCESS",
+      isMerged: false,
     },
     {
       nodeId: "123",
@@ -48,10 +60,11 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1234,
-      updatedAt: '10 December 2023',
+      updatedAt: "10 December 2023",
       author: {
         login: "dbharris2",
-        avatarUrl: "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
+        avatarUrl:
+          "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
       },
       changeSummary: {
         changedFiles: 27,
@@ -65,9 +78,13 @@ export function testPRs(): Promise<PullRequest[]> {
       requestedReviewers: [],
       requestedTeams: [],
       reviews: [],
-      comments: [{authorLogin: "", createdAt: ""}, {authorLogin: "", createdAt: ""}],
+      comments: [
+        { authorLogin: "", createdAt: "" },
+        { authorLogin: "", createdAt: "" },
+      ],
       reviewDecision: "REVIEW_REQUIRED",
       checkStatus: "SUCCESS",
+      isMerged: false,
     },
     {
       nodeId: "123",
@@ -75,10 +92,11 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1308,
-      updatedAt: '10 December 2023',
+      updatedAt: "10 December 2023",
       author: {
         login: "dbharris2",
-        avatarUrl: "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
+        avatarUrl:
+          "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
       },
       changeSummary: {
         changedFiles: 27,
@@ -91,10 +109,14 @@ export function testPRs(): Promise<PullRequest[]> {
       reviewRequested: false,
       requestedReviewers: [],
       requestedTeams: [],
-      reviews: [{authorLogin: "dbharris2", state: "CHANGES_REQUESTED"}],
-      comments: [{authorLogin: "", createdAt: ""}, {authorLogin: "", createdAt: ""}],
+      reviews: [{ authorLogin: "dbharris2", state: "CHANGES_REQUESTED" }],
+      comments: [
+        { authorLogin: "", createdAt: "" },
+        { authorLogin: "", createdAt: "" },
+      ],
       reviewDecision: "CHANGES_REQUESTED",
       checkStatus: "SUCCESS",
+      isMerged: false,
     },
     {
       nodeId: "123",
@@ -102,10 +124,11 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1023,
-      updatedAt: '8 December 2023',
+      updatedAt: "8 December 2023",
       author: {
         login: "dbharris2",
-        avatarUrl: "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
+        avatarUrl:
+          "https://cdn.iconscout.com/icon/free/png-256/free-eevee-eievui-pokemon-cartoon-game-video-pokemongo-32216.png",
       },
       changeSummary: {
         changedFiles: 4,
@@ -119,9 +142,13 @@ export function testPRs(): Promise<PullRequest[]> {
       requestedReviewers: [],
       requestedTeams: [],
       reviews: [],
-      comments: [{authorLogin: "", createdAt: ""}, {authorLogin: "", createdAt: ""}],
+      comments: [
+        { authorLogin: "", createdAt: "" },
+        { authorLogin: "", createdAt: "" },
+      ],
       reviewDecision: "REVIEW_REQUIRED",
       checkStatus: "FAILURE",
+      isMerged: false,
     },
     {
       nodeId: "123",
@@ -129,10 +156,11 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1521,
-      updatedAt: '10 December 2023',
+      updatedAt: "10 December 2023",
       author: {
         login: "someone-else",
-        avatarUrl: "https://daily.pokecommunity.com/wp-content/uploads/2018/11/pokemon_icon_092_00.png",
+        avatarUrl:
+          "https://daily.pokecommunity.com/wp-content/uploads/2018/11/pokemon_icon_092_00.png",
       },
       changeSummary: {
         changedFiles: 7,
@@ -145,10 +173,11 @@ export function testPRs(): Promise<PullRequest[]> {
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
-      reviews: [{authorLogin: "dbharris2", state: "CHANGES_REQUESTED"}],
-      comments: [{authorLogin: "dbharris2", createdAt: "10 December 2023"}],
+      reviews: [{ authorLogin: "dbharris2", state: "CHANGES_REQUESTED" }],
+      comments: [{ authorLogin: "dbharris2", createdAt: "10 December 2023" }],
       reviewDecision: "REVIEW_REQUIRED",
       checkStatus: "SUCCESS",
+      isMerged: false,
     },
     {
       nodeId: "123",
@@ -156,10 +185,11 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1521,
-      updatedAt: '9 December 2023',
+      updatedAt: "9 December 2023",
       author: {
         login: "someone-else",
-        avatarUrl: "https://daily.pokecommunity.com/wp-content/uploads/2018/11/pokemon_icon_092_00.png",
+        avatarUrl:
+          "https://daily.pokecommunity.com/wp-content/uploads/2018/11/pokemon_icon_092_00.png",
       },
       changeSummary: {
         changedFiles: 7,
@@ -173,9 +203,13 @@ export function testPRs(): Promise<PullRequest[]> {
       requestedReviewers: [],
       requestedTeams: [],
       reviews: [],
-      comments: [{authorLogin: "", createdAt: ""}, {authorLogin: "", createdAt: ""}],
+      comments: [
+        { authorLogin: "", createdAt: "" },
+        { authorLogin: "", createdAt: "" },
+      ],
       reviewDecision: "REVIEW_REQUIRED",
       checkStatus: "SUCCESS",
+      isMerged: false,
     },
     {
       nodeId: "123",
@@ -183,7 +217,7 @@ export function testPRs(): Promise<PullRequest[]> {
       repoOwner: "dbharris",
       repoName: "test-repo",
       pullRequestNumber: 1771,
-      updatedAt: '9 December 2023',
+      updatedAt: "9 December 2023",
       author: {
         login: "another-someone",
         avatarUrl: "https://www.icons101.com/icon_ico/id_60018/025_Pikachu.ico",
@@ -199,10 +233,11 @@ export function testPRs(): Promise<PullRequest[]> {
       reviewRequested: false,
       requestedReviewers: [],
       requestedTeams: [],
-      reviews: [{authorLogin: "dbharris2", state: "CHANGES_REQUESTED"}],
-      comments: [{authorLogin: "dbharris2", createdAt: "10 December 2023"}],
+      reviews: [{ authorLogin: "dbharris2", state: "CHANGES_REQUESTED" }],
+      comments: [{ authorLogin: "dbharris2", createdAt: "10 December 2023" }],
       reviewDecision: "CHANGES_REQUESTED",
       checkStatus: "SUCCESS",
+      isMerged: false,
     },
   ]);
 }
@@ -214,7 +249,9 @@ export function testPRs(): Promise<PullRequest[]> {
  * brute-forcing would quickly go over API rate limits if the user has several
  * hundred repositories or many pull requests opened.
  */
-export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<PullRequest[]> {
+export async function refreshOpenPullRequests(
+  githubApi: GitHubApi
+): Promise<PullRequest[]> {
   // if (true) {
   //   return testPRs();
   // }
@@ -229,6 +266,9 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
   const myPullRequests = await githubApi.searchPullRequests(
     `author:@me is:open`
   );
+  const myRecentlyMergedPullRequests = await githubApi.searchPullRequests(
+    `author:@me is:closed archived:false`
+  );
 
   return Promise.all([
     ...reviewRequestedPullRequests.map((pr) =>
@@ -236,10 +276,19 @@ export async function refreshOpenPullRequests(githubApi: GitHubApi): Promise<Pul
     ),
     // Remove PRs that needs revision but have a review requested of you
     ...needsRevisionPullRequests
-      .filter(nrpr => !reviewRequestedPullRequests.find(rrpr => nrpr.number === rrpr.number))
-      .map((pr) => updateCommentsAndReviews(githubApi, pr)
+      .filter(
+        (nrpr) =>
+          !reviewRequestedPullRequests.find(
+            (rrpr) => nrpr.number === rrpr.number
+          )
+      )
+      .map((pr) => updateCommentsAndReviews(githubApi, pr)),
+    ...myPullRequests.map((pr) =>
+      updateCommentsAndReviews(githubApi, pr, true)
     ),
-    ...myPullRequests.map((pr) => updateCommentsAndReviews(githubApi, pr, true)),
+    ...myRecentlyMergedPullRequests
+      .filter((pr) => moment().diff(moment(pr.updated_at), "days") < 1)
+      .map((pr) => updateCommentsAndReviews(githubApi, pr)),
   ]);
 }
 
@@ -260,6 +309,7 @@ async function updateCommentsAndReviews(
     freshComments,
     freshReviewComments,
     pullRequestStatus,
+    isMerged,
   ] = await Promise.all([
     githubApi.loadPullRequestDetails(pr),
     githubApi.loadPullRequestChangeSummary(pr),
@@ -283,6 +333,7 @@ async function updateCommentsAndReviews(
       }))
     ),
     githubApi.loadPullRequestStatus(pr),
+    githubApi.loadIsMerged(pr),
   ]);
 
   return pullRequestFromResponse(
@@ -293,7 +344,8 @@ async function updateCommentsAndReviews(
     freshComments,
     freshReviewComments,
     isReviewRequested,
-    pullRequestStatus
+    pullRequestStatus,
+    isMerged
   );
 }
 
@@ -305,7 +357,8 @@ function pullRequestFromResponse(
   comments: Comment[],
   reviewComments: Comment[],
   reviewRequested: boolean,
-  status: PullRequestStatus
+  status: PullRequestStatus,
+  isMerged: boolean
 ): PullRequest {
   const repo = extractRepo(response);
   return {
@@ -321,8 +374,14 @@ function pullRequestFromResponse(
     },
     changeSummary: {
       changedFiles: changeSummary.length,
-      additions: changeSummary.reduce((total: number, curr: any) => total + curr.additions, 0),
-      deletions: changeSummary.reduce((total: number, curr: any) => total + curr.deletions, 0),
+      additions: changeSummary.reduce(
+        (total: number, curr: any) => total + curr.additions,
+        0
+      ),
+      deletions: changeSummary.reduce(
+        (total: number, curr: any) => total + curr.deletions,
+        0
+      ),
     },
     title: response.title,
     draft: response.draft,
@@ -338,6 +397,7 @@ function pullRequestFromResponse(
     comments: [...comments, ...reviewComments],
     reviewDecision: status.reviewDecision,
     checkStatus: status.checkStatus,
+    isMerged,
   };
 }
 

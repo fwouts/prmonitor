@@ -35,6 +35,12 @@ const NOT_MERGEABLE = (
   </Badge>
 );
 
+const MERGED = (
+  <Badge pill bg="" style={{ backgroundColor: "#8259DD" }} key="merged">
+    Merged
+  </Badge>
+);
+
 const APPROVED = (
   <Badge pill bg="success" key="approved">
     Approved
@@ -74,14 +80,16 @@ export const PullRequestStatus = observer(
     const badges = getBadges(pullRequest.state);
     if (badges.length > 0) {
       return (
-        <div style={{
-          alignItems: 'center',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '4px',
-          justifyContent: 'flex-end',
-          maxWidth: '40%',
-        }}>
+        <div
+          style={{
+            alignItems: "center",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "4px",
+            justifyContent: "flex-end",
+            maxWidth: "40%",
+          }}
+        >
           {badges}
         </div>
       );
@@ -139,7 +147,10 @@ function getIncomingStateBadges(state: PullRequestState): JSX.Element[] {
 function getOutgoingStateBadges(state: PullRequestState): JSX.Element[] {
   const badges: JSX.Element[] = [];
 
-  if (state.draft) {
+  if (state.isMerged) {
+    badges.push(MERGED);
+    return badges;
+  } else if (state.draft) {
     badges.push(DRAFT);
   } else if (state.approved) {
     badges.push(APPROVED);

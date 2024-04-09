@@ -66,6 +66,7 @@ function incomingPullRequestState(
     changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
     mergeable: pr.mergeable === true,
     approved: false,
+    isMerged: pr.isMerged,
   };
 }
 
@@ -101,6 +102,7 @@ function outgoingPullRequestState(
     checkStatus: pr.checkStatus,
     newReviewRequested: states.has("PENDING"),
     authorResponded: false,
+    isMerged: pr.isMerged,
   };
 }
 
@@ -112,6 +114,6 @@ export type PullRequestState = {
   kind: "incoming" | "outgoing";
   mergeable: boolean;
   newReviewRequested: boolean;
-  
+  isMerged: boolean;
   checkStatus?: CheckStatus;
-}
+};

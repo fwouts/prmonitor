@@ -23,18 +23,6 @@ const DRAFT = (
   </Badge>
 );
 
-const MERGEABLE = (
-  <Badge pill bg="success" key="mergeable">
-    Mergeable
-  </Badge>
-);
-
-const NOT_MERGEABLE = (
-  <Badge pill bg="danger" key="not_mergeable">
-    Mergeable
-  </Badge>
-);
-
 const MERGED = (
   <Badge pill bg="" style={{ backgroundColor: "#8259DD" }} key="merged">
     Merged
@@ -138,7 +126,6 @@ function getIncomingStateBadges(state: PullRequestState): JSX.Element[] {
     badges.push(AUTHOR_REPLIED);
   }
 
-  badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);
   badges.push(...getCheckStatusBadge(state.checkStatus));
 
   return badges;
@@ -160,7 +147,6 @@ function getOutgoingStateBadges(state: PullRequestState): JSX.Element[] {
     badges.push(NEEDS_REVIEW);
   }
 
-  badges.push(state.mergeable ? MERGEABLE : NOT_MERGEABLE);
   badges.push(...getCheckStatusBadge(state.checkStatus));
 
   return badges;

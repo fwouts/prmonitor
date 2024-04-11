@@ -28,7 +28,6 @@ class FakePullRequestBuilder {
   private _reviews: Review[] = [];
   private _commits: Commit[] = [];
   private _draft = false;
-  private _mergeable = false;
 
   private _nextTimestamp = 1;
 
@@ -51,11 +50,6 @@ class FakePullRequestBuilder {
 
   draft() {
     this._draft = true;
-    return this;
-  }
-
-  mergeable() {
-    this._mergeable = true;
     return this;
   }
 
@@ -121,7 +115,6 @@ class FakePullRequestBuilder {
       pullRequestNumber: this._ref.number,
       nodeId: `${this._ref.repo.owner}/${this._ref.repo.name}/${this._ref.number}`,
       draft: this._draft,
-      mergeable: this._mergeable,
       updatedAt: "1 June 2019",
       htmlUrl: `http://github.com/${this._ref.repo.owner}/${this._ref.repo.name}/${this._ref.number}`,
       reviewRequested: reviewRequested,
@@ -129,7 +122,6 @@ class FakePullRequestBuilder {
       requestedTeams: this._reviewerTeams,
       comments: this._comments,
       reviews: this._reviews,
-      commits: this._commits,
       reviewDecision: "REVIEW_REQUIRED",
     };
   }

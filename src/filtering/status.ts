@@ -64,7 +64,6 @@ function incomingPullRequestState(
     authorResponded: hasReviewed && hasNewCommentByAuthor,
     checkStatus: pr.checkStatus,
     changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
-    mergeable: pr.mergeable === true,
     approved: false,
     isMerged: pr.isMerged,
   };
@@ -97,7 +96,6 @@ function outgoingPullRequestState(
     kind: "outgoing",
     draft: pr.draft === true,
     changesRequested: states.has("CHANGES_REQUESTED") || !pr.reviewRequested,
-    mergeable: pr.mergeable === true,
     approved: states.has("APPROVED"),
     checkStatus: pr.checkStatus,
     newReviewRequested: states.has("PENDING"),
@@ -112,7 +110,6 @@ export type PullRequestState = {
   changesRequested: boolean;
   draft: boolean;
   kind: "incoming" | "outgoing";
-  mergeable: boolean;
   newReviewRequested: boolean;
   isMerged: boolean;
   checkStatus?: CheckStatus;

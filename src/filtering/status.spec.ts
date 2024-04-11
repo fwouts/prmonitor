@@ -190,7 +190,6 @@ describe("pullRequestState", () => {
       draft: false,
       noReviewers: true,
       changesRequested: false,
-      mergeable: false,
       approved: false,
     });
 
@@ -204,7 +203,6 @@ describe("pullRequestState", () => {
       draft: true,
       noReviewers: true,
       changesRequested: false,
-      mergeable: false,
       approved: false,
     });
 
@@ -222,7 +220,6 @@ describe("pullRequestState", () => {
       draft: false,
       noReviewers: false,
       changesRequested: false,
-      mergeable: false,
       approved: false,
     });
 
@@ -234,7 +231,6 @@ describe("pullRequestState", () => {
           .addReview("kevin", "CHANGES_REQUESTED")
           .addComment("fwouts")
           .addReview("kevin", "APPROVED")
-          .mergeable()
           .seenAs("fwouts")
           .build(),
         "fwouts"
@@ -244,7 +240,6 @@ describe("pullRequestState", () => {
       draft: false,
       noReviewers: false,
       changesRequested: false,
-      mergeable: true,
       approved: false,
     });
 
@@ -266,7 +261,6 @@ describe("pullRequestState", () => {
       draft: false,
       noReviewers: false,
       changesRequested: false,
-      mergeable: false,
       approved: true,
     });
 
@@ -288,7 +282,6 @@ describe("pullRequestState", () => {
       draft: false,
       noReviewers: false,
       changesRequested: false,
-      mergeable: false,
       approved: false,
     });
 
@@ -310,7 +303,6 @@ describe("pullRequestState", () => {
       draft: false,
       noReviewers: false,
       changesRequested: false,
-      mergeable: false,
       approved: false,
     });
   });

@@ -5,7 +5,6 @@ import {
   PullRequestStatus,
   RepoReference,
 } from "../../github-api/api";
-import { nonEmptyItems } from "../../helpers";
 import {
   Comment,
   PullRequest,
@@ -35,7 +34,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Codemod old API to new API",
       draft: false,
-      mergeable: true,
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
@@ -73,7 +71,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Use new endpoint on homepage",
       draft: false,
-      mergeable: true,
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
@@ -105,7 +102,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Use new routing API",
       draft: false,
-      mergeable: true,
       reviewRequested: false,
       requestedReviewers: [],
       requestedTeams: [],
@@ -137,7 +133,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Update unit tests for nav bar",
       draft: true,
-      mergeable: false,
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
@@ -169,7 +164,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Ship new accounts page",
       draft: false,
-      mergeable: true,
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
@@ -198,7 +192,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Fix bug when scrolling through accounts",
       draft: false,
-      mergeable: true,
       reviewRequested: true,
       requestedReviewers: [],
       requestedTeams: [],
@@ -229,7 +222,6 @@ export function testPRs(): Promise<PullRequest[]> {
       },
       title: "Add caching to queries",
       draft: false,
-      mergeable: true,
       reviewRequested: false,
       requestedReviewers: [],
       requestedTeams: [],
@@ -303,7 +295,6 @@ async function updateCommentsAndReviews(
     number: rawPullRequest.number,
   };
   const [
-    freshPullRequestDetails,
     freshChangeSummary,
     freshReviews,
     freshComments,
@@ -311,7 +302,6 @@ async function updateCommentsAndReviews(
     pullRequestStatus,
     isMerged,
   ] = await Promise.all([
-    githubApi.loadPullRequestDetails(pr),
     githubApi.loadPullRequestChangeSummary(pr),
     githubApi.loadReviews(pr).then((reviews) =>
       reviews.map((review) => ({
@@ -338,7 +328,6 @@ async function updateCommentsAndReviews(
 
   return pullRequestFromResponse(
     rawPullRequest,
-    freshPullRequestDetails,
     freshChangeSummary,
     freshReviews,
     freshComments,
@@ -351,7 +340,6 @@ async function updateCommentsAndReviews(
 
 function pullRequestFromResponse(
   response: RestEndpointMethodTypes["search"]["issuesAndPullRequests"]["response"]["data"]["items"][number],
-  details: RestEndpointMethodTypes["pulls"]["get"]["response"]["data"],
   changeSummary: any,
   reviews: Review[],
   comments: Comment[],
@@ -385,14 +373,7 @@ function pullRequestFromResponse(
     },
     title: response.title,
     draft: response.draft,
-    mergeable: details.mergeable || false,
     reviewRequested,
-    requestedReviewers: nonEmptyItems(
-      details.requested_reviewers?.map((reviewer) => reviewer?.login)
-    ),
-    requestedTeams: nonEmptyItems(
-      details.requested_teams?.map((team) => team?.name)
-    ),
     reviews,
     comments: [...comments, ...reviewComments],
     reviewDecision: status.reviewDecision,

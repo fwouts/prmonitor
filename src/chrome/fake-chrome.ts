@@ -6,14 +6,14 @@ import { ChromeApi, ChromeStorageItems } from "./api";
  * outside of a Chrome extension.
  */
 const partialFakeChrome: RecursivePartial<ChromeApi> = {
-  browserAction: {
-    setBadgeText(details: chrome.browserAction.BadgeTextDetails) {
-      console.log("chrome.browserAction.setBadgeText", details);
+  action: {
+    setBadgeText(details: chrome.action.BadgeTextDetails) {
+      console.log("chrome.action.setBadgeText", details);
     },
     setBadgeBackgroundColor(
-      details: chrome.browserAction.BadgeBackgroundColorDetails
+      details: chrome.action.BadgeColorDetails
     ) {
-      console.log("chrome.browserAction.setBadgeBackgroundColor", details);
+      console.log("chrome.action.setBadgeBackgroundColor", details);
     },
   },
   runtime: {

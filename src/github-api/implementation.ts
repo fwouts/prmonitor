@@ -47,6 +47,7 @@ export function buildGitHubApi(token: string): GitHubApi {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    fetch: globalThis.fetch,
   });
 
   return {

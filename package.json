@@ -26,7 +26,7 @@
     "@babel/core": "^7.18.13",
     "@babel/preset-env": "^7.18.10",
     "@octokit/core": "^4.0.5",
-    "@types/chrome": "^0.0.195",
+    "@types/chrome": "^0.1.4",
     "@types/jest": "^28.1.7",
     "@types/node": "^18.7.10",
     "@types/react": "^18.0.17",

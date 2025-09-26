@@ -10,10 +10,10 @@ export function buildBadger(chromeApi: ChromeApi): Badger {
 }
 
 function updateBadge(chromeApi: ChromeApi, state: BadgeState) {
-  chromeApi.browserAction.setBadgeText({
+  chromeApi.action.setBadgeText({
     text: badgeLabel(state),
   });
-  chromeApi.browserAction.setBadgeBackgroundColor({
+  chromeApi.action.setBadgeBackgroundColor({
     color: badgeColor(state),
   });
 }

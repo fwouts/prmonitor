@@ -1,19 +1,18 @@
+name: CI
+
 on: [push, pull_request]
 
 jobs:
   test:
     name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node_version: [14]
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          version: ${{ matrix.node_version }}
+          node-version: "20"
+          cache: "yarn"
       - run: yarn install --frozen-lockfile
       - name: yarn build and test
         run: |

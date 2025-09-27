@@ -8,7 +8,7 @@ import {
   OutgoingState,
   PullRequestState,
 } from "../filtering/status";
-import { CheckStatus } from "../github-api/api";
+import { CheckStatus, ReviewDecision } from "../github-api/api";
 
 const StateBox = styled.div`
   padding: 0 8px;
@@ -48,9 +48,15 @@ const MERGEABLE = (
   </SpacedBadge>
 );
 
-const APPROVED_BY_EVERONE = (
+const APPROVED_BY_EVERYONE = (
   <SpacedBadge pill bg="success" key="approved-by-everyone">
     Approved by everyone
+  </SpacedBadge>
+);
+
+const APPROVED = (
+  <SpacedBadge pill variant="success" key="approved-by-everyone">
+    Approved
   </SpacedBadge>
 );
 
@@ -131,9 +137,23 @@ function getCheckStatusBadge(checkStatus?: CheckStatus): JSX.Element[] {
   }
 }
 
+function getReviewDecisionBadge(reviewDecision: ReviewDecision): JSX.Element[] {
+  switch (reviewDecision) {
+    case "APPROVED":
+      return [APPROVED];
+    case "CHANGES_REQUESTED":
+      return [CHANGES_REQUESTED];
+    case "REVIEW_REQUIRED":
+      return [WAITING_FOR_REVIEW];
+  }
+
+  return [];
+}
+
 function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   const badges: JSX.Element[] = [];
   badges.push(...getCheckStatusBadge(state.checkStatus));
+  badges.push(...getReviewDecisionBadge(state.reviewDecision));
 
   if (state.newReviewRequested) {
     badges.push(UNREVIEWED);
@@ -146,6 +166,7 @@ function getIncomingStateBadges(state: IncomingState): JSX.Element[] {
   if (state.newCommit) {
     badges.push(NEW_COMMIT);
   }
+
   return badges;
 }
 
@@ -156,15 +177,23 @@ function getOutgoingStateBadges(state: OutgoingState): JSX.Element[] {
   if (state.mergeable) {
     badges.push(MERGEABLE);
   }
-  if (state.approvedByEveryone) {
-    badges.push(APPROVED_BY_EVERONE);
-  } else if (state.changesRequested) {
-    badges.push(CHANGES_REQUESTED);
-  } else {
-    badges.push(WAITING_FOR_REVIEW);
-    if (state.noReviewers) {
-      badges.push(NO_REVIEWER_ASSIGNED);
-    }
+
+  switch (state.reviewDecision) {
+    case "APPROVED":
+      badges.push(APPROVED);
+      if (state.approvedByEveryone) {
+        badges.push(APPROVED_BY_EVERYONE);
+      }
+      break;
+    case "CHANGES_REQUESTED":
+      badges.push(CHANGES_REQUESTED);
+      break;
+    case "REVIEW_REQUIRED":
+      badges.push(WAITING_FOR_REVIEW);
+      if (state.noReviewers) {
+        badges.push(NO_REVIEWER_ASSIGNED);
+      }
+      break;
   }
 
   return badges;

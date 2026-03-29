@@ -7,7 +7,11 @@ export function buildMessenger(chromeApi: ChromeApi): CrossScriptMessenger {
       chromeApi.runtime.onMessage.addListener(callback);
     },
     send(message) {
-      chromeApi.runtime.sendMessage(message);
+      // In manifest v3, sendMessage returns a Promise that rejects if no receiver exists.
+      // We need to catch and ignore this error to prevent uncaught promise rejections.
+      chromeApi.runtime.sendMessage(message).catch((error) => {
+        console.debug("Message send failed", { message, error });
+      });
     },
   };
 }

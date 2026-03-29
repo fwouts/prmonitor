@@ -42,7 +42,3 @@ Here's how to build the extension yourself from source:
 In order to use PR Monitor with GitHub Enterprise, you'll need to download the source code and set the `baseUrl` to match your GitHub Enterprise API URL, then compile the code (see below).
 
 It's a two-line change, so don't be afraid! Refer to [#769](https://github.com/fwouts/prmonitor/pull/769) for an example.
-
-## Feedback
-
-Feel free to [file an issue](https://github.com/zenclabs/prmonitor/issues) with your feedback.

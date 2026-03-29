@@ -6,7 +6,8 @@
   "permissions": ["alarms", "notifications", "storage"],
   "optional_permissions": ["tabs"],
   "background": {
-    "service_worker": "background.js",
+    "__chrome__service_worker": "background.js",
+    "__firefox__scripts": ["background.js"],
     "type": "module"
   },
   "action": {

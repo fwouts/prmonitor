@@ -4,6 +4,10 @@ const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { transform } = require("./scripts/transform-manifest");
+
+const browser = process.env.BROWSER || "chrome";
+const outputDir = `dist-${browser}-mv3`;
 
 module.exports = {
   module: {
@@ -41,6 +45,7 @@ module.exports = {
   output: {
     filename: "[name].js",
     publicPath: "/",
+    path: path.resolve(__dirname, outputDir),
   },
   mode: "development",
   devServer: {
@@ -64,7 +69,11 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: "manifest.json", to: "." },
+        {
+          from: "manifest.template.json",
+          to: "manifest.json",
+          transform: transform(browser),
+        },
         { from: "images", to: "images" },
       ],
     }),

@@ -55,7 +55,12 @@
   "scripts": {
     "start": "webpack serve",
     "watch": "tsc --noEmit --watch",
-    "build": "rm -rf dist; webpack --mode production",
+    "build:chrome-mv3": "rm -rf dist-chrome-mv3; BROWSER=chrome webpack --mode production",
+    "build:firefox-mv3": "rm -rf dist-firefox-mv3; BROWSER=firefox webpack --mode production",
+    "build:all": "npm run build:chrome-mv3 && npm run build:firefox-mv3",
+    "zip:chrome-mv3": "cd dist-chrome-mv3 && zip -r ../dist-chrome-mv3.zip .",
+    "zip:firefox-mv3": "cd dist-firefox-mv3 && zip -r ../dist-firefox-mv3.zip .",
+    "zip:all": "npm run zip:chrome-mv3 && npm run zip:firefox-mv3",
     "test": "jest",
     "lint:check": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "lint:fix": "eslint --fix \"src/**/*.ts\" \"src/**/*.tsx\""

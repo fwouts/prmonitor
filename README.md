@@ -4,22 +4,13 @@
 > Life got busy — work, kids, and the usual chaos. I no longer have the time or energy to keep up with issues, PRs, or updates. PR Monitor has been effectively abandoned.
 >
 > The code is still here and you're welcome to fork it, but don't expect updates or support.
+>
+> The Chrome and Firefox extensions will be removed from their respective stores soon.
 
 # PR Monitor
 
-<p align="center">
-  <a href="https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng">
-    <img src="./images/logo-chrome.png" />
-  </a>
-  <a href="https://addons.mozilla.org/en-US/firefox/addon/pr-monitor">
-    <img src="./images/logo-firefox.png" />
-  </a>
-</p>
-
 [![CircleCI](https://circleci.com/gh/fwouts/prmonitor.svg?style=svg)](https://circleci.com/gh/fwouts/prmonitor)
 ![License](https://img.shields.io/github/license/fwouts/prmonitor.svg)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/pneldbfhblmldbhmkolclpkijgnjcmng.svg)](https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng)
-[![Mozilla Add-on](https://img.shields.io/amo/v/pr-monitor.svg)](https://addons.mozilla.org/en-US/firefox/addon/pr-monitor)
 
 PR Monitor is a Chrome and Firefox extension that helps you keep track of incoming and outgoing PRs, and notifies you when you receive a pull request on GitHub.
 
@@ -34,19 +25,6 @@ Here's a quick demo of PR Monitor in action:
   <i>GIF made with <a href="https://www.producthunt.com/posts/gifski-2">Gifski 2</a></i>
 </p>
 
-## How to install
-
-1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng) or [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/pr-monitor)
-2. [Create a GitHub personal access token with the **repo** permission](https://github.com/settings/tokens)
-3. Enter the token into the extension
-4. Enjoy
-
-## Using PR Monitor with GitHub Enterprise
-
-In order to use PR Monitor with GitHub Enterprise, you'll need to download the source code and set the `baseUrl` to match your GitHub Enterprise API URL, then compile the code (see below).
-
-It's a two-line change, so don't be afraid! Refer to [#769](https://github.com/fwouts/prmonitor/pull/769) for an example.
-
 ## How to build it yourself
 
 If you don't trust a random browser extension on the Internet with your GitHub token, that's understandable.
@@ -58,6 +36,12 @@ Here's how to build the extension yourself from source:
 3. Run `yarn build`.
 4. In Chrome, go to chrome://extensions and enable "Developer mode" in the top-right corner.
 5. Click "Load unpacked" and select the generated `dist/` directory.
+
+## Using PR Monitor with GitHub Enterprise
+
+In order to use PR Monitor with GitHub Enterprise, you'll need to download the source code and set the `baseUrl` to match your GitHub Enterprise API URL, then compile the code (see below).
+
+It's a two-line change, so don't be afraid! Refer to [#769](https://github.com/fwouts/prmonitor/pull/769) for an example.
 
 ## Feedback
 

@@ -1,10 +1,11 @@
-# PR Monitor
+> [!WARNING]
+> **This project is no longer maintained.**
+>
+> Life got busy — work, kids, and the usual chaos. I no longer have the time or energy to keep up with issues, PRs, or updates. PR Monitor has been effectively abandoned.
+>
+> The code is still here and you're welcome to fork it, but don't expect updates or support.
 
-> **Note** Looking for new maintainer
->
-> PR Monitor is stable, no new features are planned and it's in maintenance only.
->
-> If you'd like to improve it further, please send a pull request or feel free to fork the project.
+# PR Monitor
 
 <p align="center">
   <a href="https://chrome.google.com/webstore/detail/pr-monitor/pneldbfhblmldbhmkolclpkijgnjcmng">

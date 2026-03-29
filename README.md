@@ -9,7 +9,6 @@
 
 # PR Monitor
 
-[![CircleCI](https://circleci.com/gh/fwouts/prmonitor.svg?style=svg)](https://circleci.com/gh/fwouts/prmonitor)
 ![License](https://img.shields.io/github/license/fwouts/prmonitor.svg)
 
 PR Monitor is a Chrome and Firefox extension that helps you keep track of incoming and outgoing PRs, and notifies you when you receive a pull request on GitHub.

@@ -1,4 +1,4 @@
-import { CheckStatus } from "../github-api/api";
+import { CheckStatus, ReviewDecision } from "../github-api/api";
 import { PullRequest, ReviewState } from "../storage/loaded-state";
 import { userPreviouslyReviewed } from "./reviewed";
 import {
@@ -48,6 +48,7 @@ function incomingPullRequestState(
     directlyAdded: (pr.requestedReviewers || []).includes(currentUserLogin),
     teams: pr.requestedTeams || [],
     checkStatus: pr.checkStatus,
+    reviewDecision: pr.reviewDecision,
   };
 }
 
@@ -113,6 +114,7 @@ function outgoingPullRequestState(
     mergeable: pr.mergeable === true,
     approvedByEveryone: states.has("APPROVED") && states.size === 1,
     checkStatus: pr.checkStatus,
+    reviewDecision: pr.reviewDecision,
   };
 }
 
@@ -162,6 +164,11 @@ export interface IncomingState {
    * Current check status of tests.
    */
   checkStatus?: CheckStatus;
+
+  /**
+   * Current review decision.
+   */
+   reviewDecision: ReviewDecision;
 }
 
 /**
@@ -213,6 +220,11 @@ export interface OutgoingState {
    * Current check status of tests.
    */
   checkStatus?: CheckStatus;
+
+  /**
+   * Current review decision.
+   */
+  reviewDecision: ReviewDecision;
 }
 
 export function isReviewRequired(
